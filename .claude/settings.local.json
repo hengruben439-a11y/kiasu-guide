@@ -2,7 +2,25 @@
   "permissions": {
     "allow": [
       "Bash(printf '\\\\n\\\\n')",
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)"
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Notion__notion-update-page",
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)",
+      "WebFetch(domain:www.notion.so)",
+      "Bash(ls /Users/rue/kiasu-guide/src/app/admin/clients/[id]/review/page.tsx)",
+      "mcp__claude_ai_Supabase__get_logs",
+      "Bash(npx supabase:*)",
+      "Bash(grep -n \"pipeline\\\\|status\\\\|Review Mode\" /Users/rue/kiasu-guide/src/app/admin/clients/[id]/page.tsx)",
+      "Bash(ls:*)",
+      "Bash(grep -n \"gridTemplateColumns\\\\|padding.*48\\\\|48px\\\\|repeat\\([3-9]\" /Users/rue/kiasu-guide/src/components/tools/CashFlow.tsx /Users/rue/kiasu-guide/src/components/tools/InsuranceBenefits.tsx /Users/rue/kiasu-guide/src/app/admin/page.tsx /Users/rue/kiasu-guide/src/app/admin/clients/[id]/page.tsx /Users/rue/kiasu-guide/src/components/admin/ClientTable.tsx)",
+      "mcp__claude_ai_Notion__notion-search"
     ]
   }
 }

@@ -1,0 +1,15 @@
+-- ============================================================
+-- The Kiasu Guide — Schema entry point
+-- ============================================================
+-- This file is the V1 schema (initial Create Next App setup).
+-- It is kept for reference only and is NOT the current schema.
+--
+-- The authoritative, complete schema lives in:
+--   supabase/migrations/20260319000000_initial_schema.sql
+--
+-- That migration captures all tables, RLS policies, functions,
+-- triggers, and seed data as of 2026-03-19.
+--
+-- To recreate the database from scratch:
+--   psql $DATABASE_URL -f supabase/migrations/20260319000000_initial_schema.sql
+-- ============================================================

@@ -1,0 +1,50 @@
+import Link from 'next/link'
+import CoffeeCalculator from '@/components/calculator/CoffeeCalculator'
+
+export default function Page() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950">
+      <nav className="flex items-center justify-between px-8 py-5 max-w-7xl mx-auto">
+        <div>
+          <span className="text-white font-bold text-xl">The Kiasu Guide</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">
+            Sign in
+          </Link>
+          <Link href="/register" className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+            Get started
+          </Link>
+        </div>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-8 pt-16 pb-24 text-center">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight">
+          Your Financial Future, Clearly Mapped.
+        </h1>
+        <p className="text-gray-400 mt-6 text-lg max-w-2xl mx-auto">
+          Work with your advisor to stress-test your finances, model retirement scenarios, and make decisions with confidence.
+        </p>
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <Link href="/register" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
+            Get your free assessment
+          </Link>
+          <Link href="/login" className="text-gray-300 hover:text-white font-medium px-6 py-3 rounded-xl border border-gray-700 hover:border-gray-500 transition-colors">
+            Sign in
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-8 pb-24">
+        <CoffeeCalculator />
+      </div>
+
+      <footer className="border-t border-gray-800 px-8 py-8 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between text-gray-500 text-sm">
+          <span>© 2026 The Kiasu Guide. Not financial advice.</span>
+          <span>Built for Singapore</span>
+        </div>
+      </footer>
+    </div>
+  )
+}
