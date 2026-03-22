@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#fdf8f2',
+      background: '#0a0605',
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -23,7 +23,7 @@ export default function LoginPage() {
       <div
         className="login-left"
         style={{
-          background: '#2a1f1a',
+          background: 'rgba(10,6,5,0.8)',
           padding: '56px 52px',
           display: 'flex',
           flexDirection: 'column',
@@ -136,7 +136,7 @@ export default function LoginPage() {
           alignItems: 'center',
           justifyContent: 'center',
           padding: '48px 40px',
-          background: '#fdf8f2',
+          background: '#0a0605',
         }}
       >
         <div style={{ width: '100%', maxWidth: 400 }}>
@@ -159,23 +159,23 @@ export default function LoginPage() {
             <h1 style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: 30, fontWeight: 700,
-              color: '#2a1f1a', margin: '0 0 8px',
+              color: '#fdf8f2', margin: '0 0 8px',
               letterSpacing: '-0.02em',
             }}>
               Sign in to your account
             </h1>
-            <p style={{ fontSize: 14, color: '#a89070', margin: 0 }}>
+            <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.50)', margin: 0 }}>
               Your financial dashboard is waiting.
             </p>
           </div>
 
           {/* Form card */}
           <div style={{
-            background: '#fff',
+            background: 'rgba(122,28,46,0.08)',
             borderRadius: 18,
-            border: '1px solid rgba(42,31,26,0.07)',
+            border: '1px solid rgba(196,168,130,0.15)',
             padding: '36px',
-            boxShadow: '0 4px 24px rgba(42,31,26,0.06)',
+            backdropFilter: 'blur(12px)',
           }}>
             <LoginForm />
           </div>
@@ -188,13 +188,13 @@ export default function LoginPage() {
             alignItems: 'center',
           }}>
             <Link href="/" style={{
-              fontSize: 13, color: '#a89070',
+              fontSize: 13, color: 'rgba(253,248,242,0.40)',
               textDecoration: 'none', fontFamily: "'Cabinet Grotesk', sans-serif",
             }}>
               ← Back to home
             </Link>
             <Link href="/register" style={{
-              fontSize: 13, color: '#7a1c2e', fontWeight: 600,
+              fontSize: 13, color: '#c4a882', fontWeight: 600,
               textDecoration: 'none', fontFamily: "'Cabinet Grotesk', sans-serif",
             }}>
               Create account →

@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 
 const inputStyle = {
   width: '100%', padding: '12px 16px',
-  border: '1.5px solid rgba(42,31,26,0.15)',
-  borderRadius: 10, fontSize: 14, color: '#2a1f1a',
-  background: '#fff', outline: 'none',
+  border: '1px solid rgba(196,168,130,0.15)',
+  borderRadius: 10, fontSize: 14, color: '#fdf8f2',
+  background: 'rgba(10,6,5,0.6)', outline: 'none',
   fontFamily: "'Cabinet Grotesk', sans-serif",
   boxSizing: 'border-box' as const,
 }
@@ -16,7 +16,7 @@ const labelStyle = {
   display: 'block' as const,
   fontSize: 11, fontWeight: 600 as const,
   letterSpacing: '0.1em', textTransform: 'uppercase' as const,
-  color: '#a89070', marginBottom: 8,
+  color: 'rgba(253,248,242,0.55)', marginBottom: 8,
   fontFamily: "'Cabinet Grotesk', sans-serif",
 }
 
@@ -54,25 +54,25 @@ export default function InviteClientForm() {
   if (success) {
     return (
       <div style={{
-        background: '#fff',
-        border: '1px solid rgba(122,28,46,0.15)',
+        background: 'rgba(122,28,46,0.06)',
+        border: '1px solid rgba(196,168,130,0.15)',
         borderRadius: 14, padding: '40px',
         textAlign: 'center',
-        boxShadow: '0 4px 16px rgba(42,31,26,0.04)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
       }}>
         <p style={{ fontSize: 32, margin: '0 0 16px' }}>✓</p>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#2a1f1a', margin: '0 0 10px' }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#fdf8f2', margin: '0 0 10px' }}>
           Invitation sent
         </h2>
-        <p style={{ fontSize: 14, color: '#a89070', margin: '0 0 28px' }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.55)', margin: '0 0 28px' }}>
           {name ? `${name} (${email})` : email} has been invited. They&apos;ll receive a login link.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
           <button
             onClick={() => { setSuccess(false); setEmail(''); setName('') }}
             style={{
-              background: 'rgba(42,31,26,0.06)', color: '#2a1f1a',
-              border: 'none', borderRadius: 10, padding: '11px 22px',
+              background: 'rgba(196,168,130,0.1)', color: '#fdf8f2',
+              border: '1px solid rgba(196,168,130,0.15)', borderRadius: 10, padding: '11px 22px',
               fontSize: 13, fontWeight: 600, cursor: 'pointer',
               fontFamily: "'Cabinet Grotesk', sans-serif",
             }}
@@ -82,7 +82,7 @@ export default function InviteClientForm() {
           <button
             onClick={() => router.push('/admin')}
             style={{
-              background: '#7a1c2e', color: '#fdf8f2',
+              background: '#9b2040', color: '#fdf8f2',
               border: 'none', borderRadius: 10, padding: '11px 22px',
               fontSize: 13, fontWeight: 600, cursor: 'pointer',
               fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -98,15 +98,15 @@ export default function InviteClientForm() {
   return (
     <form onSubmit={handleSubmit}>
       <div style={{
-        background: '#fff',
-        border: '1px solid rgba(42,31,26,0.07)',
+        background: 'rgba(122,28,46,0.06)',
+        border: '1px solid rgba(196,168,130,0.15)',
         borderRadius: 14, padding: '36px 40px',
-        boxShadow: '0 4px 16px rgba(42,31,26,0.04)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
         display: 'flex', flexDirection: 'column', gap: 24,
       }}>
         {error && (
-          <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8 }}>
-            <p style={{ fontSize: 13, color: '#dc2626', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>{error}</p>
+          <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8 }}>
+            <p style={{ fontSize: 13, color: '#ef4444', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>{error}</p>
           </div>
         )}
 
@@ -132,7 +132,7 @@ export default function InviteClientForm() {
             placeholder="e.g. Sarah"
             style={inputStyle}
           />
-          <p style={{ fontSize: 12, color: '#a89070', margin: '6px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: '6px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Optional — client can set this during onboarding
           </p>
         </div>
@@ -155,7 +155,7 @@ export default function InviteClientForm() {
           type="submit"
           disabled={loading}
           style={{
-            background: '#7a1c2e', color: '#fdf8f2',
+            background: '#9b2040', color: '#fdf8f2',
             border: 'none', borderRadius: 10, padding: '13px',
             fontSize: 14, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',

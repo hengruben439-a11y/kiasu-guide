@@ -57,7 +57,7 @@ function formatShort(v: number): string {
   return `S$${Math.round(v)}`
 }
 
-const PALETTE = ['#7a1c2e', '#c4a882', '#a89070', '#2a1f1a']
+const PALETTE = ['#7a1c2e', '#c4a882', '#a89070', '#fdf8f2']
 const MILESTONES = [100_000, 250_000, 500_000, 1_000_000]
 const MILESTONE_LABELS = ['S$100K', 'S$250K', 'S$500K', 'S$1M']
 
@@ -95,17 +95,17 @@ export default function NetWorthTracker(props: Props) {
     const pct = totalNetWorth > 0 ? ((payload[0].value / totalNetWorth) * 100).toFixed(1) : '0'
     return (
       <div style={{
-        background: '#fff', border: '1px solid rgba(42,31,26,0.12)',
+        background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)',
         borderRadius: 10, padding: '10px 14px',
         fontFamily: "'Cabinet Grotesk', sans-serif",
       }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: '#2a1f1a', margin: '0 0 4px' }}>
+        <p style={{ fontSize: 12, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
           {payload[0].name}
         </p>
         <p style={{ fontSize: 13, color: payload[0].payload.color, fontWeight: 700, margin: '0 0 2px' }}>
           {formatSGD(payload[0].value)}
         </p>
-        <p style={{ fontSize: 11, color: '#a89070', margin: 0 }}>{pct}% of total</p>
+        <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: 0 }}>{pct}% of total</p>
       </div>
     )
   }
@@ -143,10 +143,10 @@ export default function NetWorthTracker(props: Props) {
   }, [propertyLiquid])
 
   const card = {
-    background: '#fff',
-    border: '1px solid rgba(42,31,26,0.07)',
+    background: 'rgba(122,28,46,0.06)',
+    border: '1px solid rgba(196,168,130,0.15)',
     borderRadius: 14,
-    boxShadow: '0 2px 8px rgba(42,31,26,0.04)',
+    backdropFilter: 'blur(12px)',
   } as const
 
   return (
@@ -158,10 +158,10 @@ export default function NetWorthTracker(props: Props) {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Total Net Worth
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 700, color: '#2a1f1a', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 700, color: '#fdf8f2', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
             S${displayTotal.toLocaleString('en-SG')}
           </p>
-          <p style={{ fontSize: 13, color: '#a89070', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             All assets combined — liquid, invested, CPF, and property
           </p>
         </div>
@@ -176,7 +176,7 @@ export default function NetWorthTracker(props: Props) {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '6px 14px', borderRadius: 20,
-                  border: `1.5px solid ${unlocked ? '#c4a882' : 'rgba(42,31,26,0.12)'}`,
+                  border: `1.5px solid ${unlocked ? '#c4a882' : 'rgba(196,168,130,0.15)'}`,
                   background: unlocked ? 'rgba(196,168,130,0.12)' : 'transparent',
                   transition: 'all 0.3s',
                 }}
@@ -184,7 +184,7 @@ export default function NetWorthTracker(props: Props) {
                 <span style={{ fontSize: 13 }}>{unlocked ? '🥇' : '🔒'}</span>
                 <span style={{
                   fontSize: 12, fontWeight: 700,
-                  color: unlocked ? '#c4a882' : '#a89070',
+                  color: unlocked ? '#c4a882' : 'rgba(253,248,242,0.55)',
                   fontFamily: "'Cabinet Grotesk', sans-serif",
                 }}>
                   {MILESTONE_LABELS[i]}
@@ -201,10 +201,10 @@ export default function NetWorthTracker(props: Props) {
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#16a34a', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Liquid Assets
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#2a1f1a', margin: '0 0 6px' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#fdf8f2', margin: '0 0 6px' }}>
             {formatSGD(liquidTotal)}
           </p>
-          <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Savings + Investments
             {cpf > 0 && <> + CPF <span style={{ color: '#c4a882' }}>*</span></>}
           </p>
@@ -219,10 +219,10 @@ export default function NetWorthTracker(props: Props) {
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#d97706', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Illiquid Assets
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#2a1f1a', margin: '0 0 6px' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#fdf8f2', margin: '0 0 6px' }}>
             {formatSGD(illiquidTotal)}
           </p>
-          <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             {illiquidTotal > 0
               ? 'Property — cannot be liquidated quickly'
               : propertyValue > 0
@@ -262,7 +262,7 @@ export default function NetWorthTracker(props: Props) {
             </ResponsiveContainer>
           ) : (
             <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p style={{ fontSize: 13, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 No assets recorded yet
               </p>
             </div>
@@ -273,10 +273,10 @@ export default function NetWorthTracker(props: Props) {
             {segments.map((seg) => (
               <div key={seg.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", flex: 1 }}>
+                <span style={{ fontSize: 12, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", flex: 1 }}>
                   {seg.label}
                 </span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   {totalNetWorth > 0 ? ((seg.value / totalNetWorth) * 100).toFixed(0) : 0}%
                 </span>
               </div>
@@ -286,8 +286,8 @@ export default function NetWorthTracker(props: Props) {
 
         {/* Breakdown table */}
         <div style={{ ...card, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 22px', borderBottom: '1px solid rgba(42,31,26,0.06)', background: '#fdf8f2' }}>
-            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#2a1f1a', margin: 0 }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid rgba(196,168,130,0.10)', background: 'rgba(122,28,46,0.08)' }}>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>
               Asset Breakdown
             </p>
           </div>
@@ -307,20 +307,20 @@ export default function NetWorthTracker(props: Props) {
                   style={{
                     display: 'grid', gridTemplateColumns: '36px 1fr auto auto',
                     alignItems: 'center', gap: 12, padding: '12px 22px',
-                    borderBottom: i < 5 ? '1px solid rgba(42,31,26,0.05)' : 'none',
+                    borderBottom: i < 5 ? '1px solid rgba(196,168,130,0.08)' : 'none',
                   }}
                 >
                   <span style={{ fontSize: 18 }}>{row.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                     {row.label}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Playfair Display', serif" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Playfair Display', serif" }}>
                     {formatSGD(row.value)}
                   </span>
                   <span style={{
                     fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 12,
-                    background: `${row.color}18`,
-                    color: row.color,
+                    background: `${row.color}20`,
+                    color: row.color === '#fdf8f2' ? 'rgba(253,248,242,0.70)' : row.color,
                     fontFamily: "'Cabinet Grotesk', sans-serif",
                     minWidth: 44, textAlign: 'center',
                   }}>
@@ -334,17 +334,17 @@ export default function NetWorthTracker(props: Props) {
             <div style={{
               display: 'grid', gridTemplateColumns: '36px 1fr auto auto',
               alignItems: 'center', gap: 12, padding: '14px 22px',
-              borderTop: '2px solid rgba(42,31,26,0.1)',
-              background: '#fdf8f2',
+              borderTop: '2px solid rgba(196,168,130,0.15)',
+              background: 'rgba(122,28,46,0.08)',
             }}>
               <span style={{ fontSize: 18 }}>Σ</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Total Net Worth
               </span>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#7a1c2e', fontFamily: "'Playfair Display', serif" }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#9b2040', fontFamily: "'Playfair Display', serif" }}>
                 {formatSGD(totalNetWorth)}
               </span>
-              <span style={{ fontSize: 11, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif", textAlign: 'center' }}>
+              <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif", textAlign: 'center' }}>
                 100%
               </span>
             </div>
@@ -358,8 +358,8 @@ export default function NetWorthTracker(props: Props) {
           Update Property Value
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1.5px solid rgba(42,31,26,0.15)', borderRadius: 10, overflow: 'hidden', flex: '1 1 220px', maxWidth: 340 }}>
-            <span style={{ padding: '12px 14px', background: '#fdf8f2', fontSize: 13, fontWeight: 700, color: '#a89070', borderRight: '1px solid rgba(42,31,26,0.1)', fontFamily: "'Cabinet Grotesk', sans-serif", whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1.5px solid rgba(196,168,130,0.15)', borderRadius: 10, overflow: 'hidden', flex: '1 1 220px', maxWidth: 340 }}>
+            <span style={{ padding: '12px 14px', background: 'rgba(122,28,46,0.10)', fontSize: 13, fontWeight: 700, color: 'rgba(253,248,242,0.55)', borderRight: '1px solid rgba(196,168,130,0.12)', fontFamily: "'Cabinet Grotesk', sans-serif", whiteSpace: 'nowrap' }}>
               S$
             </span>
             <input
@@ -373,8 +373,8 @@ export default function NetWorthTracker(props: Props) {
               placeholder="e.g. 750,000"
               style={{
                 border: 'none', outline: 'none', padding: '12px 14px',
-                fontSize: 14, fontWeight: 600, color: '#2a1f1a', width: '100%',
-                fontFamily: "'Cabinet Grotesk', sans-serif", background: '#fff',
+                fontSize: 14, fontWeight: 600, color: '#fdf8f2', width: '100%',
+                fontFamily: "'Cabinet Grotesk', sans-serif", background: 'rgba(122,28,46,0.06)',
               }}
             />
           </div>
@@ -385,18 +385,18 @@ export default function NetWorthTracker(props: Props) {
               onClick={() => setPropertyLiquid((v) => !v)}
               style={{
                 width: 44, height: 24, borderRadius: 12,
-                background: propertyLiquid ? '#16a34a' : 'rgba(42,31,26,0.15)',
+                background: propertyLiquid ? '#16a34a' : 'rgba(196,168,130,0.15)',
                 border: 'none', cursor: 'pointer',
                 position: 'relative', transition: 'background 0.25s', flexShrink: 0,
               }}
             >
               <div style={{
                 position: 'absolute', top: 3, left: propertyLiquid ? 23 : 3,
-                width: 18, height: 18, borderRadius: 9, background: '#fff',
-                transition: 'left 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                width: 18, height: 18, borderRadius: 9, background: '#fdf8f2',
+                transition: 'left 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
               }} />
             </button>
-            <span style={{ fontSize: 13, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", userSelect: 'none' }}>
+            <span style={{ fontSize: 13, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", userSelect: 'none' }}>
               Mark as liquid
             </span>
           </div>
@@ -412,7 +412,7 @@ export default function NetWorthTracker(props: Props) {
             </span>
           )}
         </div>
-        <p style={{ fontSize: 11, color: '#a89070', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           Changes are saved automatically on blur. Toggle "liquid" if you intend to sell or have already sold.
         </p>
       </div>

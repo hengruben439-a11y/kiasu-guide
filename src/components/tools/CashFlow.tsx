@@ -166,7 +166,7 @@ function AmountCell({ value, onChange, colour }: { value: number; onChange: (v: 
           width: 80, textAlign: 'right', fontSize: 13, fontWeight: 600,
           border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px',
           outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif",
-          color: '#2a1f1a',
+          color: '#fdf8f2', background: 'rgba(122,28,46,0.10)',
         }}
         autoFocus
       />
@@ -179,9 +179,9 @@ function AmountCell({ value, onChange, colour }: { value: number; onChange: (v: 
       title="Click to edit"
       style={{
         background: 'none', border: 'none', cursor: 'text',
-        fontSize: 13, fontWeight: 700, color: '#2a1f1a',
+        fontSize: 13, fontWeight: 700, color: '#fdf8f2',
         fontFamily: "'Cabinet Grotesk', sans-serif", padding: '1px 4px',
-        borderBottom: `1px dashed ${colour}20`,
+        borderBottom: `1px dashed ${colour}40`,
       }}
     >
       {formatSGD(value)}
@@ -346,15 +346,15 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
 
   const health =
     healthScore >= 80
-      ? { label: 'Excellent', colour: '#16a34a', bg: '#f0fdf4', border: '#86efac',
+      ? { label: 'Excellent', colour: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)',
           desc: 'Strong savings rate and healthy spending ratios.' }
       : healthScore >= 60
-      ? { label: 'Good', colour: '#16a34a', bg: '#f0fdf4', border: '#86efac',
+      ? { label: 'Good', colour: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.20)',
           desc: 'Good overall cash flow with room for improvement.' }
       : healthScore >= 40
-      ? { label: 'Fair', colour: '#d97706', bg: '#fffbeb', border: '#fcd34d',
+      ? { label: 'Fair', colour: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)',
           desc: 'Spending is high relative to income — review discretionary items.' }
-      : { label: 'Needs Attention', colour: '#dc2626', bg: '#fef2f2', border: '#fca5a5',
+      : { label: 'Needs Attention', colour: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)',
           desc: 'Cash flow is strained. Consider expense reduction or income growth.' }
 
   const pieData = categories.filter((c) => c.amount > 0)
@@ -363,10 +363,10 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif", color: '#2a1f1a' }}>
+        <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif", color: '#fdf8f2' }}>
           Cash Flow Analysis
         </h2>
-        <p className="text-sm" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p className="text-sm" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           Understand where your money goes and optimise your savings rate.
         </p>
       </div>
@@ -374,10 +374,10 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
       {/* Top stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: 'Monthly Income', value: formatSGD(monthlyIncome), colour: '#2a1f1a' },
-          { label: 'Monthly Expenses', value: formatSGD(totalExpenses), colour: '#dc2626' },
-          { label: 'Monthly Surplus', value: formatSGD(surplus), colour: surplus >= 0 ? '#16a34a' : '#dc2626' },
-          { label: 'Savings Rate', value: `${animatedSavingsRate}%`, colour: '#7a1c2e' },
+          { label: 'Monthly Income', value: formatSGD(monthlyIncome), colour: '#fdf8f2' },
+          { label: 'Monthly Expenses', value: formatSGD(totalExpenses), colour: '#ef4444' },
+          { label: 'Monthly Surplus', value: formatSGD(surplus), colour: surplus >= 0 ? '#10b981' : '#ef4444' },
+          { label: 'Savings Rate', value: `${animatedSavingsRate}%`, colour: '#9b2040' },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -385,9 +385,9 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: i * 0.07 }}
             className="rounded-2xl border p-4"
-            style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+            style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
           >
-            <p className="text-xs mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p className="text-xs mb-1" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {stat.label}
             </p>
             <p className="text-xl font-bold" style={{ color: stat.colour, fontFamily: "'Playfair Display', serif" }}>
@@ -406,7 +406,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         style={{ background: health.bg, borderColor: health.border }}
       >
         <div style={{
-          width: 40, height: 40, borderRadius: '50%', background: health.colour + '20',
+          width: 40, height: 40, borderRadius: '50%', background: health.colour + '25',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>
           <span style={{ fontWeight: 700, fontSize: 13, color: health.colour, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -417,7 +417,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           <p className="text-sm font-semibold" style={{ color: health.colour, fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
             Cash Flow Health: {health.label}
           </p>
-          <p className="text-xs" style={{ color: '#7a5c3a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '2px 0 0' }}>
+          <p className="text-xs" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '2px 0 0' }}>
             {health.desc}
           </p>
         </div>
@@ -431,23 +431,23 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           className="rounded-2xl border p-6 space-y-3"
-          style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div>
-              <p className="font-semibold text-sm" style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p className="font-semibold text-sm" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Monthly Expenses
               </p>
-              <p className="text-xs" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p className="text-xs" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Click any amount to edit
               </p>
             </div>
             <label
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                fontSize: 12, fontWeight: 600, color: '#7a1c2e',
-                border: '1px solid #c4a882', borderRadius: 8, padding: '5px 10px',
-                background: '#fff', fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontSize: 12, fontWeight: 600, color: '#c4a882',
+                border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8, padding: '5px 10px',
+                background: 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
               title="Upload a CSV bank statement to auto-populate"
             >
@@ -463,18 +463,18 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: c.colour, flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                       {c.label}
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                       {pct.toFixed(1)}%
                     </span>
                     <AmountCell value={c.amount} onChange={(v) => updateAmount(c.key, v)} colour={c.colour} />
                   </div>
                 </div>
-                <div style={{ height: 4, background: '#e8ddd0', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: 4, background: 'rgba(196,168,130,0.10)', borderRadius: 2, overflow: 'hidden' }}>
                   <motion.div
                     style={{ height: '100%', background: c.colour, borderRadius: 2 }}
                     initial={{ width: 0 }}
@@ -486,9 +486,9 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
             )
           })}
 
-          <div style={{ borderTop: '1px solid #e8ddd0', paddingTop: 8, display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Total</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <div style={{ borderTop: '1px solid rgba(196,168,130,0.12)', paddingTop: 8, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Total</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {formatSGD(totalExpenses)}
             </span>
           </div>
@@ -500,12 +500,12 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.28 }}
           className="rounded-2xl border p-6"
-          style={{ background: '#fff', borderColor: '#e8ddd0' }}
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
         >
-          <p className="font-semibold text-sm mb-1" style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Spending Distribution
           </p>
-          <p className="text-xs mb-4" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Each slice shows your monthly spend in that category. Hover for exact amounts.
           </p>
           <ResponsiveContainer width="100%" height={260}>
@@ -516,7 +516,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
               <Tooltip
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 formatter={(value: any, name: any) => [formatSGD(Number(value)), String(name ?? '')]}
-                contentStyle={{ background: '#fdf8f2', border: '1px solid #c4a882', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12 }}
+                contentStyle={{ background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, color: '#fdf8f2' }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -529,12 +529,12 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.32 }}
         className="rounded-2xl border p-6"
-        style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+        style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
       >
-        <p className="font-semibold text-sm mb-1" style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           50 / 30 / 20 Rule
         </p>
-        <p className="text-xs mb-4" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           A simple framework: no more than 50% on needs, 30% on wants, and at least 20% saved. Adjust your expense amounts above to see how you compare.
         </p>
         <div className="space-y-4">
@@ -545,7 +545,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           ].map((row) => {
             const good = row.isGood(row.actual)
             const diff = row.label === 'Savings' ? 20 - row.actual : row.actual - row.target
-            const colour = good ? '#16a34a' : Math.abs(diff) <= 10 ? '#d97706' : '#dc2626'
+            const colour = good ? '#10b981' : Math.abs(diff) <= 10 ? '#f59e0b' : '#ef4444'
             const statusLabel = good
               ? 'On track'
               : row.label === 'Savings'
@@ -555,8 +555,8 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
             return (
               <div key={row.label}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                    {row.label} <span style={{ fontWeight: 400, color: '#a89070', fontSize: 11 }}>({row.label === 'Savings' ? '≥' : '≤'}{row.target}%)</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    {row.label} <span style={{ fontWeight: 400, color: 'rgba(253,248,242,0.55)', fontSize: 11 }}>({row.label === 'Savings' ? '≥' : '≤'}{row.target}%)</span>
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: colour, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -565,14 +565,14 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
                     <span style={{
                       fontSize: 11, padding: '1px 7px', borderRadius: 20, fontWeight: 600,
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      background: good ? '#f0fdf4' : Math.abs(diff) <= 10 ? '#fffbeb' : '#fef2f2',
+                      background: good ? 'rgba(16,185,129,0.12)' : Math.abs(diff) <= 10 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
                       color: colour,
                     }}>
                       {statusLabel}
                     </span>
                   </div>
                 </div>
-                <div style={{ height: 6, background: '#e8ddd0', borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ height: 6, background: 'rgba(196,168,130,0.10)', borderRadius: 3, overflow: 'hidden' }}>
                   <motion.div
                     style={{ height: '100%', background: colour, borderRadius: 3 }}
                     initial={{ width: 0 }}
@@ -580,7 +580,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                   />
                 </div>
-                <p style={{ fontSize: 11, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif", marginTop: 3 }}>
+                <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif", marginTop: 3 }}>
                   {row.desc}
                 </p>
               </div>
@@ -595,31 +595,31 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.38 }}
         className="rounded-2xl border p-6"
-        style={{ background: '#fff', borderColor: '#e8ddd0' }}
+        style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
       >
-        <p className="font-semibold text-sm mb-1" style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           12-Month Savings Accumulation
         </p>
-        <p className="text-xs mb-4" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-          At your current monthly surplus of {formatSGD(Math.max(0, surplus))}, here's how your cash savings would grow over the next year.
+        <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          At your current monthly surplus of {formatSGD(Math.max(0, surplus))}, here&apos;s how your cash savings would grow over the next year.
         </p>
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={monthlyProjection} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
             <defs>
               <linearGradient id="savingsGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7a1c2e" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#7a1c2e" stopOpacity={0.02} />
+                <stop offset="5%" stopColor="#9b2040" stopOpacity={0.30} />
+                <stop offset="95%" stopColor="#9b2040" stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0e8e0" />
-            <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#a89070' }} />
-            <YAxis tickFormatter={(v) => formatSGDShort(v as number)} tick={{ fontSize: 11, fill: '#a89070' }} width={64} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(196,168,130,0.06)" />
+            <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'rgba(253,248,242,0.35)' }} />
+            <YAxis tickFormatter={(v) => formatSGDShort(v as number)} tick={{ fontSize: 11, fill: 'rgba(253,248,242,0.35)' }} width={64} />
             <Tooltip
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter={(v: any) => [formatSGD(Number(v)), 'Accumulated savings']}
-              contentStyle={{ background: '#fdf8f2', border: '1px solid #c4a882', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12 }}
+              contentStyle={{ background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, color: '#fdf8f2' }}
             />
-            <Area type="monotone" dataKey="savings" stroke="#7a1c2e" strokeWidth={2.5} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 5 }} />
+            <Area type="monotone" dataKey="savings" stroke="#9b2040" strokeWidth={2.5} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 5 }} />
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>
@@ -633,33 +633,33 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
             className="rounded-2xl border p-6"
-            style={{ background: '#fdf8f2', borderColor: '#c4a882' }}
+            style={{ background: 'rgba(122,28,46,0.08)', borderColor: 'rgba(196,168,130,0.25)' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
-                <p className="font-semibold text-base" style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p className="font-semibold text-base" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   Review Imported Transactions
                 </p>
-                <p className="text-xs" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p className="text-xs" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   {parsedTxs.length} transactions detected. Adjust categories, then click Import.
                 </p>
               </div>
-              <button onClick={() => { setShowUpload(false); setParsedTxs([]) }} style={{ fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: '#a89070' }}>×</button>
+              <button onClick={() => { setShowUpload(false); setParsedTxs([]) }} style={{ fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(253,248,242,0.55)' }}>×</button>
             </div>
 
-            <div style={{ maxHeight: 320, overflowY: 'auto', border: '1px solid #e8ddd0', borderRadius: 10, background: '#fff' }}>
+            <div style={{ maxHeight: 320, overflowY: 'auto', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 10, background: 'rgba(10,6,5,0.40)' }}>
               {parsedTxs.map((tx, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: i < parsedTxs.length - 1 ? '1px solid #f5ede4' : 'none', gap: 8 }}>
-                  <span style={{ fontSize: 12, color: '#5a4535', fontFamily: "'Cabinet Grotesk', sans-serif", flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: i < parsedTxs.length - 1 ? '1px solid rgba(196,168,130,0.08)' : 'none', gap: 8 }}>
+                  <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.70)', fontFamily: "'Cabinet Grotesk', sans-serif", flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {tx.description}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}>
                     {formatSGD(tx.amount)}
                   </span>
                   <select
                     value={txCategory[i] ?? 'other'}
                     onChange={(e) => setTxCategory((prev) => ({ ...prev, [i]: e.target.value }))}
-                    style={{ fontSize: 11, border: '1px solid #e8ddd0', borderRadius: 6, padding: '2px 4px', background: '#fdf8f2', color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}
+                    style={{ fontSize: 11, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 6, padding: '2px 4px', background: 'rgba(122,28,46,0.10)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}
                   >
                     {CATEGORY_META.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
                   </select>
@@ -671,11 +671,11 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
               <button
                 onClick={importTransactions}
                 disabled={importing}
-                style={{ background: '#7a1c2e', color: '#fff', border: 'none', borderRadius: 10, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: importing ? 0.6 : 1 }}
+                style={{ background: '#9b2040', color: '#fdf8f2', border: 'none', borderRadius: 10, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: importing ? 0.6 : 1 }}
               >
                 {importing ? 'Importing…' : `Import ${parsedTxs.length} Transactions`}
               </button>
-              <button onClick={() => { setShowUpload(false); setParsedTxs([]) }} style={{ background: 'none', color: '#a89070', border: '1px solid #e8ddd0', borderRadius: 10, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <button onClick={() => { setShowUpload(false); setParsedTxs([]) }} style={{ background: 'none', color: 'rgba(253,248,242,0.55)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 10, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Cancel
               </button>
             </div>

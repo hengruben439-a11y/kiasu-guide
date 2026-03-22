@@ -4,9 +4,9 @@ import { CSSProperties } from 'react'
 
 const KEYFRAME_STYLE = `
 @keyframes kiasu-shimmer {
-  0%   { background-color: rgba(42,31,26,0.06); }
-  50%  { background-color: rgba(42,31,26,0.12); }
-  100% { background-color: rgba(42,31,26,0.06); }
+  0%   { background-color: rgba(253,248,242,0.05); }
+  50%  { background-color: rgba(253,248,242,0.08); }
+  100% { background-color: rgba(253,248,242,0.05); }
 }
 `
 
@@ -95,11 +95,10 @@ export function SkeletonText({ width = '100%', style }: SkeletonTextProps) {
 export function SkeletonStat() {
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid rgba(42,31,26,0.07)',
+      background: 'rgba(122,28,46,0.06)',
+      border: '1px solid rgba(196,168,130,0.15)',
       borderRadius: 12,
       padding: '18px 20px',
-      boxShadow: '0 2px 8px rgba(42,31,26,0.04)',
       display: 'flex',
       flexDirection: 'column',
       gap: 10,

@@ -102,18 +102,18 @@ function CustomTooltip({ active, payload, label }: any) {
   return (
     <div
       style={{
-        background: '#fff',
-        border: '1px solid #e8ddd4',
+        background: 'rgba(10,6,5,0.95)',
+        border: '1px solid rgba(196,168,130,0.3)',
         borderRadius: 8,
         padding: '10px 16px',
         fontFamily: "'Cabinet Grotesk', sans-serif",
         fontSize: 13,
-        color: '#2a1f1a',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        color: '#fdf8f2',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
       }}
     >
       <p style={{ margin: 0, fontWeight: 700 }}>{label || payload[0]?.name}</p>
-      <p style={{ margin: '4px 0 0', color: payload[0]?.payload?.fill ?? '#7a1c2e' }}>
+      <p style={{ margin: '4px 0 0', color: payload[0]?.payload?.fill ?? '#9b2040' }}>
         {formatSGD(payload[0]?.value)}
       </p>
     </div>
@@ -126,11 +126,11 @@ export default function LTCGapCalculator() {
   const [showAssumptions, setShowAssumptions] = useState(false)
 
   const cardStyle: React.CSSProperties = {
-    background: '#fff',
-    border: '1px solid #e8ddd4',
+    background: 'rgba(122,28,46,0.06)',
+    border: '1px solid rgba(196,168,130,0.15)',
     borderRadius: 12,
     padding: '1.5rem',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    backdropFilter: 'blur(12px)',
   }
 
   const statLabelStyle: React.CSSProperties = {
@@ -139,7 +139,7 @@ export default function LTCGapCalculator() {
     fontWeight: 700,
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    color: '#a89070',
+    color: 'rgba(253,248,242,0.55)',
     marginBottom: '0.4rem',
   }
 
@@ -147,7 +147,7 @@ export default function LTCGapCalculator() {
     fontFamily: "'Playfair Display', serif",
     fontSize: '1.75rem',
     fontWeight: 700,
-    color: '#2a1f1a',
+    color: '#fdf8f2',
     lineHeight: 1.1,
   }
 
@@ -163,8 +163,8 @@ export default function LTCGapCalculator() {
           ...cardStyle,
           textAlign: 'center',
           padding: '2.5rem 2rem',
-          background: 'linear-gradient(135deg, #fff 0%, #fdf8f2 100%)',
-          borderColor: '#c4a882',
+          background: 'rgba(122,28,46,0.10)',
+          borderColor: 'rgba(196,168,130,0.25)',
         }}
       >
         <p
@@ -174,7 +174,7 @@ export default function LTCGapCalculator() {
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.55)',
             marginBottom: '0.75rem',
           }}
         >
@@ -185,7 +185,7 @@ export default function LTCGapCalculator() {
             fontFamily: "'Playfair Display', serif",
             fontSize: '3.5rem',
             fontWeight: 700,
-            color: '#7a1c2e',
+            color: '#9b2040',
             lineHeight: 1,
             marginBottom: '0.75rem',
           }}
@@ -196,7 +196,7 @@ export default function LTCGapCalculator() {
               fontFamily: "'Cabinet Grotesk', sans-serif",
               fontSize: '1.25rem',
               fontWeight: 500,
-              color: '#a89070',
+              color: 'rgba(253,248,242,0.55)',
               marginLeft: '0.4rem',
             }}
           >
@@ -207,7 +207,7 @@ export default function LTCGapCalculator() {
           style={{
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '1rem',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.55)',
             margin: 0,
           }}
         >
@@ -222,7 +222,7 @@ export default function LTCGapCalculator() {
             label: 'Total LTC Cost',
             sublabel: '10 years, inflation-adjusted',
             value: formatSGD(TOTAL_LTC_COST),
-            color: '#2a1f1a',
+            color: '#fdf8f2',
             delay: 0.1,
           },
           {
@@ -253,7 +253,7 @@ export default function LTCGapCalculator() {
               style={{
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 fontSize: '0.8rem',
-                color: '#a89070',
+                color: 'rgba(253,248,242,0.55)',
                 margin: '0.25rem 0 0',
               }}
             >
@@ -275,7 +275,7 @@ export default function LTCGapCalculator() {
             fontFamily: "'Playfair Display', serif",
             fontSize: '1.1rem',
             fontWeight: 700,
-            color: '#2a1f1a',
+            color: '#fdf8f2',
             marginBottom: '0.25rem',
           }}
         >
@@ -285,7 +285,7 @@ export default function LTCGapCalculator() {
           style={{
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '0.85rem',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.55)',
             marginBottom: '1.5rem',
           }}
         >
@@ -302,7 +302,7 @@ export default function LTCGapCalculator() {
               tick={{
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 fontSize: 13,
-                fill: '#a89070',
+                fill: 'rgba(253,248,242,0.35)',
               }}
               axisLine={false}
               tickLine={false}
@@ -314,7 +314,7 @@ export default function LTCGapCalculator() {
               tick={{
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 fontSize: 12,
-                fill: '#a89070',
+                fill: 'rgba(253,248,242,0.35)',
               }}
               axisLine={false}
               tickLine={false}
@@ -322,7 +322,7 @@ export default function LTCGapCalculator() {
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={TOTAL_LTC_COST}
-              stroke="#7a1c2e"
+              stroke="#9b2040"
               strokeDasharray="6 3"
               strokeWidth={2}
               label={{
@@ -330,7 +330,7 @@ export default function LTCGapCalculator() {
                 position: 'insideTopRight',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 fontSize: 11,
-                fill: '#7a1c2e',
+                fill: '#c4a882',
                 fontWeight: 600,
               }}
             />
@@ -355,7 +355,7 @@ export default function LTCGapCalculator() {
           {[
             { color: '#16a34a', label: 'CareShield Life covers' },
             { color: '#b91c1c', label: 'Protection gap (uncovered)' },
-            { color: '#7a1c2e', label: 'Total LTC cost (10 yrs)' },
+            { color: '#9b2040', label: 'Total LTC cost (10 yrs)' },
           ].map((item) => (
             <div
               key={item.label}
@@ -365,7 +365,7 @@ export default function LTCGapCalculator() {
                 gap: '0.4rem',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 fontSize: '0.8rem',
-                color: '#a89070',
+                color: 'rgba(253,248,242,0.55)',
               }}
             >
               <span
@@ -396,7 +396,7 @@ export default function LTCGapCalculator() {
             fontFamily: "'Playfair Display', serif",
             fontSize: '1.1rem',
             fontWeight: 700,
-            color: '#2a1f1a',
+            color: '#fdf8f2',
             marginBottom: '0.25rem',
           }}
         >
@@ -406,7 +406,7 @@ export default function LTCGapCalculator() {
           style={{
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '0.85rem',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.55)',
             marginBottom: '1.25rem',
           }}
         >
@@ -435,8 +435,8 @@ export default function LTCGapCalculator() {
                         fontSize: '0.75rem',
                         letterSpacing: '0.08em',
                         textTransform: 'uppercase',
-                        color: '#a89070',
-                        borderBottom: '2px solid #e8ddd4',
+                        color: 'rgba(253,248,242,0.55)',
+                        borderBottom: '2px solid rgba(196,168,130,0.15)',
                       }}
                     >
                       {h}
@@ -450,13 +450,13 @@ export default function LTCGapCalculator() {
                 <tr
                   key={row.year}
                   style={{
-                    background: i % 2 === 0 ? 'transparent' : '#fdf8f2',
+                    background: i % 2 === 0 ? 'transparent' : 'rgba(122,28,46,0.04)',
                   }}
                 >
                   <td
                     style={{
                       padding: '0.6rem 0.75rem',
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                       fontWeight: 600,
                     }}
                   >
@@ -466,7 +466,7 @@ export default function LTCGapCalculator() {
                     style={{
                       padding: '0.6rem 0.75rem',
                       textAlign: 'right',
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   >
                     {formatSGD(row.monthlyLTC)}
@@ -500,10 +500,10 @@ export default function LTCGapCalculator() {
                   colSpan={4}
                   style={{
                     padding: '0.6rem 0.75rem',
-                    borderTop: '2px solid #e8ddd4',
+                    borderTop: '2px solid rgba(196,168,130,0.15)',
                     fontFamily: "'Cabinet Grotesk', sans-serif",
                     fontSize: '0.78rem',
-                    color: '#a89070',
+                    color: 'rgba(253,248,242,0.55)',
                     fontStyle: 'italic',
                   }}
                 >
@@ -521,10 +521,10 @@ export default function LTCGapCalculator() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.55, ease: 'easeOut' }}
         style={{
-          background: 'linear-gradient(135deg, #c4a882 0%, #d4b892 100%)',
+          background: 'rgba(196,168,130,0.10)',
           borderRadius: 12,
           padding: '2rem',
-          border: '1px solid #b09060',
+          border: '1px solid rgba(196,168,130,0.25)',
         }}
       >
         <p
@@ -532,7 +532,7 @@ export default function LTCGapCalculator() {
             fontFamily: "'Playfair Display', serif",
             fontSize: '1.35rem',
             fontWeight: 700,
-            color: '#2a1f1a',
+            color: '#fdf8f2',
             marginBottom: '0.75rem',
             lineHeight: 1.3,
           }}
@@ -543,7 +543,7 @@ export default function LTCGapCalculator() {
           style={{
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '1rem',
-            color: '#3a2a1a',
+            color: 'rgba(253,248,242,0.70)',
             margin: 0,
             lineHeight: 1.6,
             maxWidth: '680px',
@@ -552,7 +552,7 @@ export default function LTCGapCalculator() {
           A CareShield supplement can fill this S$2,290/month gap, ensuring care costs never
           become a financial burden on your family. Without it, the shortfall compounds year
           after year — reaching{' '}
-          <strong>{formatSGD(TOTAL_GAP)}</strong> over a decade of care.
+          <strong style={{ color: '#fdf8f2' }}>{formatSGD(TOTAL_GAP)}</strong> over a decade of care.
         </p>
       </motion.div>
 
@@ -563,8 +563,8 @@ export default function LTCGapCalculator() {
         transition={{ duration: 0.4, delay: 0.65, ease: 'easeOut' }}
         style={{
           ...cardStyle,
-          background: '#fdf8f2',
-          borderColor: '#e8ddd4',
+          background: 'rgba(122,28,46,0.04)',
+          borderColor: 'rgba(196,168,130,0.12)',
         }}
       >
         <button
@@ -582,7 +582,7 @@ export default function LTCGapCalculator() {
             fontWeight: 700,
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.55)',
           }}
         >
           <span
@@ -633,9 +633,9 @@ export default function LTCGapCalculator() {
                 key={item.label}
                 style={{
                   padding: '0.75rem 1rem',
-                  background: '#fff',
+                  background: 'rgba(122,28,46,0.06)',
                   borderRadius: 8,
-                  border: '1px solid #e8ddd4',
+                  border: '1px solid rgba(196,168,130,0.15)',
                 }}
               >
                 <p
@@ -645,7 +645,7 @@ export default function LTCGapCalculator() {
                     fontWeight: 700,
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
-                    color: '#a89070',
+                    color: 'rgba(253,248,242,0.55)',
                     margin: '0 0 0.2rem',
                   }}
                 >
@@ -656,7 +656,7 @@ export default function LTCGapCalculator() {
                     fontFamily: "'Playfair Display', serif",
                     fontSize: '1rem',
                     fontWeight: 700,
-                    color: '#2a1f1a',
+                    color: '#fdf8f2',
                     margin: '0 0 0.2rem',
                   }}
                 >
@@ -666,7 +666,7 @@ export default function LTCGapCalculator() {
                   style={{
                     fontFamily: "'Cabinet Grotesk', sans-serif",
                     fontSize: '0.75rem',
-                    color: '#a89070',
+                    color: 'rgba(253,248,242,0.55)',
                     margin: 0,
                     fontStyle: 'italic',
                   }}

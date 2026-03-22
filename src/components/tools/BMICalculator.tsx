@@ -24,22 +24,22 @@ interface BMIResult {
 function classifyBMI(bmi: number): BMIResult {
   if (bmi < 18.5) return {
     bmi, category: 'underweight', label: 'Underweight',
-    colour: '#3b82f6', bg: 'rgba(59,130,246,0.06)',
+    colour: '#3b82f6', bg: 'rgba(59,130,246,0.08)',
     advice: 'Consider increasing caloric intake with nutrient-dense foods. Consult a dietitian if persistent.',
   }
   if (bmi < 23) return {
     bmi, category: 'normal', label: 'Normal',
-    colour: '#16a34a', bg: 'rgba(34,197,94,0.06)',
+    colour: '#16a34a', bg: 'rgba(34,197,94,0.08)',
     advice: 'Your weight is in the healthy range for Asians. Maintain your current lifestyle.',
   }
   if (bmi < 27.5) return {
     bmi, category: 'overweight', label: 'Overweight',
-    colour: '#d97706', bg: 'rgba(234,179,8,0.06)',
+    colour: '#d97706', bg: 'rgba(234,179,8,0.08)',
     advice: 'Increased risk of metabolic conditions. Regular exercise and dietary adjustment recommended.',
   }
   return {
     bmi, category: 'obese', label: 'Obese',
-    colour: '#dc2626', bg: 'rgba(239,68,68,0.06)',
+    colour: '#dc2626', bg: 'rgba(239,68,68,0.08)',
     advice: 'Higher risk of diabetes, hypertension, and cardiovascular disease. Medical consultation advised.',
   }
 }
@@ -63,9 +63,9 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
 
   const inputStyle = {
     width: '100%', padding: '14px 16px',
-    border: '1.5px solid rgba(42,31,26,0.13)',
-    borderRadius: 10, fontSize: 16, color: '#2a1f1a',
-    background: '#fff', outline: 'none',
+    border: '1.5px solid rgba(196,168,130,0.15)',
+    borderRadius: 10, fontSize: 16, color: '#fdf8f2',
+    background: 'rgba(122,28,46,0.06)', outline: 'none',
     fontFamily: "'Cabinet Grotesk', sans-serif",
     boxSizing: 'border-box' as const,
   }
@@ -83,10 +83,10 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ background: '#fff', border: '1px solid rgba(42,31,26,0.07)', borderRadius: 14, padding: '28px' }}>
+      <div style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 14, padding: '28px', backdropFilter: 'blur(12px)' }}>
         <div className="grid-2col" style={{ gap: 20, marginBottom: 24 }}>
           <div>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a89070', marginBottom: 8, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(253,248,242,0.55)', marginBottom: 8, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Height (cm)
             </label>
             <input
@@ -97,7 +97,7 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
             />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a89070', marginBottom: 8, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(253,248,242,0.55)', marginBottom: 8, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Weight (kg)
             </label>
             <input
@@ -116,8 +116,8 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
             disabled={saving}
             style={{
               fontSize: 12, fontWeight: 600, padding: '8px 18px',
-              borderRadius: 8, border: '1.5px solid rgba(42,31,26,0.12)',
-              background: '#fff', color: '#a89070', cursor: 'pointer',
+              borderRadius: 8, border: '1.5px solid rgba(196,168,130,0.15)',
+              background: 'rgba(122,28,46,0.06)', color: 'rgba(253,248,242,0.55)', cursor: 'pointer',
               fontFamily: "'Cabinet Grotesk', sans-serif",
             }}
           >
@@ -131,12 +131,12 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
           {/* Result card */}
           <div style={{
             background: result.bg,
-            border: `1.5px solid ${result.colour}30`,
+            border: `1.5px solid ${result.colour}40`,
             borderRadius: 14, padding: '28px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a89070', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(253,248,242,0.55)', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   Your BMI
                 </p>
                 <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 700, color: result.colour, margin: 0, lineHeight: 1 }}>
@@ -145,7 +145,7 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
               </div>
               <div style={{
                 padding: '8px 16px', borderRadius: 20,
-                background: result.colour + '20',
+                background: result.colour + '25',
                 color: result.colour, fontSize: 14, fontWeight: 700,
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 alignSelf: 'center',
@@ -153,14 +153,14 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
                 {result.label}
               </div>
             </div>
-            <p style={{ fontSize: 14, color: '#2a1f1a', lineHeight: 1.7, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 14, color: '#fdf8f2', lineHeight: 1.7, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {result.advice}
             </p>
           </div>
 
           {/* BMI scale */}
-          <div style={{ background: '#fff', border: '1px solid rgba(42,31,26,0.07)', borderRadius: 14, padding: '24px 28px' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a89070', margin: '0 0 16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <div style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 14, padding: '24px 28px', backdropFilter: 'blur(12px)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(253,248,242,0.55)', margin: '0 0 16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Asian BMI Scale (MOH Singapore)
             </p>
             <div style={{ position: 'relative', height: 12, borderRadius: 6, overflow: 'visible', marginBottom: 8, display: 'flex' }}>
@@ -168,7 +168,7 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
                 <div key={seg.label} style={{
                   flex: (seg.to - seg.from),
                   background: seg.colour,
-                  opacity: 0.3,
+                  opacity: 0.35,
                 }} />
               ))}
               {/* Needle */}
@@ -187,18 +187,18 @@ export default function BMICalculator({ initialHeight, initialWeight, userId }: 
               {BMI_SCALE.map((seg) => (
                 <div key={seg.label} style={{ textAlign: 'center', flex: 1 }}>
                   <p style={{ fontSize: 10, color: seg.colour, fontWeight: 700, margin: '4px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{seg.label}</p>
-                  <p style={{ fontSize: 10, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>&lt;{seg.to}</p>
+                  <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>&lt;{seg.to}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Insurance context */}
-          <div style={{ background: 'rgba(122,28,46,0.04)', border: '1px solid rgba(122,28,46,0.1)', borderRadius: 12, padding: '16px 20px' }}>
-            <p style={{ fontSize: 12, color: '#7a1c2e', fontWeight: 700, margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <div style={{ background: 'rgba(122,28,46,0.08)', border: '1px solid rgba(155,32,64,0.25)', borderRadius: 12, padding: '16px 20px' }}>
+            <p style={{ fontSize: 12, color: '#9b2040', fontWeight: 700, margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Insurance Context
             </p>
-            <p style={{ fontSize: 13, color: '#2a1f1a', margin: 0, lineHeight: 1.6, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 13, color: '#fdf8f2', margin: 0, lineHeight: 1.6, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {result.category === 'normal'
                 ? 'Standard insurance premiums apply. No loading expected for BMI-related conditions.'
                 : result.category === 'overweight'

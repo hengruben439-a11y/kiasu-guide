@@ -73,12 +73,12 @@ export default function GreetingHeader({ name }: Props) {
         transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
           fontFamily: "'Playfair Display', serif",
-          fontSize: 34, fontWeight: 700, color: '#2a1f1a',
+          fontSize: 34, fontWeight: 700, color: '#fdf8f2',
           margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1,
         }}
       >
         {greeting}, {name}
-        <span style={{ opacity: showCursor ? 1 : 0, color: '#7a1c2e', marginLeft: 2 }}>|</span>
+        <span style={{ opacity: showCursor ? 1 : 0, color: '#9b2040', marginLeft: 2 }}>|</span>
       </motion.h1>
       <AnimatePresence>
         {mounted && subline && (
@@ -89,7 +89,7 @@ export default function GreetingHeader({ name }: Props) {
             exit={{ opacity: 0 }}
             transition={{ delay: 0.35, duration: 0.4 }}
             style={{
-              fontSize: 15, color: '#a89070', margin: 0,
+              fontSize: 15, color: 'rgba(253,248,242,0.55)', margin: 0,
               fontFamily: "'Cabinet Grotesk', sans-serif",
             }}
           >

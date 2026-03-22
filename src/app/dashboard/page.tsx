@@ -117,13 +117,13 @@ export default async function DashboardPage() {
           </p>
           <p style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: 15, color: '#2a1f1a', fontStyle: 'italic',
+            fontSize: 15, color: '#fdf8f2', fontStyle: 'italic',
             margin: '0 0 10px', lineHeight: 1.7, maxWidth: 680,
           }}>
             &ldquo;{quote.quote}&rdquo;
           </p>
           {quote.author && (
-            <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.45)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               — {quote.author}
             </p>
           )}
@@ -143,13 +143,13 @@ export default async function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {notes.map((note, i) => (
               <div key={i} style={{
-                background: '#fff',
-                border: '1px solid rgba(42,31,26,0.07)',
-                borderLeft: '3px solid #7a1c2e',
+                background: 'rgba(122,28,46,0.08)',
+                border: '1px solid rgba(196,168,130,0.12)',
+                borderLeft: '3px solid #9b2040',
                 borderRadius: '0 10px 10px 0',
                 padding: '13px 18px',
               }}>
-                <p style={{ fontSize: 13, color: '#2a1f1a', lineHeight: 1.7, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.75)', lineHeight: 1.7, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   {note.content}
                 </p>
               </div>
@@ -163,11 +163,11 @@ export default async function DashboardPage() {
         <div className="grid-4col" style={{ gap: 12, marginBottom: 40 }}>
           {STAT_CARDS.map((s) => (
             <div key={s.label} style={{
-              background: '#fff',
-              border: '1px solid rgba(42,31,26,0.07)',
+              background: 'rgba(122,28,46,0.06)',
+              border: '1px solid rgba(196,168,130,0.15)',
               borderRadius: 14,
               padding: '18px 20px',
-              boxShadow: '0 2px 10px rgba(42,31,26,0.04)',
+              backdropFilter: 'blur(12px)',
               position: 'relative',
               overflow: 'hidden',
             }}>
@@ -186,18 +186,18 @@ export default async function DashboardPage() {
               </div>
               <p style={{
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: '#a89070',
+                textTransform: 'uppercase', color: 'rgba(196,168,130,0.6)',
                 margin: '0 0 5px', fontFamily: "'Cabinet Grotesk', sans-serif",
               }}>
                 {s.label}
               </p>
               <p style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: 22, fontWeight: 700, color: '#2a1f1a', margin: '0 0 3px',
+                fontSize: 22, fontWeight: 700, color: '#fdf8f2', margin: '0 0 3px',
               }}>
                 {s.value}
               </p>
-              <p style={{ fontSize: 11, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 {s.sub}
               </p>
             </div>
@@ -214,10 +214,10 @@ export default async function DashboardPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
         }}>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#2a1f1a', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#fdf8f2', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Your financial snapshot is waiting
             </p>
-            <p style={{ fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.50)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Complete your Financial Profile to unlock personalised analytics.
             </p>
           </div>

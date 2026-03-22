@@ -7,7 +7,7 @@ interface Props {
   tool: string
   data: Record<string, unknown>
   label?: string
-  autoRefresh?: boolean   // when true: auto-generate after data settles for 2s
+  autoRefresh?: boolean
 }
 
 type State = 'idle' | 'loading' | 'streaming' | 'done' | 'no_key' | 'error'
@@ -65,24 +65,18 @@ export default function AIInsightPanel({
     }
   }, [tool, data])
 
-  // Auto-refresh: watch data, debounce 2s, then regenerate
   useEffect(() => {
     if (!autoRefresh) return
     const serialised = JSON.stringify(data)
     if (serialised === prevDataRef.current) return
     prevDataRef.current = serialised
 
-    // Don't interrupt an in-progress stream
     if (state === 'loading' || state === 'streaming') return
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      generate()
-    }, 2000)
+    debounceRef.current = setTimeout(() => { generate() }, 2000)
 
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, autoRefresh])
 
@@ -90,30 +84,32 @@ export default function AIInsightPanel({
 
   return (
     <div style={{
-      background: 'rgba(122,28,46,0.03)',
-      border: '1px solid rgba(122,28,46,0.1)',
+      background: 'rgba(122,28,46,0.06)',
+      border: '1px solid rgba(155,32,64,0.2)',
       borderRadius: 14,
       overflow: 'hidden',
+      backdropFilter: 'blur(12px)',
     }}>
+      {/* Header */}
       <div style={{
-        padding: '16px 22px',
-        borderBottom: state !== 'idle' ? '1px solid rgba(122,28,46,0.08)' : 'none',
+        padding: '14px 20px',
+        borderBottom: state !== 'idle' ? '1px solid rgba(155,32,64,0.12)' : 'none',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 16 }}>✦</span>
+          <span style={{ fontSize: 14, color: '#9b2040' }}>✦</span>
           <div>
             <p style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 12, fontWeight: 700, letterSpacing: '0.08em',
-              textTransform: 'uppercase', color: '#7a1c2e', margin: 0,
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: '#c4a882', margin: 0,
             }}>
               Advisor AI Insight
             </p>
             {autoRefresh && state === 'idle' && (
-              <p style={{ fontSize: 10, color: '#a89070', margin: '1px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.35)', margin: '1px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Auto-generates when you adjust parameters
               </p>
             )}
@@ -124,7 +120,7 @@ export default function AIInsightPanel({
             <button
               onClick={reset}
               style={{
-                fontSize: 11, color: '#a89070', background: 'transparent',
+                fontSize: 11, color: 'rgba(253,248,242,0.4)', background: 'transparent',
                 border: 'none', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
@@ -137,9 +133,9 @@ export default function AIInsightPanel({
               whileTap={{ scale: 0.98 }}
               onClick={generate}
               style={{
-                background: '#7a1c2e', color: '#fdf8f2',
+                background: '#9b2040', color: '#fdf8f2',
                 border: 'none', borderRadius: 8,
-                padding: '8px 16px', fontSize: 12, fontWeight: 600,
+                padding: '7px 16px', fontSize: 12, fontWeight: 600,
                 cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
@@ -152,9 +148,9 @@ export default function AIInsightPanel({
               whileTap={{ scale: 0.98 }}
               onClick={generate}
               style={{
-                background: 'none', color: '#7a1c2e',
-                border: '1px solid rgba(122,28,46,0.25)', borderRadius: 8,
-                padding: '6px 14px', fontSize: 12, fontWeight: 600,
+                background: 'none', color: '#c4a882',
+                border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8,
+                padding: '6px 14px', fontSize: 11, fontWeight: 600,
                 cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
@@ -170,7 +166,7 @@ export default function AIInsightPanel({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            style={{ padding: '20px 22px', display: 'flex', alignItems: 'center', gap: 10 }}
+            style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 10 }}
           >
             <div style={{ display: 'flex', gap: 4 }}>
               {[0, 1, 2].map((i) => (
@@ -178,11 +174,11 @@ export default function AIInsightPanel({
                   key={i}
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-                  style={{ width: 6, height: 6, borderRadius: '50%', background: '#7a1c2e' }}
+                  style={{ width: 5, height: 5, borderRadius: '50%', background: '#9b2040' }}
                 />
               ))}
             </div>
-            <span style={{ fontSize: 13, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Analysing your numbers…
             </span>
           </motion.div>
@@ -192,11 +188,11 @@ export default function AIInsightPanel({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            style={{ padding: '18px 22px 20px' }}
+            style={{ padding: '16px 20px 20px' }}
           >
             <p style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 14, color: '#2a1f1a', lineHeight: 1.75,
+              fontSize: 13, color: 'rgba(253,248,242,0.80)', lineHeight: 1.8,
               margin: 0, whiteSpace: 'pre-wrap',
             }}>
               {text}
@@ -204,7 +200,7 @@ export default function AIInsightPanel({
                 <motion.span
                   animate={{ opacity: [1, 0] }}
                   transition={{ duration: 0.5, repeat: Infinity }}
-                  style={{ color: '#7a1c2e', marginLeft: 1 }}
+                  style={{ color: '#9b2040', marginLeft: 1 }}
                 >|</motion.span>
               )}
             </p>
@@ -215,11 +211,15 @@ export default function AIInsightPanel({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            style={{ padding: '16px 22px', display: 'flex', alignItems: 'center', gap: 10 }}
+            style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}
           >
-            <span style={{ fontSize: 14 }}>🔑</span>
-            <p style={{ fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-              AI insights require an <code style={{ background: 'rgba(42,31,26,0.06)', padding: '1px 6px', borderRadius: 4, fontSize: 12 }}>ANTHROPIC_API_KEY</code> environment variable.
+            <span style={{ fontSize: 13 }}>🔑</span>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              AI insights require an{' '}
+              <code style={{ background: 'rgba(155,32,64,0.15)', padding: '1px 6px', borderRadius: 4, fontSize: 11, color: '#c4a882' }}>
+                ANTHROPIC_API_KEY
+              </code>{' '}
+              environment variable.
             </p>
           </motion.div>
         )}
@@ -228,9 +228,9 @@ export default function AIInsightPanel({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            style={{ padding: '16px 22px' }}
+            style={{ padding: '14px 20px' }}
           >
-            <p style={{ fontSize: 13, color: '#dc2626', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 12, color: '#ef4444', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Could not generate insight. Please try again.
             </p>
           </motion.div>

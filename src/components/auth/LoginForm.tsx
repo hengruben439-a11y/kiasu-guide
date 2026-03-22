@@ -38,9 +38,9 @@ export default function LoginForm() {
 
   const inputStyle = {
     width: '100%', padding: '12px 16px',
-    border: '1.5px solid rgba(42,31,26,0.13)',
-    borderRadius: 10, fontSize: 14, color: '#2a1f1a',
-    background: '#fff', outline: 'none',
+    border: '1px solid rgba(196,168,130,0.2)',
+    borderRadius: 10, fontSize: 14, color: '#fdf8f2',
+    background: 'rgba(10,6,5,0.7)', outline: 'none',
     fontFamily: "'Cabinet Grotesk', sans-serif",
     boxSizing: 'border-box' as const,
   }
@@ -49,7 +49,7 @@ export default function LoginForm() {
     display: 'block' as const,
     fontSize: 11, fontWeight: 600 as const,
     letterSpacing: '0.1em', textTransform: 'uppercase' as const,
-    color: '#a89070', marginBottom: 8,
+    color: 'rgba(196,168,130,0.7)', marginBottom: 8,
     fontFamily: "'Cabinet Grotesk', sans-serif",
   }
 
@@ -89,7 +89,7 @@ export default function LoginForm() {
         type="submit"
         disabled={loading}
         style={{
-          background: loading ? '#c4a882' : '#7a1c2e',
+          background: loading ? 'rgba(155,32,64,0.5)' : '#9b2040',
           color: '#fdf8f2', border: 'none', borderRadius: 10,
           padding: '13px', fontSize: 14, fontWeight: 700,
           cursor: loading ? 'not-allowed' : 'pointer',
@@ -100,9 +100,9 @@ export default function LoginForm() {
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
 
-      <p style={{ textAlign: 'center', fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+      <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(253,248,242,0.40)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
         Don&apos;t have an account?{' '}
-        <Link href="/register" style={{ color: '#7a1c2e', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/register" style={{ color: '#c4a882', fontWeight: 600, textDecoration: 'none' }}>
           Register
         </Link>
       </p>

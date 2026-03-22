@@ -1,42 +1,91 @@
 @import "tailwindcss";
 
+/* ── Design tokens ────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:           #0a0605;
+  --surface:      rgba(122,28,46,0.08);
+  --border:       rgba(196,168,130,0.15);
+  --border-hover: rgba(196,168,130,0.30);
+  --accent:       #9b2040;
+  --accent-dim:   #7a1c2e;
+  --gold:         #c4a882;
+  --text:         #fdf8f2;
+  --text-dim:     rgba(253,248,242,0.60);
+  --text-muted:   rgba(253,248,242,0.35);
+  --success:      #10b981;
+  --warning:      #f59e0b;
+  --danger:       #ef4444;
+  --cpf-note:     #a78bfa;
+
+  /* Backwards-compat aliases (used by older components) */
+  --background:   var(--bg);
+  --foreground:   var(--text);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground:  var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cabinet Grotesk', 'Geist Sans', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Mobile: add top clearance for the fixed hamburger button */
+/* ── Typography helpers ───────────────────────────────────────────────────── */
+.font-serif  { font-family: 'Playfair Display', Georgia, serif; }
+.font-sans   { font-family: 'Cabinet Grotesk', sans-serif; }
+
+/* ── Glass card pattern ───────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(122,28,46,0.06);
+  border: 1px solid rgba(196,168,130,0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card-hover {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.glass-card-hover:hover {
+  border-color: rgba(196,168,130,0.30);
+  box-shadow: 0 8px 32px rgba(122,28,46,0.15);
+}
+
+/* ── Scrollbar (dark) ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(196,168,130,0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(196,168,130,0.4);
+}
+
+/* ── Mobile: top clearance for fixed hamburger ────────────────────────────── */
 @media (max-width: 768px) {
   .kiasu-main-content {
     padding-top: 60px;
   }
 }
 
-/* ── Responsive grid utilities ────────────────────────────────────────
-   Usage: add className="grid-Ncol" and remove gridTemplateColumns from
-   the inline style. Keep gap/margin/etc. in the inline style.
-──────────────────────────────────────────────────────────────────────── */
-
+/* ── Responsive grid utilities ────────────────────────────────────────────── */
 .grid-4col { display: grid; grid-template-columns: repeat(4, 1fr); }
 .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); }
 .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); }
@@ -52,13 +101,13 @@ body {
   gap: 20px;
 }
 
-/* Scrollable table wrapper for data tables on mobile */
+/* Scrollable table wrapper */
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Tab bars that need to scroll horizontally on mobile */
+/* Tab bars */
 .tab-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -73,17 +122,10 @@ body {
   .grid-score   { grid-template-columns: 1fr; }
   .grid-sidebar { grid-template-columns: 1fr; }
   .overview-score-grid { grid-template-columns: 1fr; }
-
-  /* Ensure overview 2×2 stat quad becomes 1-col on very small screens */
   .overview-quad { grid-template-columns: 1fr !important; }
 }
 
-/* ── Landing page responsive ──────────────────────────────────────────
-   The landing page is a standalone marketing page (no sidebar shell).
-   It uses its own padding and grid layouts.
-──────────────────────────────────────────────────────────────────────── */
-
-/* Sales letter + calculator section */
+/* ── Landing page ─────────────────────────────────────────────────────────── */
 .landing-about {
   padding: 100px 60px;
   max-width: 1280px;
@@ -94,7 +136,6 @@ body {
   align-items: start;
 }
 
-/* Fake dashboard mockup body (sidebar + content) */
 .mockup-body {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -108,10 +149,37 @@ body {
     grid-template-columns: 1fr;
     gap: 48px;
   }
-
-  /* On mobile: hide the fake sidebar, make mockup full-width */
-  .mockup-body {
-    grid-template-columns: 1fr;
-  }
+  .mockup-body { grid-template-columns: 1fr; }
   .mockup-sidebar { display: none; }
+}
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(155,32,64,0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(155,32,64,0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-fade-in    { animation: fade-in 0.35s ease forwards; }
+
+/* ── Range input reset (for SliderInput) ─────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1px; height: 1px;
+  background: transparent;
 }

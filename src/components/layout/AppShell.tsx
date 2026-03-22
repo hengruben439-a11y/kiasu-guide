@@ -10,7 +10,7 @@ interface AppShellProps {
 
 export default function AppShell({ children, role, fullName, email }: AppShellProps) {
   return (
-    <div className="flex min-h-screen" style={{ background: '#fdf8f2' }}>
+    <div className="flex min-h-screen" style={{ background: '#0a0605' }}>
       <Sidebar role={role} fullName={fullName} email={email} />
       <main
         className="kiasu-main-content"

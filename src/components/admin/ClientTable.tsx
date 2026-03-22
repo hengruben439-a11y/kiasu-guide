@@ -15,10 +15,10 @@ interface Props {
 }
 
 const statusColour: Record<string, { bg: string; text: string }> = {
-  prospect:    { bg: 'rgba(196,168,130,0.15)', text: '#a89070' },
-  active:      { bg: 'rgba(122,28,46,0.08)',   text: '#7a1c2e' },
-  review_due:  { bg: 'rgba(234,179,8,0.1)',    text: '#92400e' },
-  inactive:    { bg: 'rgba(42,31,26,0.07)',     text: '#a89070' },
+  prospect:    { bg: 'rgba(196,168,130,0.15)', text: 'rgba(253,248,242,0.55)' },
+  active:      { bg: 'rgba(122,28,46,0.15)',   text: '#c4a882' },
+  review_due:  { bg: 'rgba(234,179,8,0.1)',    text: '#f59e0b' },
+  inactive:    { bg: 'rgba(196,168,130,0.08)', text: 'rgba(253,248,242,0.55)' },
 }
 
 const FILTER_OPTIONS = [
@@ -41,16 +41,16 @@ export default function ClientTable({ clients }: Props) {
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid rgba(42,31,26,0.07)',
+      background: 'rgba(122,28,46,0.06)',
+      border: '1px solid rgba(196,168,130,0.15)',
       borderRadius: 14,
       overflow: 'hidden',
-      boxShadow: '0 4px 16px rgba(42,31,26,0.04)',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
     }}>
       {/* Table header with search + filters */}
-      <div style={{ padding: '18px 28px', borderBottom: '1px solid rgba(42,31,26,0.06)' }}>
+      <div style={{ padding: '18px 28px', borderBottom: '1px solid rgba(196,168,130,0.15)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#2a1f1a', margin: 0 }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>
             All Clients
           </h2>
           <input
@@ -63,9 +63,9 @@ export default function ClientTable({ clients }: Props) {
               fontFamily: "'Cabinet Grotesk', sans-serif",
               padding: '7px 14px',
               borderRadius: 8,
-              border: '1.5px solid rgba(42,31,26,0.13)',
-              color: '#2a1f1a',
-              background: '#fdf8f2',
+              border: '1px solid rgba(196,168,130,0.15)',
+              color: '#fdf8f2',
+              background: 'rgba(10,6,5,0.6)',
               outline: 'none',
               width: 200,
             }}
@@ -87,9 +87,9 @@ export default function ClientTable({ clients }: Props) {
                   borderRadius: 20,
                   cursor: 'pointer',
                   fontFamily: "'Cabinet Grotesk', sans-serif",
-                  border: isActive ? '1.5px solid rgba(122,28,46,0.2)' : '1px solid rgba(42,31,26,0.1)',
-                  background: isActive ? 'rgba(122,28,46,0.1)' : '#fff',
-                  color: isActive ? '#7a1c2e' : '#a89070',
+                  border: isActive ? '1.5px solid rgba(196,168,130,0.3)' : '1px solid rgba(196,168,130,0.15)',
+                  background: isActive ? 'rgba(122,28,46,0.2)' : 'transparent',
+                  color: isActive ? '#c4a882' : 'rgba(253,248,242,0.55)',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -104,13 +104,13 @@ export default function ClientTable({ clients }: Props) {
       <div className="table-scroll">
       <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
         <thead>
-          <tr style={{ background: '#fdf8f2' }}>
+          <tr style={{ background: 'rgba(10,6,5,0.5)' }}>
             {['Name', 'Pipeline', 'Monthly Income', 'Savings', 'CPF Total', ''].map((h) => (
               <th key={h} style={{
                 textAlign: 'left', padding: '10px 20px',
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: '#a89070',
-                borderBottom: '1px solid rgba(42,31,26,0.06)',
+                textTransform: 'uppercase', color: 'rgba(253,248,242,0.55)',
+                borderBottom: '1px solid rgba(196,168,130,0.15)',
               }}>
                 {h}
               </th>
@@ -125,10 +125,10 @@ export default function ClientTable({ clients }: Props) {
             return (
               <tr
                 key={client.user_id}
-                style={{ borderBottom: '1px solid rgba(42,31,26,0.04)' }}
+                style={{ borderBottom: '1px solid rgba(196,168,130,0.04)' }}
               >
                 <td style={{ padding: '14px 20px' }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', margin: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', margin: 0 }}>
                     {client.preferred_name ?? '(no name)'}
                   </p>
                 </td>
@@ -142,20 +142,20 @@ export default function ClientTable({ clients }: Props) {
                     {status.replace('_', ' ')}
                   </span>
                 </td>
-                <td style={{ padding: '14px 20px', fontSize: 13, color: '#2a1f1a' }}>
+                <td style={{ padding: '14px 20px', fontSize: 13, color: '#fdf8f2' }}>
                   {Number(client.monthly_income) > 0 ? formatSGD(Number(client.monthly_income)) : '—'}
                 </td>
-                <td style={{ padding: '14px 20px', fontSize: 13, color: '#2a1f1a' }}>
+                <td style={{ padding: '14px 20px', fontSize: 13, color: '#fdf8f2' }}>
                   {Number(client.liquid_savings) > 0 ? formatSGD(Number(client.liquid_savings)) : '—'}
                 </td>
-                <td style={{ padding: '14px 20px', fontSize: 13, color: '#2a1f1a' }}>
+                <td style={{ padding: '14px 20px', fontSize: 13, color: '#fdf8f2' }}>
                   {cpfTotal > 0 ? formatSGD(cpfTotal) : '—'}
                 </td>
                 <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                   <Link
                     href={`/admin/clients/${client.user_id}`}
                     style={{
-                      fontSize: 12, fontWeight: 600, color: '#7a1c2e',
+                      fontSize: 12, fontWeight: 600, color: '#c4a882',
                       textDecoration: 'none',
                     }}
                   >
@@ -168,7 +168,7 @@ export default function ClientTable({ clients }: Props) {
 
           {filtered.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: '#a89070', fontSize: 14 }}>
+              <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: 'rgba(253,248,242,0.55)', fontSize: 14 }}>
                 {clients.length === 0
                   ? 'No clients yet. Use "Invite New Client" to get started.'
                   : 'No clients match your search.'}

@@ -101,16 +101,17 @@ function NetWorthTab({ userId }: { userId: string }) {
   const totalLiabilities = liabilities.reduce((s, i) => s + i.value, 0)
   const netWorth = totalAssets - totalLiabilities
 
-  if (loading) return <p style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Loading…</p>
+  if (loading) return <p style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Loading…</p>
 
   const itemRowStyle: React.CSSProperties = {
     display: 'flex', alignItems: 'center', gap: 10,
-    padding: '9px 12px', borderRadius: 8, background: '#fff',
-    border: '1px solid #e8ddd0', marginBottom: 6,
+    padding: '9px 12px', borderRadius: 8,
+    background: 'rgba(10,6,5,0.4)',
+    border: '1px solid rgba(196,168,130,0.15)', marginBottom: 6,
   }
   const catBadge: React.CSSProperties = {
     fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20,
-    background: '#fdf8f2', color: '#a89070', border: '1px solid #e8ddd0',
+    background: 'rgba(196,168,130,0.08)', color: 'rgba(253,248,242,0.55)', border: '1px solid rgba(196,168,130,0.15)',
     fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0,
   }
 
@@ -119,12 +120,12 @@ function NetWorthTab({ userId }: { userId: string }) {
       {/* Net worth summary */}
       <div className="grid-3col" style={{ gap: 12 }}>
         {[
-          { label: 'Total Assets', value: totalAssets, colour: '#16a34a' },
-          { label: 'Total Liabilities', value: totalLiabilities, colour: '#dc2626' },
-          { label: 'Net Worth', value: netWorth, colour: netWorth >= 0 ? '#7a1c2e' : '#dc2626' },
+          { label: 'Total Assets', value: totalAssets, colour: '#10b981' },
+          { label: 'Total Liabilities', value: totalLiabilities, colour: '#ef4444' },
+          { label: 'Net Worth', value: netWorth, colour: netWorth >= 0 ? '#9b2040' : '#ef4444' },
         ].map((s) => (
-          <div key={s.label} style={{ background: '#fdf8f2', border: '1px solid #e8ddd0', borderRadius: 12, padding: '14px 16px' }}>
-            <p style={{ fontSize: 11, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '0 0 4px' }}>{s.label}</p>
+          <div key={s.label} style={{ background: 'rgba(10,6,5,0.4)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 12, padding: '14px 16px' }}>
+            <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '0 0 4px' }}>{s.label}</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Playfair Display', serif", color: s.colour, margin: 0 }}>
               {formatSGD(Math.abs(s.value))}
             </p>
@@ -135,25 +136,25 @@ function NetWorthTab({ userId }: { userId: string }) {
       {/* Assets */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#16a34a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#10b981', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
             Assets
           </p>
           <button
             onClick={() => { setAddingType('asset'); setNewCategory(ASSET_CATEGORIES[0]) }}
-            style={{ fontSize: 12, fontWeight: 600, color: '#7a1c2e', background: 'none', border: '1px solid #c4a882', borderRadius: 7, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            style={{ fontSize: 12, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 7, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
           >
             + Add Asset
           </button>
         </div>
         {assets.length === 0 && (
-          <p style={{ fontSize: 13, color: '#a89070', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>No assets added yet.</p>
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>No assets added yet.</p>
         )}
         {assets.map((item) => (
           <div key={item.id} style={itemRowStyle}>
             <span style={catBadge}>{item.category}</span>
-            <span style={{ fontSize: 13, flex: 1, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{item.label}</span>
-            <EditableValue value={item.value} colour="#16a34a" onCommit={(v) => updateValue(item.id, v)} />
-            <button onClick={() => deleteItem(item.id)} style={{ color: '#c4a882', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, flexShrink: 0, lineHeight: 1 }}>×</button>
+            <span style={{ fontSize: 13, flex: 1, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{item.label}</span>
+            <EditableValue value={item.value} colour="#10b981" onCommit={(v) => updateValue(item.id, v)} />
+            <button onClick={() => deleteItem(item.id)} style={{ color: 'rgba(253,248,242,0.55)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, flexShrink: 0, lineHeight: 1 }}>×</button>
           </div>
         ))}
       </div>
@@ -161,42 +162,42 @@ function NetWorthTab({ userId }: { userId: string }) {
       {/* Liabilities */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#dc2626', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#ef4444', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
             Liabilities
           </p>
           <button
             onClick={() => { setAddingType('liability'); setNewCategory(LIABILITY_CATEGORIES[0]) }}
-            style={{ fontSize: 12, fontWeight: 600, color: '#7a1c2e', background: 'none', border: '1px solid #c4a882', borderRadius: 7, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            style={{ fontSize: 12, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 7, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
           >
             + Add Liability
           </button>
         </div>
         {liabilities.length === 0 && (
-          <p style={{ fontSize: 13, color: '#a89070', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>No liabilities added yet.</p>
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>No liabilities added yet.</p>
         )}
         {liabilities.map((item) => (
           <div key={item.id} style={itemRowStyle}>
             <span style={catBadge}>{item.category}</span>
-            <span style={{ fontSize: 13, flex: 1, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{item.label}</span>
-            <EditableValue value={item.value} colour="#dc2626" onCommit={(v) => updateValue(item.id, v)} />
-            <button onClick={() => deleteItem(item.id)} style={{ color: '#c4a882', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, flexShrink: 0, lineHeight: 1 }}>×</button>
+            <span style={{ fontSize: 13, flex: 1, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{item.label}</span>
+            <EditableValue value={item.value} colour="#ef4444" onCommit={(v) => updateValue(item.id, v)} />
+            <button onClick={() => deleteItem(item.id)} style={{ color: 'rgba(253,248,242,0.55)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, flexShrink: 0, lineHeight: 1 }}>×</button>
           </div>
         ))}
       </div>
 
       {/* Add item inline form */}
       {addingType && (
-        <div style={{ background: '#fdf8f2', border: '1px solid #c4a882', borderRadius: 12, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
+        <div style={{ background: 'rgba(10,6,5,0.5)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
             Add {addingType === 'asset' ? 'Asset' : 'Liability'}
           </p>
           <div className="grid-3col" style={{ gap: 10 }}>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 600, color: '#a89070', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Category</label>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Category</label>
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
-                style={{ width: '100%', fontSize: 13, border: '1px solid #e8ddd0', borderRadius: 8, padding: '8px 10px', background: '#fff', color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
               >
                 {(addingType === 'asset' ? ASSET_CATEGORIES : LIABILITY_CATEGORIES).map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -204,24 +205,24 @@ function NetWorthTab({ userId }: { userId: string }) {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 600, color: '#a89070', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Description</label>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Description</label>
               <input
                 type="text"
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
                 placeholder="e.g. DBS Savings"
-                style={{ width: '100%', fontSize: 13, border: '1px solid #e8ddd0', borderRadius: 8, padding: '8px 10px', background: '#fff', color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 600, color: '#a89070', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Amount (S$)</label>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Amount (S$)</label>
               <input
                 type="number"
                 value={newValue}
                 onChange={(e) => setNewValue(e.target.value)}
                 placeholder="0"
                 min={0}
-                style={{ width: '100%', fontSize: 13, border: '1px solid #e8ddd0', borderRadius: 8, padding: '8px 10px', background: '#fff', color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
               />
             </div>
           </div>
@@ -229,13 +230,13 @@ function NetWorthTab({ userId }: { userId: string }) {
             <button
               onClick={addItem}
               disabled={saving || !newLabel || !newValue}
-              style={{ background: '#7a1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: (saving || !newLabel || !newValue) ? 0.5 : 1 }}
+              style={{ background: '#9b2040', color: '#fdf8f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: (saving || !newLabel || !newValue) ? 0.5 : 1 }}
             >
               {saving ? 'Saving…' : 'Save'}
             </button>
             <button
               onClick={() => { setAddingType(null); setNewLabel(''); setNewValue('') }}
-              style={{ background: 'none', color: '#a89070', border: '1px solid #e8ddd0', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+              style={{ background: 'none', color: 'rgba(253,248,242,0.55)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
             >
               Cancel
             </button>
@@ -261,7 +262,7 @@ function EditableValue({ value, colour, onCommit }: { value: number; colour: str
   if (editing) return (
     <input ref={ref} type="text" value={draft} onChange={(e) => setDraft(e.target.value)}
       onBlur={commit} onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }}
-      style={{ width: 90, textAlign: 'right', fontSize: 13, fontWeight: 700, border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px', outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif", color: '#2a1f1a' }}
+      style={{ width: 90, textAlign: 'right', fontSize: 13, fontWeight: 700, border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px', outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif", color: '#fdf8f2', background: 'rgba(10,6,5,0.6)' }}
       autoFocus
     />
   )
@@ -274,9 +275,9 @@ function EditableValue({ value, colour, onCommit }: { value: number; colour: str
 
 const input = {
   width: '100%', padding: '12px 16px',
-  border: '1.5px solid rgba(42,31,26,0.13)',
-  borderRadius: 10, fontSize: 14, color: '#2a1f1a',
-  background: '#fff', outline: 'none',
+  border: '1px solid rgba(196,168,130,0.15)',
+  borderRadius: 10, fontSize: 14, color: '#fdf8f2',
+  background: 'rgba(10,6,5,0.6)', outline: 'none',
   fontFamily: "'Cabinet Grotesk', sans-serif",
   boxSizing: 'border-box' as const,
   transition: 'border-color 0.15s',
@@ -288,7 +289,7 @@ const label = {
   display: 'block' as const,
   fontSize: 11, fontWeight: 600 as const,
   letterSpacing: '0.1em', textTransform: 'uppercase' as const,
-  color: '#a89070', marginBottom: 8,
+  color: 'rgba(253,248,242,0.55)', marginBottom: 8,
   fontFamily: "'Cabinet Grotesk', sans-serif",
 }
 
@@ -297,7 +298,7 @@ function Field({ labelText, hint, children }: { labelText: string; hint?: string
     <div>
       <label style={label}>{labelText}</label>
       {children}
-      {hint && <p style={{ fontSize: 11, color: '#a89070', margin: '5px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{hint}</p>}
+      {hint && <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: '5px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{hint}</p>}
     </div>
   )
 }
@@ -305,7 +306,7 @@ function Field({ labelText, hint, children }: { labelText: string; hint?: string
 function SGD({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div style={{ position: 'relative' }}>
-      <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#a89070', fontWeight: 700, pointerEvents: 'none', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+      <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(253,248,242,0.55)', fontWeight: 700, pointerEvents: 'none', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
         S$
       </span>
       <input
@@ -393,18 +394,18 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
   const cpfTotal = (Number(form.cpf_oa) || 0) + (Number(form.cpf_sa) || 0) + (Number(form.cpf_ma) || 0)
 
   return (
-    <div style={{ background: '#fff', border: '1px solid rgba(42,31,26,0.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 20px rgba(42,31,26,0.05)' }}>
+    <div style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
       {/* Tab bar */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(42,31,26,0.07)', background: '#fdf8f2', overflowX: 'auto' as const }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.5)', overflowX: 'auto' as const }}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
               padding: '14px 20px', fontSize: 13, fontWeight: 600,
-              color: activeTab === tab.id ? '#7a1c2e' : '#a89070',
+              color: activeTab === tab.id ? '#c4a882' : 'rgba(253,248,242,0.55)',
               background: 'transparent', border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid #7a1c2e' : '2px solid transparent',
+              borderBottom: activeTab === tab.id ? '2px solid #9b2040' : '2px solid transparent',
               cursor: 'pointer', whiteSpace: 'nowrap' as const,
               fontFamily: "'Cabinet Grotesk', sans-serif",
               transition: 'color 0.15s',
@@ -415,9 +416,9 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
         ))}
         {/* Save status */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingRight: 20 }}>
-          {saveStatus === 'saving' && <span style={{ fontSize: 12, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Saving…</span>}
-          {saveStatus === 'saved' && <span style={{ fontSize: 12, color: '#22c55e', fontFamily: "'Cabinet Grotesk', sans-serif" }}>✓ Saved</span>}
-          {saveStatus === 'error' && <span style={{ fontSize: 12, color: '#dc2626', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Error saving</span>}
+          {saveStatus === 'saving' && <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Saving…</span>}
+          {saveStatus === 'saved' && <span style={{ fontSize: 12, color: '#10b981', fontFamily: "'Cabinet Grotesk', sans-serif" }}>✓ Saved</span>}
+          {saveStatus === 'error' && <span style={{ fontSize: 12, color: '#ef4444', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Error saving</span>}
         </div>
       </div>
 
@@ -441,11 +442,11 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
             {surplus !== null && (
               <div style={{
                 padding: '16px 20px', borderRadius: 10,
-                background: surplus >= 0 ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)',
-                border: `1px solid ${surplus >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                background: surplus >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                border: `1px solid ${surplus >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
               }}>
-                <p style={{ fontSize: 14, color: '#2a1f1a', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                  Monthly surplus: <strong style={{ color: surplus >= 0 ? '#16a34a' : '#dc2626' }}>
+                <p style={{ fontSize: 14, color: '#fdf8f2', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  Monthly surplus: <strong style={{ color: surplus >= 0 ? '#10b981' : '#ef4444' }}>
                     {surplus >= 0 ? '+' : ''}S${surplus.toLocaleString()}
                   </strong>
                 </p>
@@ -470,9 +471,9 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
                   <button key={String(v)} type="button" onClick={() => set('property_liquid', v)}
                     style={{
                       padding: '11px 16px', borderRadius: 10, fontFamily: "'Cabinet Grotesk', sans-serif",
-                      border: form.property_liquid === v ? '2px solid #7a1c2e' : '1.5px solid rgba(42,31,26,0.13)',
-                      background: form.property_liquid === v ? 'rgba(122,28,46,0.06)' : '#fff',
-                      color: form.property_liquid === v ? '#7a1c2e' : '#2a1f1a',
+                      border: form.property_liquid === v ? '2px solid #9b2040' : '1px solid rgba(196,168,130,0.15)',
+                      background: form.property_liquid === v ? 'rgba(155,32,64,0.15)' : 'rgba(10,6,5,0.4)',
+                      color: form.property_liquid === v ? '#c4a882' : 'rgba(253,248,242,0.55)',
                       fontSize: 13, fontWeight: 600, cursor: 'pointer',
                     }}>{l}</button>
                 ))}
@@ -493,9 +494,9 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
             <Field labelText="Medisave Account (MA)" hint="Earns 4% p.a. — medical expenses & MediShield Life premiums">
               <SGD value={form.cpf_ma} onChange={(v) => set('cpf_ma', v)} placeholder="20,000" />
             </Field>
-            <div style={{ padding: '16px 20px', background: 'rgba(122,28,46,0.04)', border: '1px solid rgba(122,28,46,0.08)', borderRadius: 10 }}>
-              <p style={{ fontSize: 14, color: '#2a1f1a', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                Total CPF: <strong>S${cpfTotal.toLocaleString()}</strong>
+            <div style={{ padding: '16px 20px', background: 'rgba(155,32,64,0.08)', border: '1px solid rgba(155,32,64,0.2)', borderRadius: 10 }}>
+              <p style={{ fontSize: 14, color: '#fdf8f2', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                Total CPF: <strong style={{ color: '#c4a882' }}>S${cpfTotal.toLocaleString()}</strong>
               </p>
             </div>
           </div>

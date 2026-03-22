@@ -9,10 +9,10 @@ interface Props {
 }
 
 const statusColour: Record<string, { bg: string; text: string; border: string }> = {
-  prospect:   { bg: 'rgba(196,168,130,0.15)', text: '#a89070', border: 'rgba(196,168,130,0.3)' },
-  active:     { bg: 'rgba(122,28,46,0.08)',   text: '#7a1c2e', border: 'rgba(122,28,46,0.25)' },
-  review_due: { bg: 'rgba(234,179,8,0.1)',    text: '#92400e', border: 'rgba(234,179,8,0.3)'  },
-  inactive:   { bg: 'rgba(42,31,26,0.07)',    text: '#a89070', border: 'rgba(42,31,26,0.15)'  },
+  prospect:   { bg: 'rgba(196,168,130,0.15)', text: 'rgba(253,248,242,0.55)', border: 'rgba(196,168,130,0.3)' },
+  active:     { bg: 'rgba(122,28,46,0.15)',   text: '#c4a882',                border: 'rgba(155,32,64,0.4)'   },
+  review_due: { bg: 'rgba(234,179,8,0.1)',    text: '#f59e0b',                border: 'rgba(234,179,8,0.3)'   },
+  inactive:   { bg: 'rgba(196,168,130,0.08)', text: 'rgba(253,248,242,0.55)', border: 'rgba(196,168,130,0.2)' },
 }
 
 const statusOptions = [
@@ -83,7 +83,7 @@ export default function PipelineStatusSelect({ userId, currentStatus }: Props) {
           style={{
             fontSize: 11,
             fontWeight: 600,
-            color: '#7a1c2e',
+            color: '#c4a882',
             fontFamily: "'Cabinet Grotesk', sans-serif",
             animation: 'fadeOut 1.5s ease forwards',
           }}

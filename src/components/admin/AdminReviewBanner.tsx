@@ -19,10 +19,10 @@ export default function AdminReviewBanner({ clientName, clientId }: Props) {
         top: 0,
         zIndex: 50,
         width: '100%',
-        background: 'linear-gradient(135deg, rgba(122,28,46,0.08) 0%, rgba(196,168,130,0.08) 100%)',
-        borderBottom: '1px solid rgba(122,28,46,0.15)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(155,32,64,0.3)',
+        borderBottom: '1px solid rgba(196,168,130,0.25)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -39,17 +39,17 @@ export default function AdminReviewBanner({ clientName, clientId }: Props) {
           fontWeight: 800,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: '#7a1c2e',
-          background: 'rgba(122,28,46,0.1)',
-          border: '1.5px solid rgba(122,28,46,0.2)',
+          color: '#c4a882',
+          background: 'rgba(196,168,130,0.15)',
+          border: '1.5px solid rgba(196,168,130,0.3)',
           padding: '3px 10px',
           borderRadius: 20,
         }}>
           Review Mode
         </span>
-        <span style={{ fontSize: 13, color: '#2a1f1a', fontWeight: 500 }}>
+        <span style={{ fontSize: 13, color: '#fdf8f2', fontWeight: 500 }}>
           Viewing as:{' '}
-          <span style={{ fontWeight: 700, color: '#7a1c2e' }}>{clientName}</span>
+          <span style={{ fontWeight: 700, color: '#c4a882' }}>{clientName}</span>
         </span>
       </div>
 
@@ -59,7 +59,7 @@ export default function AdminReviewBanner({ clientName, clientId }: Props) {
         style={{
           fontSize: 13,
           fontWeight: 600,
-          color: '#7a1c2e',
+          color: '#c4a882',
           textDecoration: 'none',
           display: 'flex',
           alignItems: 'center',

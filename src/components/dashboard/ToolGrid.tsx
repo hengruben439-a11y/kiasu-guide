@@ -9,7 +9,7 @@ interface Tool {
   href: string
   emoji: string
   accent: string        // hex color
-  accentBg: string      // light tint of accent
+  accentBg: string      // dark tint of accent
   category: string
   hero?: boolean
 }
@@ -20,8 +20,8 @@ const tools: Tool[] = [
     description: 'Your complete financial snapshot — health score, progress bars, and key metrics in one view.',
     href: '/dashboard/overview',
     emoji: '🗺️',
-    accent: '#7a1c2e',
-    accentBg: 'rgba(122,28,46,0.06)',
+    accent: '#9b2040',
+    accentBg: 'rgba(155,32,64,0.12)',
     category: 'Dashboard',
     hero: true,
   },
@@ -30,8 +30,8 @@ const tools: Tool[] = [
     description: 'Composite 0–100 score across protection, retirement, liquidity, debt, and investment.',
     href: '/dashboard/health-score',
     emoji: '📊',
-    accent: '#7a1c2e',
-    accentBg: 'rgba(122,28,46,0.05)',
+    accent: '#9b2040',
+    accentBg: 'rgba(155,32,64,0.10)',
     category: 'Dashboard',
   },
   {
@@ -39,8 +39,8 @@ const tools: Tool[] = [
     description: 'Update your income, expenses, CPF, and retirement goals.',
     href: '/dashboard/profile',
     emoji: '📝',
-    accent: '#a89070',
-    accentBg: 'rgba(168,144,112,0.08)',
+    accent: '#c4a882',
+    accentBg: 'rgba(196,168,130,0.10)',
     category: 'Setup',
   },
   {
@@ -49,7 +49,7 @@ const tools: Tool[] = [
     href: '/dashboard/net-worth',
     emoji: '⚖️',
     accent: '#0369a1',
-    accentBg: 'rgba(3,105,161,0.06)',
+    accentBg: 'rgba(3,105,161,0.10)',
     category: 'Wealth',
   },
   {
@@ -58,7 +58,7 @@ const tools: Tool[] = [
     href: '/dashboard/retirement',
     emoji: '🏖️',
     accent: '#0369a1',
-    accentBg: 'rgba(3,105,161,0.06)',
+    accentBg: 'rgba(3,105,161,0.10)',
     category: 'Wealth',
   },
   {
@@ -67,7 +67,7 @@ const tools: Tool[] = [
     href: '/dashboard/cpf',
     emoji: '🇸🇬',
     accent: '#0f766e',
-    accentBg: 'rgba(15,118,110,0.06)',
+    accentBg: 'rgba(15,118,110,0.10)',
     category: 'Wealth',
   },
   {
@@ -76,7 +76,7 @@ const tools: Tool[] = [
     href: '/dashboard/cost-of-waiting',
     emoji: '⏳',
     accent: '#ea580c',
-    accentBg: 'rgba(234,88,12,0.06)',
+    accentBg: 'rgba(234,88,12,0.10)',
     category: 'Wealth',
   },
   {
@@ -85,7 +85,7 @@ const tools: Tool[] = [
     href: '/dashboard/insurance',
     emoji: '🛡️',
     accent: '#16a34a',
-    accentBg: 'rgba(22,163,74,0.06)',
+    accentBg: 'rgba(22,163,74,0.10)',
     category: 'Protection',
   },
   {
@@ -94,7 +94,7 @@ const tools: Tool[] = [
     href: '/dashboard/ltc',
     emoji: '🤝',
     accent: '#16a34a',
-    accentBg: 'rgba(22,163,74,0.06)',
+    accentBg: 'rgba(22,163,74,0.10)',
     category: 'Protection',
   },
   {
@@ -102,8 +102,8 @@ const tools: Tool[] = [
     description: 'Simulate job loss, critical illness, or death. Watch your runway respond.',
     href: '/dashboard/stress-test',
     emoji: '🔥',
-    accent: '#dc2626',
-    accentBg: 'rgba(220,38,38,0.06)',
+    accent: '#ef4444',
+    accentBg: 'rgba(239,68,68,0.10)',
     category: 'Risk',
   },
   {
@@ -111,8 +111,8 @@ const tools: Tool[] = [
     description: 'See where every dollar goes. Upload a bank statement to auto-categorise.',
     href: '/dashboard/cashflow',
     emoji: '💸',
-    accent: '#d97706',
-    accentBg: 'rgba(217,119,6,0.06)',
+    accent: '#f59e0b',
+    accentBg: 'rgba(245,158,11,0.10)',
     category: 'Cash',
   },
   {
@@ -121,7 +121,7 @@ const tools: Tool[] = [
     href: '/dashboard/bmi',
     emoji: '🏃',
     accent: '#6d28d9',
-    accentBg: 'rgba(109,40,217,0.06)',
+    accentBg: 'rgba(109,40,217,0.10)',
     category: 'Health',
   },
 ]
@@ -179,19 +179,20 @@ export default function ToolGrid() {
                   variants={cardVariants}
                   whileHover={{
                     y: -4,
-                    boxShadow: `0 10px 30px ${tool.accent}20`,
-                    borderColor: tool.accent + '40',
+                    boxShadow: `0 10px 30px ${tool.accent}30`,
+                    borderColor: tool.accent + '50',
                   }}
                   style={{
-                    background: '#fff',
-                    border: `1px solid ${tool.hero ? tool.accent + '25' : 'rgba(42,31,26,0.07)'}`,
+                    background: 'rgba(122,28,46,0.06)',
+                    border: `1px solid ${tool.hero ? tool.accent + '30' : 'rgba(196,168,130,0.15)'}`,
                     borderRadius: 14,
                     padding: tool.hero ? '22px 22px 20px' : '18px 18px 16px',
                     cursor: 'pointer',
-                    boxShadow: tool.hero ? `0 4px 20px ${tool.accent}12` : '0 2px 8px rgba(42,31,26,0.04)',
+                    boxShadow: tool.hero ? `0 4px 20px ${tool.accent}18` : '0 2px 8px rgba(0,0,0,0.15)',
                     position: 'relative',
                     overflow: 'hidden',
                     transition: 'border-color 0.2s',
+                    backdropFilter: 'blur(12px)',
                   }}
                 >
                   {/* Top accent strip */}
@@ -213,14 +214,14 @@ export default function ToolGrid() {
                   <p style={{
                     fontFamily: "'Playfair Display', serif",
                     fontSize: tool.hero ? 15 : 14,
-                    fontWeight: 700, color: '#2a1f1a',
+                    fontWeight: 700, color: '#fdf8f2',
                     margin: '0 0 5px', letterSpacing: '-0.01em',
                   }}>
                     {tool.title}
                   </p>
                   <p style={{
                     fontFamily: "'Cabinet Grotesk', sans-serif",
-                    fontSize: 12, color: '#a89070', margin: 0, lineHeight: 1.55,
+                    fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, lineHeight: 1.55,
                   }}>
                     {tool.description}
                   </p>
@@ -228,7 +229,7 @@ export default function ToolGrid() {
                   {/* Arrow */}
                   <div style={{
                     position: 'absolute', bottom: 14, right: 16,
-                    fontSize: 14, color: tool.accent + '60',
+                    fontSize: 14, color: tool.accent + '70',
                     fontWeight: 700,
                   }}>
                     →

@@ -238,10 +238,10 @@ export default function FinancialHealthScore(props: Props) {
   const coverageMultiple = annualIncome > 0 ? totalCoverage / annualIncome : 0
 
   const card = {
-    background: '#fff',
-    border: '1px solid rgba(42,31,26,0.07)',
+    background: 'rgba(122,28,46,0.06)',
+    border: '1px solid rgba(196,168,130,0.15)',
     borderRadius: 14,
-    boxShadow: '0 2px 8px rgba(42,31,26,0.04)',
+    backdropFilter: 'blur(12px)',
   } as const
 
   function dimColor(score: number, max: number) {
@@ -263,7 +263,7 @@ export default function FinancialHealthScore(props: Props) {
 
           <svg width={160} height={160} style={{ display: 'block' }}>
             {/* Track */}
-            <circle cx={80} cy={80} r={70} fill="none" stroke="rgba(42,31,26,0.07)" strokeWidth={12} />
+            <circle cx={80} cy={80} r={70} fill="none" stroke="rgba(196,168,130,0.12)" strokeWidth={12} />
             {/* Animated progress */}
             <motion.circle
               cx={80} cy={80} r={70}
@@ -294,7 +294,7 @@ export default function FinancialHealthScore(props: Props) {
               textAnchor="middle"
               fontFamily="'Cabinet Grotesk', sans-serif"
               fontSize={12}
-              fill="#a89070"
+              fill="rgba(253,248,242,0.55)"
             >
               / 100
             </text>
@@ -307,7 +307,7 @@ export default function FinancialHealthScore(props: Props) {
           }}>
             {threshold.label}
           </p>
-          <p style={{ fontSize: 11, color: '#a89070', margin: '6px 0 0', textAlign: 'center', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: '6px 0 0', textAlign: 'center', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Composite of 5 financial dimensions
           </p>
         </div>
@@ -328,16 +328,16 @@ export default function FinancialHealthScore(props: Props) {
                 transition={{ delay: 0.3 + i * 0.08, duration: 0.35 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                     {dim.name}
                   </span>
                   <span style={{ fontSize: 12, fontWeight: 700, color, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                    {dim.score} <span style={{ color: '#a89070', fontWeight: 400 }}>/ {dim.max}</span>
+                    {dim.score} <span style={{ color: 'rgba(253,248,242,0.55)', fontWeight: 400 }}>/ {dim.max}</span>
                   </span>
                 </div>
 
                 {/* Bar track */}
-                <div style={{ height: 7, background: 'rgba(42,31,26,0.07)', borderRadius: 4, overflow: 'hidden', marginBottom: 5 }}>
+                <div style={{ height: 7, background: 'rgba(196,168,130,0.10)', borderRadius: 4, overflow: 'hidden', marginBottom: 5 }}>
                   <motion.div
                     style={{ height: '100%', borderRadius: 4, background: color }}
                     initial={{ width: '0%' }}
@@ -346,7 +346,7 @@ export default function FinancialHealthScore(props: Props) {
                   />
                 </div>
 
-                <p style={{ fontSize: 11, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   {dim.insight}
                 </p>
               </motion.div>
@@ -358,8 +358,8 @@ export default function FinancialHealthScore(props: Props) {
       {/* ── Action cards ─────────────────────────────────────────────────── */}
       {actionDims.length > 0 && (
         <div style={{ ...card, padding: '24px 28px' }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#7a1c2e', margin: '0 0 16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            What's Dragging You Down
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#9b2040', margin: '0 0 16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            What&apos;s Dragging You Down
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {actionDims.map((dim, i) => (
@@ -369,20 +369,20 @@ export default function FinancialHealthScore(props: Props) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + i * 0.1, duration: 0.35 }}
                 style={{
-                  background: 'rgba(122,28,46,0.04)',
-                  border: '1px solid rgba(122,28,46,0.15)',
+                  background: 'rgba(122,28,46,0.08)',
+                  border: '1px solid rgba(155,32,64,0.20)',
                   borderRadius: 12, padding: '18px 20px',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#7a1c2e', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#9b2040', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                     {dim.name}
                   </span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#dc2626', background: 'rgba(220,38,38,0.08)', padding: '2px 8px', borderRadius: 20, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#dc2626', background: 'rgba(220,38,38,0.10)', padding: '2px 8px', borderRadius: 20, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                     {dim.score}/{dim.max} pts
                   </span>
                 </div>
-                <p style={{ fontSize: 13, color: '#2a1f1a', margin: 0, lineHeight: 1.5, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p style={{ fontSize: 13, color: '#fdf8f2', margin: 0, lineHeight: 1.5, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   {actionText(dim)}
                 </p>
               </motion.div>
@@ -396,16 +396,16 @@ export default function FinancialHealthScore(props: Props) {
         <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           Score History
         </p>
-        <p style={{ fontSize: 13, fontFamily: "'Playfair Display', serif", fontWeight: 700, color: '#2a1f1a', margin: '0 0 16px' }}>
+        <p style={{ fontSize: 13, fontFamily: "'Playfair Display', serif", fontWeight: 700, color: '#fdf8f2', margin: '0 0 16px' }}>
           Your progress over time
         </p>
 
         {history.length < 2 ? (
           <div style={{
-            background: 'rgba(196,168,130,0.06)', border: '1px dashed rgba(196,168,130,0.3)',
+            background: 'rgba(196,168,130,0.05)', border: '1px dashed rgba(196,168,130,0.20)',
             borderRadius: 10, padding: '20px 18px', textAlign: 'center',
           }}>
-            <p style={{ fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {history.length === 0
                 ? 'Recording your first score now — check back tomorrow to see your trend.'
                 : `${history.length} data point recorded. Come back after another session to see your trend.`}
@@ -416,19 +416,19 @@ export default function FinancialHealthScore(props: Props) {
             <LineChart data={history} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
               <XAxis
                 dataKey="recorded_date"
-                tick={{ fontSize: 10, fill: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                tick={{ fontSize: 10, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }}
                 tickFormatter={(v: string) => {
                   const d = new Date(v)
                   return `${d.getDate()}/${d.getMonth() + 1}`
                 }}
               />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
               <Tooltip
                 formatter={(v: unknown) => [`${v} / 100`, 'Health Score']}
                 labelFormatter={(l: unknown) => typeof l === 'string' ? new Date(l).toLocaleDateString('en-SG', { day: 'numeric', month: 'short' }) : ''}
-                contentStyle={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, borderRadius: 8, border: '1px solid rgba(42,31,26,0.12)' }}
+                contentStyle={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, borderRadius: 8, background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', color: '#fdf8f2' }}
               />
-              <ReferenceLine y={66} stroke="rgba(196,168,130,0.4)" strokeDasharray="4 3" label={{ value: 'On Track', position: 'insideTopRight', fontSize: 9, fill: '#c4a882', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
+              <ReferenceLine y={66} stroke="rgba(196,168,130,0.3)" strokeDasharray="4 3" label={{ value: 'On Track', position: 'insideTopRight', fontSize: 9, fill: '#c4a882', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
               <Line
                 type="monotone" dataKey="score" name="Health Score"
                 stroke={threshold.color} strokeWidth={2.5} dot={{ fill: threshold.color, r: 4 }}
@@ -448,16 +448,16 @@ export default function FinancialHealthScore(props: Props) {
 
           {/* Savings rate benchmark */}
           <div style={{
-            background: '#fdf8f2', border: '1px solid rgba(42,31,26,0.07)',
+            background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.12)',
             borderRadius: 12, padding: '18px 20px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: '#2a1f1a', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.3 }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#fdf8f2', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.3 }}>
                 MAS recommends saving<br />at least 20% of income
               </p>
               <span style={{
                 fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20,
-                background: savingsRate >= 20 ? 'rgba(22,163,74,0.1)' : 'rgba(220,38,38,0.08)',
+                background: savingsRate >= 20 ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.10)',
                 color: savingsRate >= 20 ? '#16a34a' : '#dc2626',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 whiteSpace: 'nowrap',
@@ -465,7 +465,7 @@ export default function FinancialHealthScore(props: Props) {
                 {savingsRate >= 20 ? 'On track' : 'Below target'}
               </span>
             </div>
-            <div style={{ height: 6, background: 'rgba(42,31,26,0.07)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ height: 6, background: 'rgba(196,168,130,0.10)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
               <div style={{
                 height: '100%', borderRadius: 3,
                 background: savingsRate >= 20 ? '#16a34a' : '#d97706',
@@ -473,24 +473,24 @@ export default function FinancialHealthScore(props: Props) {
                 transition: 'width 0.8s ease',
               }} />
             </div>
-            <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-              Your rate: <strong style={{ color: '#2a1f1a' }}>{savingsRate.toFixed(1)}%</strong>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              Your rate: <strong style={{ color: '#fdf8f2' }}>{savingsRate.toFixed(1)}%</strong>
               {' · '}Target: 20%
             </p>
           </div>
 
           {/* Coverage benchmark */}
           <div style={{
-            background: '#fdf8f2', border: '1px solid rgba(42,31,26,0.07)',
+            background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.12)',
             borderRadius: 12, padding: '18px 20px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: '#2a1f1a', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.3 }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#fdf8f2', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.3 }}>
                 Recommended: 10× annual<br />income in life coverage
               </p>
               <span style={{
                 fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20,
-                background: coverageMultiple >= 10 ? 'rgba(22,163,74,0.1)' : 'rgba(220,38,38,0.08)',
+                background: coverageMultiple >= 10 ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.10)',
                 color: coverageMultiple >= 10 ? '#16a34a' : '#dc2626',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
                 whiteSpace: 'nowrap',
@@ -498,7 +498,7 @@ export default function FinancialHealthScore(props: Props) {
                 {coverageMultiple >= 10 ? 'Adequate' : 'Under-covered'}
               </span>
             </div>
-            <div style={{ height: 6, background: 'rgba(42,31,26,0.07)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ height: 6, background: 'rgba(196,168,130,0.10)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
               <div style={{
                 height: '100%', borderRadius: 3,
                 background: coverageMultiple >= 10 ? '#16a34a' : coverageMultiple >= 5 ? '#d97706' : '#dc2626',
@@ -506,8 +506,8 @@ export default function FinancialHealthScore(props: Props) {
                 transition: 'width 0.8s ease',
               }} />
             </div>
-            <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-              Your coverage: <strong style={{ color: '#2a1f1a' }}>{coverageMultiple.toFixed(1)}×</strong>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              Your coverage: <strong style={{ color: '#fdf8f2' }}>{coverageMultiple.toFixed(1)}×</strong>
               {' · '}Target: 10×
             </p>
           </div>

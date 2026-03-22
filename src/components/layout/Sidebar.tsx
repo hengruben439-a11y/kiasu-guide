@@ -44,28 +44,18 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Detect mobile and listen for resize
   useEffect(() => {
-    function checkMobile() {
-      setIsMobile(window.innerWidth <= 768)
-    }
+    function checkMobile() { setIsMobile(window.innerWidth <= 768) }
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Close sidebar on route change
-  useEffect(() => {
-    setIsOpen(false)
-  }, [pathname])
+  useEffect(() => { setIsOpen(false) }, [pathname])
 
-  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
-    if (isMobile && isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    if (isMobile && isOpen) document.body.style.overflow = 'hidden'
+    else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [isMobile, isOpen])
 
@@ -83,27 +73,27 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
     router.refresh()
   }
 
-  const linkStyle = (active: boolean) => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 9,
-    padding: '8px 12px',
-    borderRadius: 8,
-    fontFamily: "'Cabinet Grotesk', sans-serif",
-    fontSize: 12,
-    fontWeight: active ? 600 : 500,
-    color: active ? '#7a1c2e' : '#a89070',
-    background: active ? 'rgba(122,28,46,0.07)' : 'transparent',
-    borderLeft: active ? '2px solid #7a1c2e' : '2px solid transparent',
-    textDecoration: 'none' as const,
-    transition: 'all 0.15s',
-    whiteSpace: 'nowrap' as const,
-    overflow: 'hidden' as const,
-    textOverflow: 'ellipsis' as const,
-  })
+  function linkStyle(active: boolean): React.CSSProperties {
+    return {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9,
+      padding: '7px 12px',
+      borderRadius: 8,
+      fontFamily: "'Cabinet Grotesk', sans-serif",
+      fontSize: 12,
+      fontWeight: active ? 600 : 400,
+      color: active ? '#fdf8f2' : 'rgba(253,248,242,0.45)',
+      background: active ? 'rgba(155,32,64,0.25)' : 'transparent',
+      borderLeft: active ? '2px solid #9b2040' : '2px solid transparent',
+      textDecoration: 'none',
+      transition: 'all 0.15s',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    }
+  }
 
-  // On mobile: fixed, full height, slides in/out
-  // On desktop: static, always visible
   const sidebarStyle: React.CSSProperties = isMobile
     ? {
         position: 'fixed',
@@ -111,9 +101,11 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
         left: 0,
         zIndex: 1000,
         height: '100vh',
-        width: 260,
-        background: '#fff',
-        borderRight: '1px solid rgba(42,31,26,0.08)',
+        width: 240,
+        background: 'rgba(10,6,5,0.97)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRight: '1px solid rgba(196,168,130,0.12)',
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
@@ -125,8 +117,10 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
         position: 'relative' as const,
         width: 220,
         minHeight: '100vh',
-        background: '#fff',
-        borderRight: '1px solid rgba(42,31,26,0.08)',
+        background: 'rgba(10,6,5,0.6)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRight: '1px solid rgba(196,168,130,0.10)',
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
@@ -134,7 +128,7 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
 
   return (
     <>
-      {/* Hamburger button — only visible on mobile when sidebar is closed */}
+      {/* Hamburger — mobile only */}
       {isMobile && !isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -146,30 +140,31 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
             zIndex: 1001,
             width: 40,
             height: 40,
-            background: '#fff',
-            border: '1px solid rgba(42,31,26,0.12)',
+            background: 'rgba(122,28,46,0.25)',
+            border: '1px solid rgba(196,168,130,0.2)',
             borderRadius: 10,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(42,31,26,0.1)',
-            fontSize: 18,
-            color: '#2a1f1a',
+            fontSize: 17,
+            color: '#c4a882',
+            backdropFilter: 'blur(8px)',
           }}
         >
           ☰
         </button>
       )}
 
-      {/* Backdrop — only on mobile when open */}
+      {/* Backdrop */}
       {isMobile && isOpen && (
         <div
           onClick={() => setIsOpen(false)}
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(42,31,26,0.4)',
+            background: 'rgba(10,6,5,0.7)',
+            backdropFilter: 'blur(4px)',
             zIndex: 999,
           }}
         />
@@ -178,19 +173,19 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
       {/* Sidebar */}
       <aside style={sidebarStyle}>
         {/* Logo */}
-        <div style={{ padding: '24px 20px 16px', borderBottom: '1px solid rgba(42,31,26,0.07)' }}>
+        <div style={{ padding: '22px 18px 14px', borderBottom: '1px solid rgba(196,168,130,0.08)' }}>
           <Link href={role === 'admin' ? '/admin' : '/dashboard'} style={{ textDecoration: 'none' }}>
             <h1 style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: 16, fontWeight: 700, color: '#2a1f1a',
+              fontSize: 15, fontWeight: 700, color: '#fdf8f2',
               letterSpacing: '-0.01em', margin: 0,
             }}>
               The Kiasu Guide
             </h1>
             <p style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 10, color: '#c4a882', marginTop: 3,
-              letterSpacing: '0.12em', textTransform: 'uppercase',
+              fontSize: 9, color: '#c4a882', marginTop: 3,
+              letterSpacing: '0.15em', textTransform: 'uppercase',
             }}>
               Financial Planning
             </p>
@@ -198,17 +193,15 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '14px 10px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
 
-          {/* Primary nav items */}
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} style={linkStyle(isActive(item.href, item.exact))}>
-              <span style={{ fontSize: 13, flexShrink: 0 }}>{item.icon}</span>
+              <span style={{ fontSize: 12, flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
               {item.label}
             </Link>
           ))}
 
-          {/* Tools section — client only */}
           {role === 'client' && (
             <>
               <button
@@ -217,41 +210,43 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   width: '100%', padding: '8px 12px',
                   background: 'transparent', border: 'none',
-                  cursor: 'pointer', marginTop: 8,
+                  cursor: 'pointer', marginTop: 10,
                   fontFamily: "'Cabinet Grotesk', sans-serif",
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', color: '#c4a882',
+                  fontSize: 9, fontWeight: 700, letterSpacing: '0.14em',
+                  textTransform: 'uppercase', color: 'rgba(196,168,130,0.6)',
                 }}
               >
                 <span>Tools</span>
-                <span style={{ fontSize: 10, transition: 'transform 0.2s', transform: toolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}>▾</span>
+                <span style={{ fontSize: 9, transition: 'transform 0.2s', transform: toolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)', color: 'rgba(196,168,130,0.4)' }}>▾</span>
               </button>
-              {toolsOpen && clientTools.map((item) => {
-                const active = pathname === item.href
-                return (
-                  <Link key={item.href} href={item.href} style={linkStyle(active)}>
-                    <span style={{ fontSize: 11, flexShrink: 0, opacity: 0.7 }}>{item.icon}</span>
-                    {item.label}
-                  </Link>
-                )
-              })}
+              {toolsOpen && clientTools.map((item) => (
+                <Link key={item.href} href={item.href} style={linkStyle(pathname === item.href)}>
+                  <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
             </>
           )}
         </nav>
 
-        {/* User / Sign out */}
-        <div style={{ padding: '12px 10px', borderTop: '1px solid rgba(42,31,26,0.07)', flexShrink: 0 }}>
-          <div style={{ padding: '10px 12px', marginBottom: 2, background: '#fdf8f2', borderRadius: 8 }}>
+        {/* User section */}
+        <div style={{ padding: '10px 8px', borderTop: '1px solid rgba(196,168,130,0.08)', flexShrink: 0 }}>
+          <div style={{
+            padding: '10px 12px', marginBottom: 2,
+            background: 'rgba(122,28,46,0.12)',
+            border: '1px solid rgba(196,168,130,0.08)',
+            borderRadius: 10,
+          }}>
             <p style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 12, fontWeight: 600, color: '#2a1f1a',
+              fontSize: 12, fontWeight: 600, color: '#fdf8f2',
               margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
               {fullName ?? email}
             </p>
             <p style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 10, color: '#a89070', margin: '2px 0 6px',
+              fontSize: 10, color: 'rgba(253,248,242,0.4)', margin: '2px 0 6px',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
               {email}
@@ -259,10 +254,11 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
             <span style={{
               display: 'inline-block',
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
               textTransform: 'uppercase', padding: '2px 8px', borderRadius: 20,
-              background: role === 'admin' ? 'rgba(122,28,46,0.1)' : 'rgba(196,168,130,0.15)',
-              color: role === 'admin' ? '#7a1c2e' : '#a89070',
+              background: role === 'admin' ? 'rgba(155,32,64,0.3)' : 'rgba(196,168,130,0.12)',
+              color: role === 'admin' ? '#c4a882' : 'rgba(253,248,242,0.5)',
+              border: `1px solid ${role === 'admin' ? 'rgba(155,32,64,0.4)' : 'rgba(196,168,130,0.15)'}`,
             }}>
               {role === 'admin' ? 'Advisor' : 'Client'}
             </span>
@@ -271,14 +267,17 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
             onClick={handleSignOut}
             style={{
               width: '100%', textAlign: 'left',
-              padding: '8px 12px',
+              padding: '7px 12px',
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: 12, color: '#a89070',
+              fontSize: 11, color: 'rgba(253,248,242,0.3)',
               background: 'transparent', border: 'none',
               borderRadius: 8, cursor: 'pointer',
+              transition: 'color 0.15s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(253,248,242,0.6)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(253,248,242,0.3)')}
           >
-            Sign out
+            Sign out →
           </button>
         </div>
       </aside>
