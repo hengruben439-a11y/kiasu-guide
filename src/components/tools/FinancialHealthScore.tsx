@@ -73,9 +73,10 @@ export default function FinancialHealthScore(props: Props) {
   const yearsToRetirement = Math.max(0, retirementAge - age)
   const r = targetReturnRate / 12
   const n = yearsToRetirement * 12
-  const cpfTotal = cpfOa + cpfSa + cpfMa
   const fvSavings = liquidSavings * Math.pow(1 + targetReturnRate, yearsToRetirement)
-  const fvCpf = cpfTotal * Math.pow(1 + targetReturnRate, yearsToRetirement)
+  const fvCpfOa = cpfOa * Math.pow(1.025, yearsToRetirement)
+  const fvCpfSa = cpfSa * Math.pow(1.04, yearsToRetirement)
+  const fvCpf = fvCpfOa + fvCpfSa
   const fvMonthly = monthlyInvestment > 0 && r > 0
     ? monthlyInvestment * ((Math.pow(1 + r, n) - 1) / r)
     : monthlyInvestment * n

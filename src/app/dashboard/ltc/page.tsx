@@ -12,7 +12,7 @@ export default function LTCPage() {
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.5)',
             marginBottom: '0.5rem',
           }}
         >
@@ -23,7 +23,7 @@ export default function LTCPage() {
             fontFamily: "'Playfair Display', serif",
             fontSize: '2.25rem',
             fontWeight: 700,
-            color: '#2a1f1a',
+            color: '#fdf8f2',
             margin: '0 0 0.5rem',
             lineHeight: 1.2,
           }}
@@ -34,7 +34,7 @@ export default function LTCPage() {
           style={{
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '1rem',
-            color: '#a89070',
+            color: 'rgba(253,248,242,0.5)',
             margin: 0,
           }}
         >

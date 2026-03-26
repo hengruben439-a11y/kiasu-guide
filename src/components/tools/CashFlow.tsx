@@ -198,6 +198,12 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
   const [parsedTxs, setParsedTxs] = useState<ParsedTx[]>([])
   const [txCategory, setTxCategory] = useState<Record<number, string>>({})
   const [importing, setImporting] = useState(false)
+  // Manual entry state
+  const [showManualEntry, setShowManualEntry] = useState(false)
+  const [manualTxs, setManualTxs] = useState<Array<{ id: string; description: string; amount: number; category: string }>>([])
+  const [newDesc, setNewDesc] = useState('')
+  const [newAmount, setNewAmount] = useState('')
+  const [newCat, setNewCat] = useState('other')
   const fileRef = useRef<HTMLInputElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -304,6 +310,46 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
     setImporting(false)
     if (fileRef.current) fileRef.current.value = ''
   }
+
+  // ── Manual entry helpers ──
+  function addManualTx() {
+    const amt = parseFloat(newAmount.replace(/[^0-9.]/g, ''))
+    if (!newDesc.trim() || isNaN(amt) || amt <= 0) return
+    setManualTxs(prev => [...prev, { id: Math.random().toString(36).slice(2, 9), description: newDesc.trim(), amount: Math.round(amt), category: newCat }])
+    setNewDesc('')
+    setNewAmount('')
+    setNewCat('other')
+  }
+
+  function removeManualTx(id: string) {
+    setManualTxs(prev => prev.filter(t => t.id !== id))
+  }
+
+  function applyManualTxs() {
+    const sums: Record<string, number> = {}
+    manualTxs.forEach(tx => {
+      sums[tx.category] = (sums[tx.category] ?? 0) + tx.amount
+    })
+    setCategories(prev => {
+      const next = prev.map(c => ({
+        ...c,
+        amount: Math.round(sums[c.key] ?? c.amount),
+      }))
+      if (categoriesLoaded) saveCategories(next)
+      return next
+    })
+    setShowManualEntry(false)
+    setManualTxs([])
+  }
+
+  const QUICK_ADD = [
+    { label: 'HDB Loan', cat: 'housing', amt: 1200 },
+    { label: 'Grab Ride', cat: 'transport', amt: 15 },
+    { label: 'NTUC', cat: 'food', amt: 80 },
+    { label: 'Netflix', cat: 'entertainment', amt: 16 },
+    { label: 'SP Utilities', cat: 'utilities', amt: 150 },
+    { label: 'AIA Premium', cat: 'insurance', amt: 300 },
+  ]
 
   // ── Derived values ──
   const totalExpenses = categories.reduce((s, c) => s + c.amount, 0)
@@ -442,19 +488,137 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
                 Click any amount to edit
               </p>
             </div>
-            <label
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                fontSize: 12, fontWeight: 600, color: '#c4a882',
-                border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8, padding: '5px 10px',
-                background: 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
-              }}
-              title="Upload a CSV bank statement to auto-populate"
-            >
-              ↑ Import CSV
-              <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFile} />
-            </label>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => setShowManualEntry(v => !v)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                  fontSize: 12, fontWeight: 600, color: showManualEntry ? '#fdf8f2' : '#c4a882',
+                  border: `1px solid ${showManualEntry ? 'rgba(155,32,64,0.4)' : 'rgba(196,168,130,0.25)'}`, borderRadius: 8, padding: '5px 10px',
+                  background: showManualEntry ? 'rgba(155,32,64,0.2)' : 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
+                }}
+              >
+                + Manual
+              </button>
+              <label
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                  fontSize: 12, fontWeight: 600, color: '#c4a882',
+                  border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8, padding: '5px 10px',
+                  background: 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
+                }}
+                title="Upload a CSV bank statement to auto-populate"
+              >
+                ↑ CSV
+                <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFile} />
+              </label>
+            </div>
           </div>
+
+          {/* Manual entry panel */}
+          <AnimatePresence>
+            {showManualEntry && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ background: 'rgba(10,6,5,0.4)', borderRadius: 10, padding: '14px 16px', marginBottom: 12, border: '1px solid rgba(196,168,130,0.1)' }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 10px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    Add Transactions
+                  </p>
+                  {/* Quick-add presets */}
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                    {QUICK_ADD.map(q => (
+                      <button
+                        key={q.label}
+                        onClick={() => setManualTxs(prev => [...prev, { id: Math.random().toString(36).slice(2, 9), description: q.label, amount: q.amt, category: q.cat }])}
+                        style={{
+                          padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
+                          background: 'rgba(196,168,130,0.08)', border: '1px solid rgba(196,168,130,0.15)',
+                          color: 'rgba(253,248,242,0.6)', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
+                        }}
+                      >
+                        {q.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Input row */}
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                    <input
+                      value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Description"
+                      onKeyDown={e => e.key === 'Enter' && addManualTx()}
+                      style={{
+                        flex: 2, minWidth: 120, padding: '7px 10px', borderRadius: 7,
+                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
+                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
+                      }}
+                    />
+                    <input
+                      value={newAmount} onChange={e => setNewAmount(e.target.value)} placeholder="Amount"
+                      onKeyDown={e => e.key === 'Enter' && addManualTx()}
+                      style={{
+                        width: 80, padding: '7px 10px', borderRadius: 7,
+                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
+                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
+                      }}
+                    />
+                    <select
+                      value={newCat} onChange={e => setNewCat(e.target.value)}
+                      style={{
+                        width: 110, padding: '7px 10px', borderRadius: 7,
+                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
+                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
+                      }}
+                    >
+                      {CATEGORY_META.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
+                    </select>
+                    <button
+                      onClick={addManualTx}
+                      style={{
+                        padding: '7px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                        background: '#9b2040', color: '#fdf8f2', border: 'none', cursor: 'pointer',
+                        fontFamily: "'Cabinet Grotesk', sans-serif",
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {/* Transaction list */}
+                  {manualTxs.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 200, overflowY: 'auto', marginBottom: 10 }}>
+                      {manualTxs.map(tx => {
+                        const meta = CATEGORY_META.find(m => m.key === tx.category)
+                        return (
+                          <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6, background: 'rgba(196,168,130,0.04)' }}>
+                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: meta?.colour ?? '#64748b', flexShrink: 0 }} />
+                            <span style={{ flex: 1, fontSize: 11, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{tx.description}</span>
+                            <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{meta?.label}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{formatSGD(tx.amount)}</span>
+                            <button onClick={() => removeManualTx(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(253,248,242,0.3)', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>×</button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {manualTxs.length > 0 && (
+                    <button
+                      onClick={applyManualTxs}
+                      style={{
+                        width: '100%', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                        background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(22,163,74,0.3)',
+                        color: '#10b981', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
+                      }}
+                    >
+                      Apply {manualTxs.length} transactions to categories
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {categories.map((c) => {
             const pct = totalExpenses > 0 ? (c.amount / totalExpenses) * 100 : 0
@@ -588,6 +752,105 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           })}
         </div>
       </motion.div>
+
+      {/* Spending leaks + survivability */}
+      {monthlyIncome > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+          className="rounded-2xl border p-6"
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
+        >
+          <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Behavioral Diagnosis
+          </p>
+          <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Spending leaks and income resilience at a glance.
+          </p>
+
+          {/* Spending leaks — categories > 15% of income */}
+          {(() => {
+            const leaks = categories
+              .filter(c => c.amount > 0 && (c.amount / monthlyIncome) * 100 > 15)
+              .sort((a, b) => b.amount - a.amount)
+
+            return leaks.length > 0 ? (
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#d97706', margin: '0 0 10px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  Spending Leaks (categories over 15% of income)
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {leaks.map(c => {
+                    const pctOfIncome = (c.amount / monthlyIncome) * 100
+                    return (
+                      <div key={c.key} style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '10px 14px', borderRadius: 10,
+                        background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.15)',
+                        borderLeft: `3px solid ${c.colour}`,
+                      }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: c.colour, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", flex: 1 }}>
+                          {c.label}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#d97706', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                          {pctOfIncome.toFixed(0)}% of income
+                        </span>
+                        <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                          ({formatSGD(c.amount)}/mo)
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginBottom: 20, padding: '10px 14px', borderRadius: 10, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
+                <p style={{ fontSize: 12, color: '#10b981', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 600 }}>
+                  No spending leaks detected — no single category exceeds 15% of your income.
+                </p>
+              </div>
+            )
+          })()}
+
+          {/* Survivability meter — months at current expenses if income halved */}
+          {(() => {
+            const halvedIncome = monthlyIncome / 2
+            const halvedSurplus = halvedIncome - totalExpenses
+            const survivableMonths = halvedSurplus >= 0 ? Infinity : totalExpenses > 0 ? Math.max(0, halvedIncome / totalExpenses * 12) : 0
+            const meterPct = survivableMonths === Infinity ? 100 : Math.min(100, (survivableMonths / 12) * 100)
+            const meterColour = survivableMonths === Infinity ? '#10b981' : survivableMonths >= 6 ? '#d97706' : '#ef4444'
+            const meterLabel = survivableMonths === Infinity
+              ? 'Sustainable — surplus even at half income'
+              : `${Math.round(survivableMonths)} months before depletion`
+
+            return (
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: meterColour, margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  Income Halved — Survivability
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ flex: 1, background: 'rgba(196,168,130,0.10)', borderRadius: 99, height: 10, overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: meterColour, borderRadius: 99 }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${meterPct}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: meterColour, fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0, minWidth: 60, textAlign: 'right' }}>
+                    {survivableMonths === Infinity ? '∞' : `${Math.round(survivableMonths)}mo`}
+                  </span>
+                </div>
+                <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', margin: '4px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  {meterLabel}
+                </p>
+              </div>
+            )
+          })()}
+        </motion.div>
+      )}
 
       {/* 12-month savings projection */}
       <motion.div

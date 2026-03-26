@@ -28,6 +28,7 @@ type OnboardingData = {
   retirement_age: string
   desired_monthly_income: string
   inflation_rate: string
+  spouse_income: string
 }
 
 const QUICK_START_DEFAULTS = {
@@ -129,6 +130,7 @@ export default function OnboardingWizard({ userId, existing }: Props) {
     retirement_age: String(existing?.retirement_age ?? '65'),
     desired_monthly_income: String(existing?.desired_monthly_income ?? ''),
     inflation_rate: String(existing?.inflation_rate ?? '0.03'),
+    spouse_income: String(existing?.spouse_income ?? ''),
   })
 
   function set(key: keyof OnboardingData, value: string) {
@@ -187,6 +189,7 @@ export default function OnboardingWizard({ userId, existing }: Props) {
           employment_status: data.employment_status || 'employed',
           monthly_income: parseFloat(data.monthly_income),
           num_dependents: parseInt(data.num_dependents) || 0,
+          spouse_income: data.spouse_income ? parseFloat(data.spouse_income) : 0,
         }
       } else if (step === 1) {
         if (!data.monthly_expenses) { setError('Please enter your monthly expenses.'); setSaving(false); return }
@@ -323,14 +326,14 @@ export default function OnboardingWizard({ userId, existing }: Props) {
         style={cardStyle}
       >
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            Phase 1 complete
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#22c55e', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            ✓ Personal details saved
           </p>
           <h2 style={{ ...headingStyle, fontSize: 28, textAlign: 'center' }}>
-            Let&apos;s Build Your Financial Profile
+            Now for the numbers
           </h2>
           <p style={{ ...subStyle, textAlign: 'center' }}>
-            How would you like to get started?
+            How would you like to enter your financial details?
           </p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -343,10 +346,10 @@ export default function OnboardingWizard({ userId, existing }: Props) {
             }}
           >
             <p style={{ fontSize: 15, fontWeight: 700, color: '#2a1f1a', margin: '0 0 8px', fontFamily: "'Playfair Display', serif" }}>
-              Guided Tour
+              Enter my numbers
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              {['Walk through each section step by step', 'Built-in tips explain each field', 'Takes about 5 minutes'].map((t) => (
+              {['5 quick questions — about 3 minutes', 'Instant feedback as you go', 'Your actual numbers, your real picture'].map((t) => (
                 <p key={t} style={{ fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   <span style={{ color: '#22c55e', marginRight: 8 }}>✓</span>{t}
                 </p>
@@ -364,10 +367,10 @@ export default function OnboardingWizard({ userId, existing }: Props) {
             }}
           >
             <p style={{ fontSize: 15, fontWeight: 700, color: '#2a1f1a', margin: '0 0 8px', fontFamily: "'Playfair Display', serif" }}>
-              Quick Start ⚡
+              Use illustration numbers ⚡
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              {['Fills in Singapore median defaults', 'You can edit everything later', 'Jump straight to your tools'].map((t) => (
+              {['Pre-fills placeholder figures for a demo walkthrough', 'Useful for exploring the tools before a meeting', 'Update with real numbers any time in Profile'].map((t) => (
                 <p key={t} style={{ fontSize: 13, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                   <span style={{ color: '#3b82f6', marginRight: 8 }}>✓</span>{t}
                 </p>
@@ -382,7 +385,7 @@ export default function OnboardingWizard({ userId, existing }: Props) {
 
   const isPhase2 = phase === 'phase2'
   const totalSteps = isPhase2 ? TOTAL_PHASE2 : TOTAL_PHASE1
-  const phaseLabel = isPhase2 ? 'Phase 2 — Financial Profile' : 'Phase 1 — Personal Identity'
+  const phaseLabel = isPhase2 ? 'Financial Profile' : 'About You'
 
   return (
     <div style={cardStyle}>
@@ -535,8 +538,8 @@ export default function OnboardingWizard({ userId, existing }: Props) {
       {/* Phase 2 */}
       {isPhase2 && step === 0 && (
         <div>
-          <h2 style={headingStyle}>💼 Employment &amp; Income</h2>
-          <p style={subStyle}>The foundation of your financial plan.</p>
+          <h2 style={headingStyle}>What does your income look like?</h2>
+          <p style={subStyle}>The foundation everything else is built on.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
               <label style={labelStyle}>Employment status</label>
@@ -568,14 +571,21 @@ export default function OnboardingWizard({ userId, existing }: Props) {
               <label style={labelStyle}>Number of dependants</label>
               <input type="number" min={0} max={10} value={data.num_dependents} onChange={(e) => set('num_dependents', e.target.value)} placeholder="0" style={inputStyle} />
             </div>
+            <div>
+              <label style={labelStyle}>Spouse income (optional)</label>
+              <SGDInput value={data.spouse_income} onChange={(v) => set('spouse_income', v)} placeholder="0" />
+              <p style={{ fontSize: 12, color: '#a89070', margin: '6px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                Leave blank or 0 if single or spouse not earning
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {isPhase2 && step === 1 && (
         <div>
-          <h2 style={headingStyle}>💰 Monthly Expenses</h2>
-          <p style={subStyle}>Your total monthly spend — rent, food, transport, subscriptions.</p>
+          <h2 style={headingStyle}>What do you spend each month?</h2>
+          <p style={subStyle}>Total spend — rent, food, transport, subscriptions, everything.</p>
           <label style={labelStyle}>Monthly expenses</label>
           <SGDInput value={data.monthly_expenses} onChange={(v) => set('monthly_expenses', v)} placeholder="4,000" />
           {data.monthly_income && data.monthly_expenses && (
@@ -599,7 +609,7 @@ export default function OnboardingWizard({ userId, existing }: Props) {
 
       {isPhase2 && step === 2 && (
         <div>
-          <h2 style={headingStyle}>🏦 Liquid Savings</h2>
+          <h2 style={headingStyle}>How much do you have set aside?</h2>
           <p style={subStyle}>Cash and investments you can access within 30 days.</p>
           <label style={labelStyle}>Liquid savings</label>
           <SGDInput value={data.liquid_savings} onChange={(v) => set('liquid_savings', v)} placeholder="50,000" />
@@ -622,8 +632,8 @@ export default function OnboardingWizard({ userId, existing }: Props) {
 
       {isPhase2 && step === 3 && (
         <div>
-          <h2 style={headingStyle}>📊 CPF Balances</h2>
-          <p style={subStyle}>Check your CPF statement for current figures.</p>
+          <h2 style={headingStyle}>{"What's in your CPF?"}</h2>
+          <p style={subStyle}>Log in to CPF Online Services to find your current balances.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
               <label style={labelStyle}>Ordinary Account (OA)</label>
@@ -651,8 +661,8 @@ export default function OnboardingWizard({ userId, existing }: Props) {
 
       {isPhase2 && step === 4 && (
         <div>
-          <h2 style={headingStyle}>🎯 Retirement Goals</h2>
-          <p style={subStyle}>Your targets — we&apos;ll show you exactly how to get there.</p>
+          <h2 style={headingStyle}>When do you want to stop working?</h2>
+          <p style={subStyle}>Set your targets — we&apos;ll show you exactly what it takes.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
               <label style={labelStyle}>Target retirement age</label>

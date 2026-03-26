@@ -48,7 +48,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
           fontFamily: "'Playfair Display', serif",
           fontSize: 22,
           fontWeight: 700,
-          color: '#2a1f1a',
+          color: '#fdf8f2',
           margin: '0 0 12px',
           letterSpacing: '-0.01em',
         }}>
@@ -57,7 +57,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
 
         <p style={{
           fontSize: 14,
-          color: '#a89070',
+          color: 'rgba(253,248,242,0.5)',
           lineHeight: 1.6,
           margin: '0 0 32px',
         }}>
@@ -88,7 +88,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
             style={{
               display: 'block',
               fontSize: 13,
-              color: '#a89070',
+              color: 'rgba(253,248,242,0.5)',
               textDecoration: 'none',
               padding: '10px 0',
             }}

@@ -9,7 +9,7 @@ interface Props {
   profile: Partial<ClientProfile> | null
 }
 
-type Tab = 'income' | 'savings' | 'cpf' | 'investments' | 'retirement' | 'networth'
+type Tab = 'income' | 'savings' | 'cpf' | 'investments' | 'retirement' | 'liabilities' | 'goals' | 'networth'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'income', label: 'Income & Expenses', emoji: '💼' },
@@ -17,6 +17,8 @@ const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'cpf', label: 'CPF', emoji: '📊' },
   { id: 'investments', label: 'Investments', emoji: '📈' },
   { id: 'retirement', label: 'Retirement Goals', emoji: '🎯' },
+  { id: 'liabilities', label: 'Liabilities', emoji: '💳' },
+  { id: 'goals', label: 'Goals', emoji: '🏁' },
   { id: 'networth', label: 'Net Worth', emoji: '⚖️' },
 ]
 
@@ -242,6 +244,350 @@ function NetWorthTab({ userId }: { userId: string }) {
             </button>
           </div>
         </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Liabilities Tab ──────────────────────────────────────────────────────────
+
+interface Liability {
+  id: string
+  name: string
+  type: 'mortgage' | 'loan' | 'credit_card' | 'other'
+  outstanding_balance: number
+  monthly_payment: number
+  interest_rate: number
+  maturity_date: string | null
+}
+
+const LIABILITY_TYPES: { value: Liability['type']; label: string }[] = [
+  { value: 'mortgage', label: 'Mortgage' },
+  { value: 'loan', label: 'Loan' },
+  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'other', label: 'Other' },
+]
+
+function LiabilitiesTab({ userId }: { userId: string }) {
+  const [items, setItems] = useState<Liability[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [draft, setDraft] = useState({ name: '', type: 'mortgage' as Liability['type'], outstanding_balance: '', monthly_payment: '', interest_rate: '', maturity_date: '' })
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('liabilities').select('*').eq('user_id', userId).order('created_at').then(({ data }) => {
+      if (data) setItems(data as Liability[])
+      setLoading(false)
+    })
+  }, [userId])
+
+  async function addLiability() {
+    if (!draft.name || !draft.outstanding_balance) return
+    setSaving(true)
+    const supabase = createClient()
+    const { data, error } = await supabase.from('liabilities').insert({
+      user_id: userId,
+      name: draft.name,
+      type: draft.type,
+      outstanding_balance: parseFloat(draft.outstanding_balance) || 0,
+      monthly_payment: parseFloat(draft.monthly_payment) || 0,
+      interest_rate: parseFloat(draft.interest_rate) || 0,
+      maturity_date: draft.maturity_date || null,
+    }).select().single()
+    if (!error && data) {
+      setItems(prev => [...prev, data as Liability])
+      setDraft({ name: '', type: 'mortgage', outstanding_balance: '', monthly_payment: '', interest_rate: '', maturity_date: '' })
+      setAdding(false)
+    }
+    setSaving(false)
+  }
+
+  async function deleteLiability(id: string) {
+    const supabase = createClient()
+    await supabase.from('liabilities').delete().eq('id', id)
+    setItems(prev => prev.filter(i => i.id !== id))
+  }
+
+  const totalBalance = items.reduce((s, i) => s + i.outstanding_balance, 0)
+  const totalMonthly = items.reduce((s, i) => s + i.monthly_payment, 0)
+
+  if (loading) return <p style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Loading…</p>
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Summary */}
+      <div className="grid-2col" style={{ gap: 12 }}>
+        {[
+          { label: 'Total Outstanding', value: totalBalance, colour: '#ef4444' },
+          { label: 'Monthly Payments', value: totalMonthly, colour: '#d97706' },
+        ].map(s => (
+          <div key={s.label} style={{ background: 'rgba(10,6,5,0.4)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 12, padding: '14px 16px' }}>
+            <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '0 0 4px' }}>{s.label}</p>
+            <p style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Playfair Display', serif", color: s.colour, margin: 0 }}>
+              {formatSGD(s.value)}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Liabilities list */}
+      {items.length === 0 && !adding && (
+        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          No liabilities recorded. Add mortgages, loans, or credit card balances.
+        </p>
+      )}
+
+      {items.map(item => (
+        <div key={item.id} style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 16px', borderRadius: 10,
+          background: 'rgba(10,6,5,0.4)', border: '1px solid rgba(196,168,130,0.15)',
+        }}>
+          <span style={{
+            fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+            background: 'rgba(196,168,130,0.08)', color: 'rgba(253,248,242,0.55)',
+            border: '1px solid rgba(196,168,130,0.15)', fontFamily: "'Cabinet Grotesk', sans-serif",
+            flexShrink: 0, textTransform: 'capitalize',
+          }}>
+            {item.type.replace('_', ' ')}
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', margin: '0 0 2px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{item.name}</p>
+            <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              {formatSGD(item.monthly_payment)}/mo
+              {item.interest_rate > 0 && ` · ${(item.interest_rate * 100).toFixed(1)}% p.a.`}
+              {item.maturity_date && ` · Matures ${new Date(item.maturity_date).toLocaleDateString('en-SG', { month: 'short', year: 'numeric' })}`}
+            </p>
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#ef4444', fontFamily: "'Playfair Display', serif", flexShrink: 0 }}>
+            {formatSGD(item.outstanding_balance)}
+          </span>
+          <button onClick={() => deleteLiability(item.id)} style={{ color: 'rgba(253,248,242,0.55)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, flexShrink: 0, lineHeight: 1 }}>×</button>
+        </div>
+      ))}
+
+      {/* Add form */}
+      {adding ? (
+        <div style={{ background: 'rgba(10,6,5,0.5)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>Add Liability</p>
+          <div className="grid-2col" style={{ gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Type</label>
+              <select value={draft.type} onChange={e => setDraft(d => ({ ...d, type: e.target.value as Liability['type'] }))}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+              >
+                {LIABILITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Name</label>
+              <input type="text" value={draft.name} onChange={e => setDraft(d => ({ ...d, name: e.target.value }))} placeholder="e.g. HDB Loan"
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div className="grid-2col" style={{ gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Outstanding Balance (S$)</label>
+              <input type="number" value={draft.outstanding_balance} onChange={e => setDraft(d => ({ ...d, outstanding_balance: e.target.value }))} placeholder="0" min={0}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Monthly Payment (S$)</label>
+              <input type="number" value={draft.monthly_payment} onChange={e => setDraft(d => ({ ...d, monthly_payment: e.target.value }))} placeholder="0" min={0}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div className="grid-2col" style={{ gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Interest Rate (decimal)</label>
+              <input type="number" step={0.001} value={draft.interest_rate} onChange={e => setDraft(d => ({ ...d, interest_rate: e.target.value }))} placeholder="0.025"
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Maturity Date (optional)</label>
+              <input type="date" value={draft.maturity_date} onChange={e => setDraft(d => ({ ...d, maturity_date: e.target.value }))}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={addLiability} disabled={saving || !draft.name || !draft.outstanding_balance}
+              style={{ background: '#9b2040', color: '#fdf8f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: (saving || !draft.name || !draft.outstanding_balance) ? 0.5 : 1 }}
+            >{saving ? 'Saving…' : 'Save'}</button>
+            <button onClick={() => setAdding(false)}
+              style={{ background: 'none', color: 'rgba(253,248,242,0.55)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            >Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setAdding(true)}
+          style={{ fontSize: 12, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 7, padding: '8px 16px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", alignSelf: 'flex-start' }}
+        >+ Add Liability</button>
+      )}
+    </div>
+  )
+}
+
+// ─── Goals Tab ────────────────────────────────────────────────────────────────
+
+interface Goal {
+  id: string
+  type: 'education' | 'property' | 'emergency' | 'other'
+  label: string
+  target_amount: number
+  target_date: string | null
+  current_amount: number
+}
+
+const GOAL_TYPES: { value: Goal['type']; label: string; icon: string }[] = [
+  { value: 'education', label: 'Education', icon: '🎓' },
+  { value: 'property', label: 'Property', icon: '🏠' },
+  { value: 'emergency', label: 'Emergency Fund', icon: '🛟' },
+  { value: 'other', label: 'Other', icon: '🎯' },
+]
+
+function GoalsTab({ userId }: { userId: string }) {
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [draft, setDraft] = useState({ type: 'education' as Goal['type'], label: '', target_amount: '', target_date: '', current_amount: '' })
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at').then(({ data }) => {
+      if (data) setGoals(data as Goal[])
+      setLoading(false)
+    })
+  }, [userId])
+
+  async function addGoal() {
+    if (!draft.label || !draft.target_amount) return
+    setSaving(true)
+    const supabase = createClient()
+    const { data, error } = await supabase.from('financial_goals').insert({
+      user_id: userId,
+      type: draft.type,
+      label: draft.label,
+      target_amount: parseFloat(draft.target_amount) || 0,
+      target_date: draft.target_date || null,
+      current_amount: parseFloat(draft.current_amount) || 0,
+    }).select().single()
+    if (!error && data) {
+      setGoals(prev => [...prev, data as Goal])
+      setDraft({ type: 'education', label: '', target_amount: '', target_date: '', current_amount: '' })
+      setAdding(false)
+    }
+    setSaving(false)
+  }
+
+  async function deleteGoal(id: string) {
+    const supabase = createClient()
+    await supabase.from('financial_goals').delete().eq('id', id)
+    setGoals(prev => prev.filter(g => g.id !== id))
+  }
+
+  if (loading) return <p style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Loading…</p>
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {goals.length === 0 && !adding && (
+        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', fontStyle: 'italic', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          No goals yet. Add education funds, property targets, or other savings goals.
+        </p>
+      )}
+
+      {goals.map(goal => {
+        const pct = goal.target_amount > 0 ? Math.min(100, (goal.current_amount / goal.target_amount) * 100) : 0
+        const meta = GOAL_TYPES.find(t => t.value === goal.type)
+        return (
+          <div key={goal.id} style={{
+            padding: '16px 20px', borderRadius: 12,
+            background: 'rgba(10,6,5,0.4)', border: '1px solid rgba(196,168,130,0.15)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 18 }}>{meta?.icon ?? '🎯'}</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', margin: '0 0 2px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{goal.label}</p>
+                <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.45)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  {meta?.label}
+                  {goal.target_date && ` · By ${new Date(goal.target_date).toLocaleDateString('en-SG', { month: 'short', year: 'numeric' })}`}
+                </p>
+              </div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#c4a882', fontFamily: "'Playfair Display', serif" }}>
+                {formatSGD(goal.current_amount)} / {formatSGD(goal.target_amount)}
+              </span>
+              <button onClick={() => deleteGoal(goal.id)} style={{ color: 'rgba(253,248,242,0.55)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ background: 'rgba(196,168,130,0.08)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+              <div style={{ height: '100%', borderRadius: 99, background: pct >= 100 ? '#10b981' : pct >= 50 ? '#d97706' : '#9b2040', width: `${pct}%`, transition: 'width 0.4s ease' }} />
+            </div>
+            <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.45)', margin: '4px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              {Math.round(pct)}% funded
+              {goal.target_amount > goal.current_amount && ` · ${formatSGD(goal.target_amount - goal.current_amount)} to go`}
+            </p>
+          </div>
+        )
+      })}
+
+      {adding ? (
+        <div style={{ background: 'rgba(10,6,5,0.5)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>Add Goal</p>
+          <div className="grid-2col" style={{ gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Type</label>
+              <select value={draft.type} onChange={e => setDraft(d => ({ ...d, type: e.target.value as Goal['type'] }))}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+              >
+                {GOAL_TYPES.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Label</label>
+              <input type="text" value={draft.label} onChange={e => setDraft(d => ({ ...d, label: e.target.value }))} placeholder="e.g. Kid's Uni Fund"
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div className="grid-3col" style={{ gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Target Amount (S$)</label>
+              <input type="number" value={draft.target_amount} onChange={e => setDraft(d => ({ ...d, target_amount: e.target.value }))} placeholder="0" min={0}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Current Amount (S$)</label>
+              <input type="number" value={draft.current_amount} onChange={e => setDraft(d => ({ ...d, current_amount: e.target.value }))} placeholder="0" min={0}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 600, color: 'rgba(253,248,242,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Cabinet Grotesk', sans-serif", display: 'block', marginBottom: 4 }}>Target Date</label>
+              <input type="date" value={draft.target_date} onChange={e => setDraft(d => ({ ...d, target_date: e.target.value }))}
+                style={{ width: '100%', fontSize: 13, border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 10px', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={addGoal} disabled={saving || !draft.label || !draft.target_amount}
+              style={{ background: '#9b2040', color: '#fdf8f2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", opacity: (saving || !draft.label || !draft.target_amount) ? 0.5 : 1 }}
+            >{saving ? 'Saving…' : 'Save'}</button>
+            <button onClick={() => setAdding(false)}
+              style={{ background: 'none', color: 'rgba(253,248,242,0.55)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            >Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setAdding(true)}
+          style={{ fontSize: 12, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 7, padding: '8px 16px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", alignSelf: 'flex-start' }}
+        >+ Add Goal</button>
       )}
     </div>
   )
@@ -535,6 +881,16 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
               <input type="number" step={0.005} min={0.01} max={0.1} value={form.inflation_rate} onChange={(e) => set('inflation_rate', e.target.value)} style={input} />
             </Field>
           </div>
+        )}
+
+        {/* Liabilities */}
+        {activeTab === 'liabilities' && (
+          <LiabilitiesTab userId={userId} />
+        )}
+
+        {/* Goals */}
+        {activeTab === 'goals' && (
+          <GoalsTab userId={userId} />
         )}
 
         {/* Net Worth */}

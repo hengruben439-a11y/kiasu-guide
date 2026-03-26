@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { ClientProfile } from '@/types'
 import { formatSGD } from '@/lib/utils'
+import { buildPlanMetrics } from '@/lib/scoring'
 import GreetingHeader from '@/components/dashboard/GreetingHeader'
 import ToolGrid from '@/components/dashboard/ToolGrid'
 import Link from 'next/link'
@@ -9,16 +10,12 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [profileResult, quotesResult, notesResult] = await Promise.all([
+  const [profileResult, quotesResult, notesResult, benefitsResult, liabilitiesResult] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('preferred_name, monthly_income, monthly_expenses, liquid_savings, retirement_age, cpf_oa, cpf_sa, cpf_ma, monthly_investment, pdpa_consent')
+      .select('preferred_name, monthly_income, monthly_expenses, liquid_savings, retirement_age, cpf_oa, cpf_sa, cpf_ma, monthly_investment, pdpa_consent, desired_monthly_income, dividend_yield, inflation_rate, target_return_rate, dob')
       .eq('user_id', user!.id)
-      .single<Pick<ClientProfile,
-        'preferred_name' | 'monthly_income' | 'monthly_expenses' |
-        'liquid_savings' | 'retirement_age' | 'cpf_oa' | 'cpf_sa' | 'cpf_ma' |
-        'monthly_investment' | 'pdpa_consent'
-      >>(),
+      .single<Partial<ClientProfile>>(),
     supabase
       .from('daily_quotes')
       .select('quote, author')
@@ -31,11 +28,21 @@ export default async function DashboardPage() {
       .eq('note_type', 'client_visible')
       .order('created_at', { ascending: false })
       .limit(3),
+    supabase
+      .from('benefit_blocks')
+      .select('benefit_type, coverage, enabled')
+      .eq('user_id', user!.id),
+    supabase
+      .from('liabilities')
+      .select('monthly_payment, outstanding_balance')
+      .eq('user_id', user!.id),
   ])
 
   const profile = profileResult.data
   const quotes = quotesResult.data ?? []
   const notes = notesResult.data ?? []
+  const benefits = benefitsResult.data ?? []
+  const liabilitiesData = liabilitiesResult.data ?? []
 
   const dayIndex = Math.floor(Date.now() / 86400000) % Math.max(quotes.length, 1)
   const quote = quotes[dayIndex] ?? null
@@ -85,10 +92,84 @@ export default async function DashboardPage() {
     },
   ]
 
+  const planMetrics = hasFinancials && profile
+    ? buildPlanMetrics(profile, benefits, liabilitiesData)
+    : null
+  const topPriority = planMetrics?.priorities[0] ?? null
+  const criticalCount = planMetrics?.priorities.filter(g => g.severity === 'critical').length ?? 0
+
+  // Journey steps
+  const hasProfile = hasFinancials
+  const hasInsurance = benefits.filter((b: { enabled: boolean }) => b.enabled).length > 0
+  const hasCpf = totalCpf > 0
+  const hasRetirement = !!(profile?.desired_monthly_income && Number(profile.desired_monthly_income) > 0 && profile?.monthly_investment && Number(profile.monthly_investment) > 0)
+  const journeySteps = [
+    { label: 'Profile', href: '/dashboard/profile', done: hasProfile, icon: '①' },
+    { label: 'Insurance', href: '/dashboard/insurance', done: hasInsurance, icon: '②' },
+    { label: 'CPF Plan', href: '/dashboard/cpf', done: hasCpf, icon: '③' },
+    { label: 'Retirement', href: '/dashboard/retirement', done: hasRetirement, icon: '④' },
+    { label: 'Stress Test', href: '/dashboard/stress-test', done: false, icon: '⑤' },
+  ]
+  const currentStepIdx = journeySteps.findIndex(s => !s.done)
+
   return (
     <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 1100 }}>
 
       <GreetingHeader name={displayName} />
+
+      {/* Journey tracker */}
+      <div style={{
+        background: 'rgba(122,28,46,0.06)',
+        border: '1px solid rgba(196,168,130,0.15)',
+        borderRadius: 14,
+        padding: '20px 24px',
+        marginBottom: 28,
+        backdropFilter: 'blur(12px)',
+      }}>
+        <p style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: '#c4a882', margin: '0 0 16px',
+        }}>
+          Your Financial Plan
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto' }}>
+          {journeySteps.map((step, i) => {
+            const isCurrent = i === currentStepIdx
+            const isDone = step.done
+            return (
+              <div key={step.label} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                <Link href={step.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 64 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 700,
+                    background: isDone ? 'rgba(22,163,74,0.2)' : isCurrent ? 'rgba(155,32,64,0.25)' : 'rgba(196,168,130,0.06)',
+                    border: `2px solid ${isDone ? '#16a34a' : isCurrent ? '#9b2040' : 'rgba(196,168,130,0.15)'}`,
+                    color: isDone ? '#16a34a' : isCurrent ? '#fdf8f2' : 'rgba(253,248,242,0.35)',
+                    transition: 'all 0.2s',
+                  }}>
+                    {isDone ? '✓' : i + 1}
+                  </div>
+                  <span style={{
+                    fontSize: 10, fontWeight: isDone || isCurrent ? 600 : 400,
+                    color: isDone ? '#16a34a' : isCurrent ? '#fdf8f2' : 'rgba(253,248,242,0.35)',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {step.label}
+                  </span>
+                </Link>
+                {i < journeySteps.length - 1 && (
+                  <div style={{
+                    flex: 1, height: 2, minWidth: 16,
+                    background: isDone ? 'rgba(22,163,74,0.4)' : 'rgba(196,168,130,0.1)',
+                    borderRadius: 1, margin: '0 4px', marginBottom: 20,
+                  }} />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Daily quote — richer card */}
       {quote && (
@@ -155,6 +236,48 @@ export default async function DashboardPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Plan Status banner */}
+      {planMetrics && topPriority && !planMetrics.allGood && (
+        <div style={{
+          marginBottom: 28,
+          background: criticalCount > 0
+            ? 'rgba(220,38,38,0.06)'
+            : 'rgba(217,119,6,0.06)',
+          border: `1px solid ${criticalCount > 0 ? 'rgba(220,38,38,0.2)' : 'rgba(217,119,6,0.2)'}`,
+          borderLeft: `3px solid ${criticalCount > 0 ? '#dc2626' : '#d97706'}`,
+          borderRadius: '0 12px 12px 0',
+          padding: '14px 20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                padding: '2px 7px', borderRadius: 5,
+                background: criticalCount > 0 ? 'rgba(220,38,38,0.15)' : 'rgba(217,119,6,0.15)',
+                color: criticalCount > 0 ? '#ef4444' : '#f59e0b',
+              }}>
+                {criticalCount > 0 ? `${criticalCount} Critical` : 'Attention Needed'}
+              </span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Playfair Display', serif" }}>
+                {topPriority.title}
+              </span>
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.55)', margin: 0, lineHeight: 1.4 }}>
+              {topPriority.consequence}
+            </p>
+          </div>
+          <Link href="/dashboard/overview" style={{
+            fontSize: 12, fontWeight: 600,
+            color: criticalCount > 0 ? '#ef4444' : '#f59e0b',
+            textDecoration: 'none', flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}>
+            View full plan →
+          </Link>
         </div>
       )}
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { GapItem, SEVERITY_STYLES } from '@/lib/scoring'
 import RetirementAnalytics from '@/components/tools/RetirementAnalytics'
 import CPFPlanner from '@/components/tools/CPFPlanner'
 import InsuranceBenefits from '@/components/tools/InsuranceBenefits'
@@ -46,6 +47,14 @@ interface Props {
   weightKg: number | null
   totalCoverage: number
   benefitBlocks: BenefitBlock[]
+  priorities?: GapItem[]
+}
+
+const GAP_TO_TAB: Record<string, string> = {
+  emergency: 'cashflow',
+  cashflow:  'cashflow',
+  retirement:'retirement',
+  protection:'protection',
 }
 
 const TABS = [
@@ -61,7 +70,11 @@ const TABS = [
 ]
 
 export default function ReviewDashboard(props: Props) {
-  const [activeTab, setActiveTab] = useState('retirement')
+  const firstTab = props.priorities?.[0]
+    ? (GAP_TO_TAB[props.priorities[0].id] ?? 'retirement')
+    : 'retirement'
+  const [activeTab, setActiveTab] = useState(firstTab)
+  const [agendaOpen, setAgendaOpen] = useState(true)
 
   const {
     clientId, currentAge,
@@ -71,7 +84,11 @@ export default function ReviewDashboard(props: Props) {
     retirementAge, desiredMonthlyIncome,
     dividendYield, targetReturnRate, inflationRate,
     heightCm, weightKg, totalCoverage, benefitBlocks,
+    priorities = [],
   } = props
+
+  // Which tabs have a gap flag?
+  const flaggedTabs = new Set(priorities.map(g => GAP_TO_TAB[g.id]).filter(Boolean))
 
   return (
     <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -79,6 +96,74 @@ export default function ReviewDashboard(props: Props) {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,300;1,400&display=swap');
         @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700&display=swap');
       `}</style>
+
+      {/* Pre-meeting agenda */}
+      {priorities.length > 0 && (
+        <div style={{
+          borderBottom: '1px solid rgba(42,31,26,0.1)',
+          background: '#fefcf9',
+        }}>
+          <button
+            onClick={() => setAgendaOpen(o => !o)}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '10px 48px', background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: "'Cabinet Grotesk', sans-serif",
+            }}
+          >
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a89070' }}>
+              Meeting Agenda — {priorities.length} priority area{priorities.length !== 1 ? 's' : ''}
+            </span>
+            <span style={{ fontSize: 11, color: '#a89070' }}>{agendaOpen ? '▲ Hide' : '▼ Show'}</span>
+          </button>
+          {agendaOpen && (
+            <div style={{ padding: '0 48px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {priorities.map((gap, i) => {
+                const s = SEVERITY_STYLES[gap.severity]
+                const targetTab = GAP_TO_TAB[gap.id]
+                return (
+                  <div key={gap.id} style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 12,
+                    padding: '10px 14px', borderRadius: 10,
+                    background: s.bg, border: `1px solid ${s.border}`,
+                    borderLeft: `3px solid ${s.dot}`,
+                  }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(42,31,26,0.35)', flexShrink: 0, marginTop: 1 }}>
+                      {i + 1}.
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Playfair Display', serif" }}>
+                          {gap.title}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '2px 7px', borderRadius: 5, background: s.badge, color: s.text }}>
+                          {gap.severity}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 12, color: '#a89070', margin: 0, lineHeight: 1.5 }}>
+                        {gap.consequence}
+                      </p>
+                    </div>
+                    {targetTab && (
+                      <button
+                        onClick={() => setActiveTab(targetTab)}
+                        style={{
+                          fontSize: 11, fontWeight: 600, color: s.text,
+                          background: s.badge, border: 'none', borderRadius: 6,
+                          padding: '4px 10px', cursor: 'pointer', flexShrink: 0,
+                          fontFamily: "'Cabinet Grotesk', sans-serif",
+                        }}
+                      >
+                        Open →
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tab bar */}
       <div style={{
@@ -92,7 +177,9 @@ export default function ReviewDashboard(props: Props) {
         gap: 0,
         overflowX: 'auto',
       }}>
-        {TABS.map(({ key, label }) => (
+        {TABS.map(({ key, label }) => {
+          const hasFlaggedGap = flaggedTabs.has(key)
+          return (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
@@ -109,11 +196,22 @@ export default function ReviewDashboard(props: Props) {
               whiteSpace: 'nowrap',
               fontFamily: "'Cabinet Grotesk', sans-serif",
               transition: 'color 0.15s',
+              position: 'relative',
             }}
           >
             {label}
+            {hasFlaggedGap && activeTab !== key && (
+              <span style={{
+                position: 'absolute', top: 8, right: 6,
+                width: 5, height: 5, borderRadius: '50%',
+                background: priorities.find(g => GAP_TO_TAB[g.id] === key)?.severity === 'critical'
+                  ? '#dc2626' : '#d97706',
+                display: 'inline-block',
+              }} />
+            )}
           </button>
-        ))}
+          )
+        })}
       </div>
 
       {/* Tool panel */}

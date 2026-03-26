@@ -33,7 +33,7 @@ interface Props {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatSGD(v: number): string {
-  return `$${Math.round(v).toLocaleString('en-SG')}`
+  return `S$${Math.round(v).toLocaleString('en-SG')}`
 }
 
 function totalCoverage(blocks: BenefitBlock[], type: BenefitBlock['benefit_type']): number {
@@ -100,7 +100,7 @@ function CircleProgress({ score }: { score: number }) {
   return (
     <div className="flex flex-col items-center gap-2">
       <svg width={128} height={128} viewBox="0 0 128 128">
-        <circle cx={64} cy={64} r={radius} fill="none" stroke="#f0e8e0" strokeWidth={10} />
+        <circle cx={64} cy={64} r={radius} fill="none" stroke="rgba(196,168,130,0.1)" strokeWidth={10} />
         <motion.circle
           cx={64}
           cy={64}
@@ -132,7 +132,7 @@ function CircleProgress({ score }: { score: number }) {
           y={82}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#a89070"
+          fill="rgba(253,248,242,0.5)"
           fontSize={10}
           fontFamily="'Cabinet Grotesk', sans-serif"
         >
@@ -275,7 +275,7 @@ function StatRow({ label, value }: { label: string; value: string }) {
       </span>
       <span
         className="text-sm font-semibold"
-        style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+        style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
       >
         {value}
       </span>
@@ -330,8 +330,8 @@ function PolicyCard({
       exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.2 }}
       style={{
-        background: block.enabled ? '#fff' : '#f9f5f0',
-        border: '1px solid #e8ddd0',
+        background: block.enabled ? 'rgba(122,28,46,0.06)' : 'rgba(122,28,46,0.03)',
+        border: '1px solid rgba(196,168,130,0.15)',
         borderRadius: 12,
         padding: '14px 16px',
         display: 'flex',
@@ -343,11 +343,11 @@ function PolicyCard({
       {/* Top row: name + actions */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div>
-          <p style={{ fontWeight: 600, fontSize: 13, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
+          <p style={{ fontWeight: 600, fontSize: 13, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
             {block.policy_name || 'Unnamed Policy'}
           </p>
           {block.coverage > 0 && (
-            <p style={{ fontSize: 18, fontWeight: 700, color: '#2a1f1a', fontFamily: "'Playfair Display', serif", margin: '2px 0 0' }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Playfair Display', serif", margin: '2px 0 0' }}>
               {formatSGD(block.coverage)}
             </p>
           )}
@@ -365,7 +365,7 @@ function PolicyCard({
               border: 'none',
               cursor: 'pointer',
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              background: block.enabled ? '#f0fdf4' : '#f5f5f5',
+              background: block.enabled ? 'rgba(22,163,74,0.08)' : 'rgba(196,168,130,0.04)',
               color: block.enabled ? '#16a34a' : '#a89070',
             }}
           >
@@ -376,8 +376,8 @@ function PolicyCard({
             onClick={() => onDelete(block.id)}
             title="Remove policy"
             style={{
-              width: 26, height: 26, borderRadius: '50%', border: '1px solid #e8ddd0',
-              background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center',
+              width: 26, height: 26, borderRadius: '50%', border: '1px solid rgba(196,168,130,0.15)',
+              background: 'rgba(10,6,5,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center',
               justifyContent: 'center', fontSize: 13, color: '#a89070', flexShrink: 0,
             }}
           >
@@ -391,7 +391,7 @@ function PolicyCard({
         {block.payout_mode && (
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 20,
-            background: '#fdf8f2', color: '#7a5c3a', border: '1px solid #e8ddd0',
+            background: 'rgba(122,28,46,0.06)', color: '#c4a882', border: '1px solid rgba(196,168,130,0.15)',
             fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 500,
           }}>
             {payoutLabel}
@@ -400,7 +400,7 @@ function PolicyCard({
         {block.expiry_age && (
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 20,
-            background: '#fdf8f2', color: '#7a5c3a', border: '1px solid #e8ddd0',
+            background: 'rgba(122,28,46,0.06)', color: '#c4a882', border: '1px solid rgba(196,168,130,0.15)',
             fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 500,
           }}>
             Expires age {block.expiry_age}
@@ -409,7 +409,7 @@ function PolicyCard({
         {block.multiplier && (
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 20,
-            background: '#fdf8f2', color: '#7a5c3a', border: '1px solid #e8ddd0',
+            background: 'rgba(122,28,46,0.06)', color: '#c4a882', border: '1px solid rgba(196,168,130,0.15)',
             fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 500,
           }}>
             {block.multiplier}× multiplier
@@ -418,7 +418,7 @@ function PolicyCard({
         {block.max_claims && (
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 20,
-            background: '#fdf8f2', color: '#7a5c3a', border: '1px solid #e8ddd0',
+            background: 'rgba(122,28,46,0.06)', color: '#c4a882', border: '1px solid rgba(196,168,130,0.15)',
             fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 500,
           }}>
             Up to {block.max_claims} claims
@@ -535,7 +535,7 @@ export default function InsuranceBenefits({
       <div>
         <h2
           className="text-2xl font-bold mb-1"
-          style={{ fontFamily: "'Playfair Display', serif", color: '#2a1f1a' }}
+          style={{ fontFamily: "'Playfair Display', serif", color: '#fdf8f2' }}
         >
           Insurance Benefits
         </h2>
@@ -551,11 +551,11 @@ export default function InsuranceBenefits({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           className="rounded-2xl border p-6 flex flex-col items-center justify-center"
-          style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
         >
           <p
             className="text-sm font-semibold mb-4"
-            style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
           >
             Protection Score
           </p>
@@ -567,11 +567,11 @@ export default function InsuranceBenefits({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.08 }}
           className="rounded-2xl border p-6 space-y-3"
-          style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
         >
           <p
             className="text-sm font-semibold mb-1"
-            style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
           >
             Quick Stats
           </p>
@@ -584,14 +584,14 @@ export default function InsuranceBenefits({
       </div>
 
       {/* Coverage breakdown with expandable cards */}
-      <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#e8ddd0' }}>
+      <div className="rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(196,168,130,0.15)' }}>
         <div
           className="px-5 py-3 border-b"
-          style={{ background: '#fdf8f2', borderColor: '#e8ddd0' }}
+          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
         >
           <p
             className="text-sm font-semibold"
-            style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
           >
             Coverage Breakdown
           </p>
@@ -600,7 +600,7 @@ export default function InsuranceBenefits({
           </p>
         </div>
 
-        <div style={{ background: '#fff' }}>
+        <div style={{ background: 'rgba(122,28,46,0.04)' }}>
           {BENEFIT_META.map((meta, i) => {
             const cov = totalCoverage(blocks, meta.type)
             const inForce = hasBenefitType(blocks, meta.type)
@@ -629,7 +629,7 @@ export default function InsuranceBenefits({
                     padding: '14px 20px',
                     background: 'none',
                     border: 'none',
-                    borderBottom: isExpanded ? 'none' : '1px solid #f5ede4',
+                    borderBottom: isExpanded ? 'none' : '1px solid rgba(196,168,130,0.08)',
                     cursor: 'pointer',
                     textAlign: 'left',
                     gap: 12,
@@ -641,7 +641,7 @@ export default function InsuranceBenefits({
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
-                        style={{ fontWeight: 600, fontSize: 13, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}
+                        style={{ fontWeight: 600, fontSize: 13, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}
                       >
                         {meta.label}
                       </p>
@@ -652,7 +652,7 @@ export default function InsuranceBenefits({
                       </p>
                       {/* Mini progress bar for numeric coverage */}
                       {rec !== null && (
-                        <div style={{ marginTop: 5, height: 3, background: '#f0e8e0', borderRadius: 2, width: 120 }}>
+                        <div style={{ marginTop: 5, height: 3, background: 'rgba(196,168,130,0.1)', borderRadius: 2, width: 120 }}>
                           <div style={{
                             height: '100%', borderRadius: 2,
                             width: `${pct}%`,
@@ -668,7 +668,7 @@ export default function InsuranceBenefits({
                     <div style={{ textAlign: 'right' }}>
                       {rec !== null ? (
                         <>
-                          <p style={{ fontWeight: 700, fontSize: 14, color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: 14, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", margin: 0 }}>
                             {formatSGD(cov)}
                           </p>
                           <span
@@ -676,7 +676,7 @@ export default function InsuranceBenefits({
                               display: 'inline-block', fontSize: 11, padding: '1px 7px',
                               borderRadius: 20, fontWeight: 600, marginTop: 2,
                               fontFamily: "'Cabinet Grotesk', sans-serif",
-                              background: isCovered ? '#f0fdf4' : '#fef2f2',
+                              background: isCovered ? 'rgba(22,163,74,0.08)' : 'rgba(239,68,68,0.06)',
                               color: isCovered ? '#16a34a' : '#dc2626',
                             }}
                           >
@@ -689,7 +689,7 @@ export default function InsuranceBenefits({
                             display: 'inline-block', fontSize: 11, padding: '1px 7px',
                             borderRadius: 20, fontWeight: 600,
                             fontFamily: "'Cabinet Grotesk', sans-serif",
-                            background: inForce ? '#f0fdf4' : '#fef2f2',
+                            background: inForce ? 'rgba(22,163,74,0.08)' : 'rgba(239,68,68,0.06)',
                             color: inForce ? '#16a34a' : '#dc2626',
                           }}
                         >
@@ -710,13 +710,13 @@ export default function InsuranceBenefits({
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.25 }}
-                      style={{ overflow: 'hidden', borderBottom: '1px solid #f5ede4' }}
+                      style={{ overflow: 'hidden', borderBottom: '1px solid rgba(196,168,130,0.08)' }}
                     >
                       <div style={{ padding: '0 20px 20px', background: '#fdf8f2' }}>
                         {/* What this covers */}
                         <div style={{
-                          marginTop: 12, padding: '12px 14px', background: '#fff',
-                          borderRadius: 10, border: '1px solid #e8ddd0',
+                          marginTop: 12, padding: '12px 14px', background: 'rgba(122,28,46,0.06)',
+                          borderRadius: 10, border: '1px solid rgba(196,168,130,0.15)',
                         }}>
                           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: meta.color, fontFamily: "'Cabinet Grotesk', sans-serif", margin: '0 0 5px' }}>
                             What this covers
@@ -792,11 +792,11 @@ export default function InsuranceBenefits({
           >
             <div
               className="rounded-2xl border p-6 space-y-4"
-              style={{ background: '#fdf8f2', borderColor: '#c4a882' }}
+              style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.3)' }}
             >
               <p
                 className="font-semibold text-base"
-                style={{ color: '#2a1f1a', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
               >
                 New Policy
               </p>
@@ -820,10 +820,10 @@ export default function InsuranceBenefits({
                     }
                     className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]"
                     style={{
-                      borderColor: '#e8ddd0',
-                      background: '#fff',
+                      borderColor: 'rgba(196,168,130,0.15)',
+                      background: 'rgba(122,28,46,0.06)',
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   >
                     {BENEFIT_TYPE_OPTIONS.map((o) => (
@@ -849,10 +849,10 @@ export default function InsuranceBenefits({
                     placeholder="e.g. Great Eastern Supreme"
                     className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]"
                     style={{
-                      borderColor: '#e8ddd0',
-                      background: '#fff',
+                      borderColor: 'rgba(196,168,130,0.15)',
+                      background: 'rgba(122,28,46,0.06)',
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   />
                 </div>
@@ -873,10 +873,10 @@ export default function InsuranceBenefits({
                     min={0}
                     className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]"
                     style={{
-                      borderColor: '#e8ddd0',
-                      background: '#fff',
+                      borderColor: 'rgba(196,168,130,0.15)',
+                      background: 'rgba(122,28,46,0.06)',
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   />
                 </div>
@@ -894,10 +894,10 @@ export default function InsuranceBenefits({
                     onChange={(e) => setForm((f) => ({ ...f, payout_mode: e.target.value }))}
                     className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]"
                     style={{
-                      borderColor: '#e8ddd0',
-                      background: '#fff',
+                      borderColor: 'rgba(196,168,130,0.15)',
+                      background: 'rgba(122,28,46,0.06)',
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   >
                     {PAYOUT_OPTIONS.map((o) => (
@@ -925,10 +925,10 @@ export default function InsuranceBenefits({
                     max={130}
                     className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]"
                     style={{
-                      borderColor: '#e8ddd0',
-                      background: '#fff',
+                      borderColor: 'rgba(196,168,130,0.15)',
+                      background: 'rgba(122,28,46,0.06)',
                       fontFamily: "'Cabinet Grotesk', sans-serif",
-                      color: '#2a1f1a',
+                      color: '#fdf8f2',
                     }}
                   />
                 </div>
@@ -967,7 +967,7 @@ export default function InsuranceBenefits({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           className="rounded-2xl border p-6"
-          style={{ background: '#fef2f2', borderColor: '#fca5a5' }}
+          style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.25)' }}
         >
           <p
             className="font-semibold mb-3"
@@ -996,7 +996,7 @@ export default function InsuranceBenefits({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           className="rounded-2xl border p-5 flex items-center gap-3"
-          style={{ background: '#f0fdf4', borderColor: '#86efac' }}
+          style={{ background: 'rgba(22,163,74,0.06)', borderColor: 'rgba(22,163,74,0.25)' }}
         >
           <span className="text-xl" aria-hidden>✅</span>
           <p

@@ -115,6 +115,14 @@ body {
 }
 .tab-scroll::-webkit-scrollbar { display: none; }
 
+/* Retirement Analytics grids */
+.grid-stream { display: grid; grid-template-columns: 1fr 140px 140px 36px; gap: 12px; align-items: center; }
+.grid-procrastination { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; }
+.retirement-inflation-panel { border-left: 1px solid rgba(196,168,130,0.1); padding-left: 28px; min-width: 210px; }
+
+/* Stress Test timeline */
+.stress-timeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
 @media (max-width: 768px) {
   .grid-4col { grid-template-columns: repeat(2, 1fr); }
   .grid-3col { grid-template-columns: 1fr; }
@@ -123,6 +131,10 @@ body {
   .grid-sidebar { grid-template-columns: 1fr; }
   .overview-score-grid { grid-template-columns: 1fr; }
   .overview-quad { grid-template-columns: 1fr !important; }
+  .grid-stream { grid-template-columns: 1fr; }
+  .grid-procrastination { grid-template-columns: 1fr; }
+  .retirement-inflation-panel { border-left: none; padding-left: 0; border-top: 1px solid rgba(196,168,130,0.1); padding-top: 20px; min-width: 0; }
+  .stress-timeline-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Landing page ─────────────────────────────────────────────────────────── */

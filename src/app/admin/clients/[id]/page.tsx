@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import AdminClientNotes from '@/components/admin/AdminClientNotes'
 import PipelineStatusSelect from '@/components/admin/PipelineStatusSelect'
+import { buildPlanMetrics, SEVERITY_STYLES } from '@/lib/scoring'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -15,30 +16,23 @@ export default async function ClientDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: client } = await supabase
-    .from('client_profiles')
-    .select('*')
-    .eq('user_id', id)
-    .single<ClientProfile>()
+  const [{ data: client }, { data: benefits }, { data: notes }] = await Promise.all([
+    supabase.from('client_profiles').select('*').eq('user_id', id).single<ClientProfile>(),
+    supabase.from('benefit_blocks').select('benefit_type, coverage, enabled').eq('user_id', id),
+    supabase.from('case_notes').select('id, content, note_type, action_type, due_date, completed_at, created_at').eq('user_id', id).order('created_at', { ascending: false }),
+  ])
 
   if (!client || client.role !== 'client') notFound()
 
-  const { data: notes } = await supabase
-    .from('case_notes')
-    .select('id, content, note_type, created_at')
-    .eq('user_id', id)
-    .order('created_at', { ascending: false })
-
-  const cpfTotal = Number(client.cpf_oa) + Number(client.cpf_sa) + Number(client.cpf_ma)
-  const surplus = Number(client.monthly_income) - Number(client.monthly_expenses)
   const hasFinancials = Number(client.monthly_income) > 0
   const status = client.pipeline_status ?? 'prospect'
+  const plan = hasFinancials ? buildPlanMetrics(client, benefits) : null
 
-  const stats = hasFinancials ? [
-    { label: 'Monthly Income', value: formatSGD(Number(client.monthly_income)) },
-    { label: 'Monthly Surplus', value: formatSGD(surplus) },
-    { label: 'Liquid Savings', value: formatSGD(Number(client.liquid_savings)) },
-    { label: 'CPF Total', value: formatSGD(cpfTotal) },
+  const stats = hasFinancials && plan ? [
+    { label: 'Monthly Income', value: formatSGD(plan.income) },
+    { label: 'Monthly Surplus', value: formatSGD(plan.surplus) },
+    { label: 'Liquid Savings', value: formatSGD(plan.savings) },
+    { label: 'CPF Total', value: formatSGD(plan.cpfTotal) },
   ] : []
 
   return (
@@ -79,7 +73,7 @@ export default async function ClientDetailPage({ params }: Props) {
 
       {/* Stats */}
       {hasFinancials && (
-        <div className="grid-4col" style={{ gap: 14, marginBottom: 32 }}>
+        <div className="grid-4col" style={{ gap: 14, marginBottom: 20 }}>
           {stats.map(({ label, value }) => (
             <div key={label} style={{
               background: '#fff', border: '1px solid rgba(42,31,26,0.07)',
@@ -94,6 +88,47 @@ export default async function ClientDetailPage({ params }: Props) {
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Plan gaps — advisor pre-meeting brief */}
+      {plan && (
+        <div style={{ marginBottom: 28 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a89070', margin: '0 0 10px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            {plan.allGood ? 'Plan Status' : `${plan.priorities.length} Gap${plan.priorities.length !== 1 ? 's' : ''} Detected`}
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {plan.allGood ? (
+              <div style={{ padding: '7px 14px', borderRadius: 20, background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', fontSize: 12, fontWeight: 600, color: '#16a34a' }}>
+                ✓ All areas on track
+              </div>
+            ) : (
+              plan.gaps.map(gap => {
+                const s = SEVERITY_STYLES[gap.severity]
+                return (
+                  <div key={gap.id} style={{
+                    padding: '7px 14px', borderRadius: 20,
+                    background: s.bg, border: `1px solid ${s.border}`,
+                    fontSize: 12, fontWeight: 600, color: s.text,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, display: 'inline-block', flexShrink: 0 }} />
+                    {gap.title}
+                    {gap.severity !== 'good' && (
+                      <span style={{ opacity: 0.7, fontWeight: 400 }}>
+                        · {gap.severity === 'critical' ? 'Critical' : 'Attention'}
+                      </span>
+                    )}
+                  </div>
+                )
+              })
+            )}
+          </div>
+          {!plan.allGood && plan.priorities[0] && (
+            <p style={{ fontSize: 12, color: '#a89070', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              Top concern: {plan.priorities[0].consequence}
+            </p>
+          )}
         </div>
       )}
 

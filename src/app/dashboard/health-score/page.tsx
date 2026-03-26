@@ -39,11 +39,11 @@ export default async function HealthScorePage() {
         </p>
         <h1 style={{
           fontFamily: "'Playfair Display', serif", fontSize: 30, fontWeight: 700,
-          color: '#2a1f1a', margin: '0 0 8px', letterSpacing: '-0.02em',
+          color: '#fdf8f2', margin: '0 0 8px', letterSpacing: '-0.02em',
         }}>
           Your Health Score
         </h1>
-        <p style={{ fontSize: 14, color: '#a89070', margin: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', margin: 0 }}>
           A composite score across protection, retirement, liquidity, debt management, and investment discipline.
         </p>
       </div>

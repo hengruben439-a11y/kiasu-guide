@@ -82,9 +82,9 @@ function useCountUp(target: number, duration = 900): number {
 // ── Formatters ────────────────────────────────────────────────────────────────
 
 function fmt(v: number): string {
-  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`
-  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`
-  return `$${Math.round(v).toLocaleString()}`
+  if (v >= 1_000_000) return `S$${(v / 1_000_000).toFixed(2)}M`
+  if (v >= 1_000) return `S$${(v / 1_000).toFixed(1)}K`
+  return `S$${Math.round(v).toLocaleString()}`
 }
 function fmtFull(v: number): string {
   return `S$${Math.round(v).toLocaleString('en-SG')}`
@@ -93,9 +93,13 @@ function fmtFull(v: number): string {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const SCENARIOS = [
-  { years: 0,  label: 'Start Now',     color: '#10b981', lineColor: '#10b981' },
-  { years: 2,  label: 'Wait 2 Years',  color: '#f59e0b', lineColor: '#f59e0b' },
-  { years: 5,  label: 'Wait 5 Years',  color: '#ef4444', lineColor: '#ef4444' },
+  { years: 0,   label: 'Start Now',      color: '#10b981', lineColor: '#10b981' },
+  { years: 1,   label: 'Wait 1 Year',    color: '#84cc16', lineColor: '#84cc16' },
+  { years: 2,   label: 'Wait 2 Years',   color: '#f59e0b', lineColor: '#f59e0b' },
+  { years: 3,   label: 'Wait 3 Years',   color: '#f97316', lineColor: '#f97316' },
+  { years: 5,   label: 'Wait 5 Years',   color: '#ef4444', lineColor: '#ef4444' },
+  { years: 7,   label: 'Wait 7 Years',   color: '#dc2626', lineColor: '#dc2626' },
+  { years: 10,  label: 'Wait 10 Years',  color: '#991b1b', lineColor: '#991b1b' },
 ]
 
 // ── Chart tooltip ─────────────────────────────────────────────────────────────
@@ -139,12 +143,14 @@ export default function CostOfWaiting({
 
   const pmtNow = computePMT(corpus, liquid_savings, target_return_rate, yearsToRetirement)
 
-  const scenarios = SCENARIOS.map(s => {
-    const pmt = computePMT(corpus, liquid_savings, target_return_rate, yearsToRetirement - s.years)
-    const extra = s.years === 0 ? 0 : Math.max(0, pmt - pmtNow)
-    const extraPct = pmtNow > 0 ? (extra / pmtNow) * 100 : 0
-    return { ...s, pmt, extra, extraPct }
-  })
+  const scenarios = SCENARIOS
+    .filter(s => s.years < yearsToRetirement - 1)
+    .map(s => {
+      const pmt = computePMT(corpus, liquid_savings, target_return_rate, yearsToRetirement - s.years)
+      const extra = s.years === 0 ? 0 : Math.max(0, pmt - pmtNow)
+      const extraPct = pmtNow > 0 ? (extra / pmtNow) * 100 : 0
+      return { ...s, pmt, extra, extraPct }
+    })
 
   const sliderPmt = computePMT(corpus, liquid_savings, target_return_rate, yearsToRetirement - sliderDelay)
   const sliderExtra = Math.max(0, sliderPmt - pmtNow)

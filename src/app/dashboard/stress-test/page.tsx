@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { ClientProfile } from '@/types'
 import StressTest from '@/components/tools/StressTest'
+import PlanLinksBar from '@/components/PlanLinksBar'
+import { buildPlanMetrics } from '@/lib/scoring'
 
 export default async function StressTestPage() {
   const supabase = await createClient()
@@ -9,7 +11,7 @@ export default async function StressTestPage() {
   const [{ data: profile }, { data: benefitBlocks }] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, monthly_investment, inflation_rate, dob')
+      .select('monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, monthly_investment, inflation_rate, dob, retirement_age, desired_monthly_income, dividend_yield, target_return_rate')
       .eq('user_id', user!.id)
       .single<Partial<ClientProfile>>(),
     supabase
@@ -17,6 +19,10 @@ export default async function StressTestPage() {
       .select('id, benefit_type, coverage, payout_mode, enabled, policy_name')
       .eq('user_id', user!.id),
   ])
+
+  const planGaps = profile && Number(profile.monthly_income) > 0
+    ? buildPlanMetrics(profile, benefitBlocks).gaps.filter(g => g.id !== 'emergency' && g.id !== 'cashflow')
+    : []
 
   const currentAge = profile?.dob
     ? Math.floor((Date.now() - new Date(profile.dob).getTime()) / (365.25 * 24 * 3600 * 1000))
@@ -34,11 +40,11 @@ export default async function StressTestPage() {
         <h1 style={{
           fontFamily: "'Playfair Display', serif",
           fontSize: 28, fontWeight: 700,
-          color: '#2a1f1a', margin: '0 0 8px', letterSpacing: '-0.02em',
+          color: '#fdf8f2', margin: '0 0 8px', letterSpacing: '-0.02em',
         }}>
           Financial Stress Test
         </h1>
-        <p style={{ fontSize: 14, color: '#a89070', margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', margin: 0, lineHeight: 1.6 }}>
           How long can your savings last if the worst happens? Run your numbers through four real-life crisis scenarios.
         </p>
       </div>
@@ -55,6 +61,7 @@ export default async function StressTestPage() {
         currentAge={currentAge}
         benefitBlocks={benefitBlocks ?? []}
       />
+      <PlanLinksBar gaps={planGaps} title="Other areas of your plan" />
     </div>
   )
 }

@@ -109,10 +109,11 @@ function project(
     sa += sa * SA_INTEREST
     ma = Math.min(ma * (1 + MA_INTEREST), BHS_2024) // MA interest but stays capped
 
-    // RA formation at 55
+    // RA formation at 55 — can go up to ERS (1.5× FRS) with top-ups
     if (age === 55) {
+      const ERS = FRS_2024 * 1.5
       const prevSa = sa
-      ra = Math.min(sa + oa, FRS_2024)
+      ra = Math.min(sa + oa, ERS)
       sa = Math.max(0, prevSa - ra)
       oa = Math.max(0, oa - Math.max(0, ra - prevSa))
     } else if (age > 55) {
@@ -156,15 +157,15 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#fff', border: '1px solid rgba(42,31,26,0.12)',
+      background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.2)',
       borderRadius: 10, padding: '12px 16px',
-      fontFamily: "'Cabinet Grotesk', sans-serif", boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+      fontFamily: "'Cabinet Grotesk', sans-serif", boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: '#a89070', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+      <p style={{ fontSize: 10, fontWeight: 700, color: '#c4a882', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
         Age {label}
       </p>
       {payload.map((p) => p.value > 0 && (
-        <p key={p.name} style={{ fontSize: 13, margin: '3px 0', color: '#2a1f1a' }}>
+        <p key={p.name} style={{ fontSize: 13, margin: '3px 0', color: '#fdf8f2' }}>
           <span style={{ color: p.color, marginRight: 6 }}>■</span>
           {p.name}: <strong>{fmt(p.value)}</strong>
         </p>
@@ -180,7 +181,7 @@ function ProgressRing({ pct, size = 96, stroke = 8, color = '#7a1c2e' }: { pct: 
   const offset = circ - (Math.min(pct, 100) / 100) * circ
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(42,31,26,0.08)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(196,168,130,0.1)" strokeWidth={stroke} />
       <motion.circle
         cx={size / 2} cy={size / 2} r={r}
         fill="none" stroke={color} strokeWidth={stroke}
@@ -254,8 +255,79 @@ export default function CPFPlanner(props: Props) {
     { label: 'RA at Retirement', value: fmtFull(ret.ra || topupRA), color: '#7a1c2e', sub: 'Formed at 55' },
   ]
 
+  const portfolioGapMonthly = Math.max(0, adjDesired - cpfLifeMonthly)
+  const portfolioGapPct = adjDesired > 0 ? Math.round((portfolioGapMonthly / adjDesired) * 100) : 100
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+      {/* ── How CPF fits your plan ── */}
+      {props.desiredMonthlyIncome > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            background: 'rgba(122,28,46,0.04)', border: '1px solid rgba(122,28,46,0.15)',
+            borderRadius: 14, padding: '24px 28px',
+          }}
+        >
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            How CPF Fits Your Retirement Plan
+          </p>
+          <div className="grid-2col" style={{ gap: 20 }}>
+            {/* Guaranteed Floor */}
+            <div style={{
+              background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(122,28,46,0.12)',
+              borderRadius: 10, padding: '18px 22px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                  padding: '3px 8px', borderRadius: 5, background: 'rgba(22,163,74,0.12)', color: '#16a34a',
+                }}>Guaranteed Floor</span>
+              </div>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#7a1c2e', margin: '0 0 4px' }}>
+                {fmtFull(cpfLifeMonthly)}<span style={{ fontSize: 14, color: '#a89070', marginLeft: 4 }}>/mo</span>
+              </p>
+              <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                CPF Life payout — guaranteed for life
+              </p>
+              <div style={{ background: 'rgba(253,248,242,0.06)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 99, background: '#16a34a', width: `${Math.min(100, 100 - portfolioGapPct)}%`, transition: 'width 0.6s ease' }} />
+              </div>
+              <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.5)', margin: '4px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                Covers {Math.round(100 - portfolioGapPct)}% of desired retirement income
+              </p>
+            </div>
+
+            {/* Growth Layer */}
+            <div style={{
+              background: 'rgba(217,119,6,0.04)', border: '1px solid rgba(217,119,6,0.12)',
+              borderRadius: 10, padding: '18px 22px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                  padding: '3px 8px', borderRadius: 5, background: 'rgba(217,119,6,0.12)', color: '#d97706',
+                }}>Growth Layer</span>
+              </div>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
+                {fmtFull(portfolioGapMonthly)}<span style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', marginLeft: 4 }}>/mo</span>
+              </p>
+              <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                Gap your investment portfolio must fill
+              </p>
+              <div style={{ background: 'rgba(253,248,242,0.06)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 99, background: '#d97706', width: `${Math.min(100, portfolioGapPct)}%`, transition: 'width 0.6s ease' }} />
+              </div>
+              <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.5)', margin: '4px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                {portfolioGapPct}% of desired {fmtFull(adjDesired)}/mo (inflation-adjusted)
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Balance cards (staggered) ── */}
       <div className="grid-4col" style={{ gap: 16 }}>
@@ -266,18 +338,19 @@ export default function CPFPlanner(props: Props) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08, duration: 0.4, ease: 'easeOut' }}
             style={{
-              background: '#fff', borderRadius: 14,
-              border: '1px solid rgba(42,31,26,0.07)',
+              background: 'rgba(122,28,46,0.06)', borderRadius: 14,
+              border: '1px solid rgba(196,168,130,0.15)',
               padding: '20px 22px',
+              backdropFilter: 'blur(12px)',
             }}
           >
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a89070', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {c.label}
             </p>
             <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: c.color, margin: '0 0 4px' }}>
               {c.value}
             </p>
-            <p style={{ fontSize: 11, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.5)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               {c.sub}
             </p>
           </motion.div>
@@ -293,19 +366,20 @@ export default function CPFPlanner(props: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.4 }}
           style={{
-            background: 'rgba(122,28,46,0.04)', border: '1px solid rgba(122,28,46,0.15)',
+            background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)',
             borderRadius: 14, padding: '28px 32px',
+            backdropFilter: 'blur(12px)',
             display: 'flex', flexDirection: 'column', gap: 8,
           }}
         >
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Estimated CPF Life Payout
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 700, color: '#7a1c2e', margin: 0, lineHeight: 1.1 }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 700, color: '#9b2040', margin: 0, lineHeight: 1.1 }}>
             S${animatedPayout.toLocaleString('en-SG')}
-            <span style={{ fontSize: 16, fontFamily: "'Cabinet Grotesk', sans-serif", color: '#a89070', marginLeft: 6 }}>/mo</span>
+            <span style={{ fontSize: 16, fontFamily: "'Cabinet Grotesk', sans-serif", color: 'rgba(253,248,242,0.5)', marginLeft: 6 }}>/mo</span>
           </p>
-          <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             At retirement age {props.retirementAge} · Standard Plan estimate
           </p>
           {annualTopup > 0 && (
@@ -325,28 +399,29 @@ export default function CPFPlanner(props: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.43, duration: 0.4 }}
           style={{
-            background: '#fff', border: '1px solid rgba(42,31,26,0.07)',
+            background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)',
             borderRadius: 14, padding: '28px 32px',
+            backdropFilter: 'blur(12px)',
             display: 'flex', alignItems: 'center', gap: 24,
           }}
         >
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <ProgressRing pct={coveragePct} size={96} stroke={8} color={coveragePct >= 80 ? '#16a34a' : coveragePct >= 50 ? '#d97706' : '#7a1c2e'} />
+            <ProgressRing pct={coveragePct} size={96} stroke={8} color={coveragePct >= 80 ? '#16a34a' : coveragePct >= 50 ? '#d97706' : '#9b2040'} />
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#2a1f1a' }}>{animatedCoverage}%</span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2' }}>{animatedCoverage}%</span>
             </div>
           </div>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a89070', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               CPF Coverage
             </p>
-            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#2a1f1a', margin: '0 0 4px' }}>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
               of desired income
             </p>
-            <p style={{ fontSize: 12, color: '#a89070', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               Target: {fmtFull(adjDesired)}/mo (inflation-adj.)
             </p>
-            <motion.div style={{ background: 'rgba(42,31,26,0.06)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+            <motion.div style={{ background: 'rgba(253,248,242,0.06)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${coveragePct}%` }}
@@ -363,12 +438,12 @@ export default function CPFPlanner(props: Props) {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        style={{ background: '#fff', border: '1px solid rgba(42,31,26,0.07)', borderRadius: 14, padding: '24px 28px' }}
+        style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 14, padding: '24px 28px', backdropFilter: 'blur(12px)' }}
       >
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#2a1f1a', margin: '0 0 4px' }}>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
           CPF Balance Projection — Age {safeAge} to {props.retirementAge}
         </p>
-        <p style={{ fontSize: 12, color: '#a89070', margin: '0 0 20px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '0 0 20px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           OA · SA · MA · RA (formed at 55)
         </p>
         <ResponsiveContainer width="100%" height={300}>
@@ -391,8 +466,8 @@ export default function CPFPlanner(props: Props) {
                 <stop offset="95%" stopColor="#7a1c2e" stopOpacity={0.04} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="age" tick={{ fontSize: 11, fill: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
-            <YAxis tickFormatter={fmt} tick={{ fontSize: 11, fill: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
+            <XAxis dataKey="age" tick={{ fontSize: 10, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={fmt} tick={{ fontSize: 10, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }} axisLine={false} tickLine={false} />
             <Tooltip content={<ChartTooltip />} />
             {raFormAge && (
               <ReferenceLine
@@ -415,12 +490,12 @@ export default function CPFPlanner(props: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.4 }}
-        style={{ background: '#fff', border: '1px solid rgba(42,31,26,0.07)', borderRadius: 14, padding: '24px 28px' }}
+        style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 14, padding: '24px 28px', backdropFilter: 'blur(12px)' }}
       >
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           Voluntary SA Top-Up Simulator
         </p>
-        <p style={{ fontSize: 13, color: '#a89070', margin: '0 0 20px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.5)', margin: '0 0 20px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
           See how annual RSTU contributions boost your CPF Life payout at retirement.
         </p>
         <div style={{ marginBottom: 20 }}>
@@ -450,12 +525,12 @@ export default function CPFPlanner(props: Props) {
                 fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
-              <p style={{ fontSize: 13, color: '#2a1f1a', margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 13, color: '#fdf8f2', margin: 0, lineHeight: 1.6 }}>
                 Contributing <strong style={{ color: '#16a34a' }}>S${annualTopup.toLocaleString('en-SG')}/yr</strong> to SA now would increase your CPF Life payout by{' '}
                 <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta).toLocaleString('en-SG')}/mo</strong>{' '}
                 — that&apos;s <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta * 12).toLocaleString('en-SG')}/yr</strong> more in retirement.
               </p>
-              <p style={{ fontSize: 12, color: '#a89070', margin: '6px 0 0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '6px 0 0', lineHeight: 1.5 }}>
                 Base CPF Life: {fmtFull(baseCpfLife)}/mo → With top-up: {fmtFull(topupCpfLife)}/mo
               </p>
             </motion.div>
@@ -471,7 +546,7 @@ export default function CPFPlanner(props: Props) {
                 fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
-              <p style={{ fontSize: 13, color: '#a89070', margin: 0 }}>
+              <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.5)', margin: 0 }}>
                 Slide above to see the impact of voluntary SA top-ups on your CPF Life monthly payout.
               </p>
             </motion.div>
@@ -486,12 +561,12 @@ export default function CPFPlanner(props: Props) {
             transition={{ duration: 0.3 }}
             style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}
           >
-            <span style={{ fontSize: 12, color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif", minWidth: 120 }}>
+            <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif", minWidth: 120 }}>
               Coverage improvement
             </span>
-            <div style={{ flex: 1, background: 'rgba(42,31,26,0.06)', borderRadius: 99, height: 8, overflow: 'hidden', position: 'relative' }}>
+            <div style={{ flex: 1, background: 'rgba(253,248,242,0.06)', borderRadius: 99, height: 8, overflow: 'hidden', position: 'relative' }}>
               <motion.div
-                style={{ height: '100%', borderRadius: 99, background: 'rgba(42,31,26,0.12)', position: 'absolute', left: 0 }}
+                style={{ height: '100%', borderRadius: 99, background: 'rgba(253,248,242,0.12)', position: 'absolute', left: 0 }}
                 initial={{ width: `${coveragePctBase}%` }}
                 animate={{ width: `${coveragePctBase}%` }}
               />

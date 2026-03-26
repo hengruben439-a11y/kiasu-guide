@@ -20,16 +20,17 @@ const clientNav = [
 
 const clientTools = [
   { href: '/dashboard/overview', label: 'Financial Overview', icon: '◉' },
-  { href: '/dashboard/retirement', label: 'Retirement Analytics', icon: '◈' },
-  { href: '/dashboard/stress-test', label: 'Stress Test', icon: '◇' },
-  { href: '/dashboard/cost-of-waiting', label: 'Cost of Waiting', icon: '△' },
-  { href: '/dashboard/cpf', label: 'CPF Planning', icon: '⬟' },
-  { href: '/dashboard/insurance', label: 'Insurance Benefits', icon: '◍' },
-  { href: '/dashboard/cashflow', label: 'Cash Flow', icon: '⊞' },
-  { href: '/dashboard/bmi', label: 'BMI Calculator', icon: '⊕' },
-  { href: '/dashboard/ltc', label: 'LTC Gap', icon: '⊗' },
   { href: '/dashboard/health-score', label: 'Health Score', icon: '⊛' },
+  { href: '/dashboard/insurance', label: 'Insurance Coverage', icon: '◍' },
+  { href: '/dashboard/stress-test', label: 'Stress Test', icon: '◇' },
+  { href: '/dashboard/cpf', label: 'CPF Planning', icon: '⬟' },
+  { href: '/dashboard/retirement', label: 'Retirement Analytics', icon: '◈' },
+  { href: '/dashboard/cashflow', label: 'Cash Flow', icon: '⊞' },
   { href: '/dashboard/net-worth', label: 'Net Worth', icon: '⊜' },
+  { href: '/dashboard/cost-of-waiting', label: 'Cost of Waiting', icon: '△' },
+  { href: '/dashboard/ltc', label: 'LTC Gap', icon: '⊗' },
+  { href: '/dashboard/bmi', label: 'BMI Calculator', icon: '⊕' },
+  { href: '/dashboard/mpci', label: 'MPCI Benefits', icon: '⊙' },
 ]
 
 const adminNav = [

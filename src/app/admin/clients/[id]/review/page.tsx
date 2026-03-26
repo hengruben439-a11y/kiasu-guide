@@ -3,6 +3,7 @@ import { ClientProfile } from '@/types'
 import { notFound } from 'next/navigation'
 import AdminReviewBanner from '@/components/admin/AdminReviewBanner'
 import ReviewDashboard from '@/components/admin/ReviewDashboard'
+import { buildPlanMetrics } from '@/lib/scoring'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -45,6 +46,10 @@ export default async function AdminReviewPage({ params }: Props) {
     .filter((b) => b.enabled && (b.benefit_type === 'death' || b.benefit_type === 'tpd'))
     .reduce((sum: number, b: { coverage: number }) => sum + Number(b.coverage ?? 0), 0)
 
+  const planMetrics = Number(client.monthly_income) > 0
+    ? buildPlanMetrics(client, benefitBlocks)
+    : null
+
   return (
     <div style={{ minHeight: '100vh', background: '#fdf8f2' }}>
       <AdminReviewBanner
@@ -71,6 +76,7 @@ export default async function AdminReviewPage({ params }: Props) {
         weightKg={client.weight_kg ? Number(client.weight_kg) : null}
         totalCoverage={totalCoverage}
         benefitBlocks={benefitBlocks ?? []}
+        priorities={planMetrics?.priorities}
       />
     </div>
   )

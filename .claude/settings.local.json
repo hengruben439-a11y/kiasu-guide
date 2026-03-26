@@ -20,7 +20,31 @@
       "Bash(grep -n \"pipeline\\\\|status\\\\|Review Mode\" /Users/rue/kiasu-guide/src/app/admin/clients/[id]/page.tsx)",
       "Bash(ls:*)",
       "Bash(grep -n \"gridTemplateColumns\\\\|padding.*48\\\\|48px\\\\|repeat\\([3-9]\" /Users/rue/kiasu-guide/src/components/tools/CashFlow.tsx /Users/rue/kiasu-guide/src/components/tools/InsuranceBenefits.tsx /Users/rue/kiasu-guide/src/app/admin/page.tsx /Users/rue/kiasu-guide/src/app/admin/clients/[id]/page.tsx /Users/rue/kiasu-guide/src/components/admin/ClientTable.tsx)",
-      "mcp__claude_ai_Notion__notion-search"
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Vercel__deploy_to_vercel",
+      "Bash(git push:*)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(sed -i '' \"s/color: ''#2a1f1a''/color: ''#fdf8f2''/g\" \"$f\")",
+      "Bash(sed -i '' \"s/color: ''#a89070''/color: ''rgba\\(253,248,242,0.5\\)''/g\" \"$f\")",
+      "Bash(done)",
+      "WebFetch(domain:www.cpf.gov.sg)",
+      "WebSearch",
+      "WebFetch(domain:dollarsandsense.sg)",
+      "WebFetch(domain:growbeansprout.com)",
+      "WebFetch(domain:www.mof.gov.sg)",
+      "Bash(/Users/rue/.claude/plans/kiasu-phase-bc-audit-report.md:*)",
+      "Read(//Users/rue/.claude/plans/**)",
+      "mcp__claude_ai_Base44__list_user_apps",
+      "mcp__claude_ai_Base44__get_app_preview_url",
+      "WebFetch(domain:preview-sandbox--696e04bb8cd7adfcce1197bb.base44.app)",
+      "mcp__claude_ai_Base44__list_entity_schemas",
+      "Bash(pnpm add:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(mkdir -p /Users/rue/kiasu-guide/.claude/skills)",
+      "Bash(cp -r ~/.claude/skills/* /Users/rue/kiasu-guide/.claude/skills/)",
+      "Bash(wc:*)",
+      "Bash(git add:*)"
     ]
   }
 }

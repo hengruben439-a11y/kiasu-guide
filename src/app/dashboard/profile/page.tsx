@@ -18,10 +18,10 @@ export default async function ProfilePage() {
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
           Your Data
         </p>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#2a1f1a', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: '#fdf8f2', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
           Financial Profile
         </h1>
-        <p style={{ fontSize: 14, color: '#a89070', margin: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', margin: 0 }}>
           Changes save automatically. All tools update in real time.
         </p>
       </div>

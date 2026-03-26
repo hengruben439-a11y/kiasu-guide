@@ -11,29 +11,22 @@ import {
   ResponsiveContainer,
   Cell,
   ReferenceLine,
-  Legend,
 } from 'recharts'
 
 // ─── Fixed assumptions ────────────────────────────────────────────────────────
-const DURATION_YEARS = 10
+const DEFAULT_DURATION_YEARS = 20
 const LTC_INFLATION = 0.04
-const CARESHIELD_MONTHLY = 662
+const DEFAULT_CARESHIELD_MONTHLY = 662
 const AVG_LTC_MONTHLY = 2952
 
 // ─── Derived calculations ─────────────────────────────────────────────────────
-function calcTotalLTCCost(): number {
+function calcTotalLTCCost(durationYears: number): number {
   let total = 0
-  for (let year = 0; year < DURATION_YEARS; year++) {
+  for (let year = 0; year < durationYears; year++) {
     total += AVG_LTC_MONTHLY * 12 * Math.pow(1 + LTC_INFLATION, year)
   }
   return Math.round(total)
 }
-
-const TOTAL_LTC_COST = calcTotalLTCCost()                          // ~$425,304
-const CARESHIELD_TOTAL = CARESHIELD_MONTHLY * 12 * DURATION_YEARS // ~$79,440
-const MONTHLY_GAP = AVG_LTC_MONTHLY - CARESHIELD_MONTHLY          // $2,290
-const ANNUAL_GAP = MONTHLY_GAP * 12
-const TOTAL_GAP = TOTAL_LTC_COST - CARESHIELD_TOTAL
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatSGD(v: number): string {
@@ -70,31 +63,24 @@ function useCountUp(target: number, duration = 1400): number {
   return value
 }
 
-// ─── Year-by-year table data ──────────────────────────────────────────────────
-const yearRows = Array.from({ length: DURATION_YEARS }, (_, i) => {
-  const monthlyLTC = Math.round(AVG_LTC_MONTHLY * Math.pow(1 + LTC_INFLATION, i))
-  const gap = monthlyLTC - CARESHIELD_MONTHLY
-  return {
-    year: i + 1,
-    monthlyLTC,
-    careshield: CARESHIELD_MONTHLY,
-    gap,
-  }
-})
+// ─── Dynamic helpers ──────────────────────────────────────────────────────────
+function buildYearRows(coverage: number, durationYears: number) {
+  return Array.from({ length: durationYears }, (_, i) => {
+    const monthlyLTC = Math.round(AVG_LTC_MONTHLY * Math.pow(1 + LTC_INFLATION, i))
+    const gap = Math.max(0, monthlyLTC - coverage)
+    return { year: i + 1, monthlyLTC, careshield: coverage, gap }
+  })
+}
 
-// ─── Chart data ───────────────────────────────────────────────────────────────
-const chartData = [
-  {
-    name: 'CareShield Life',
-    value: CARESHIELD_TOTAL,
-    fill: '#16a34a',
-  },
-  {
-    name: 'Protection Gap',
-    value: TOTAL_GAP,
-    fill: '#b91c1c',
-  },
-]
+function buildChartData(coverage: number, durationYears: number) {
+  const totalLTC = calcTotalLTCCost(durationYears)
+  const coverageTotal = coverage * 12 * durationYears
+  const gapTotal = Math.max(0, totalLTC - coverageTotal)
+  return [
+    { name: 'Your Coverage', value: Math.min(coverageTotal, totalLTC), fill: '#16a34a' },
+    { name: 'Protection Gap', value: gapTotal, fill: '#b91c1c' },
+  ]
+}
 
 // ─── Custom tooltip ───────────────────────────────────────────────────────────
 function CustomTooltip({ active, payload, label }: any) {
@@ -122,8 +108,22 @@ function CustomTooltip({ active, payload, label }: any) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function LTCGapCalculator() {
-  const animatedGap = useCountUp(MONTHLY_GAP, 1400)
+  const [userCoverage, setUserCoverage] = useState(DEFAULT_CARESHIELD_MONTHLY)
+  const [durationYears, setDurationYears] = useState(DEFAULT_DURATION_YEARS)
   const [showAssumptions, setShowAssumptions] = useState(false)
+
+  // Dynamic calculations based on user's coverage and duration
+  const TOTAL_LTC_COST = calcTotalLTCCost(durationYears)
+  const monthlyGap = Math.max(0, AVG_LTC_MONTHLY - userCoverage)
+  const coverageTotal = userCoverage * 12 * durationYears
+  const totalGap = Math.max(0, TOTAL_LTC_COST - coverageTotal)
+  const gapReduction = DEFAULT_CARESHIELD_MONTHLY < userCoverage
+    ? Math.round(((userCoverage - DEFAULT_CARESHIELD_MONTHLY) / (AVG_LTC_MONTHLY - DEFAULT_CARESHIELD_MONTHLY)) * 100)
+    : 0
+  const yearRows = buildYearRows(userCoverage, durationYears)
+  const chartData = buildChartData(userCoverage, durationYears)
+
+  const animatedGap = useCountUp(monthlyGap, 1400)
 
   const cardStyle: React.CSSProperties = {
     background: 'rgba(122,28,46,0.06)',
@@ -215,28 +215,121 @@ export default function LTCGapCalculator() {
         </p>
       </motion.div>
 
+      {/* ── Your coverage input ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.05, ease: 'easeOut' }}
+        style={cardStyle}
+      >
+        <p style={{ ...statLabelStyle, color: '#c4a882', marginBottom: '0.75rem' }}>
+          Your CareShield Life + Supplement Payout
+        </p>
+        <p style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '0.85rem', color: 'rgba(253,248,242,0.55)', marginBottom: '1rem' }}>
+          Enter your total monthly payout including any ElderShield or CareShield supplements.
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ height: 6, borderRadius: 3, background: 'rgba(253,248,242,0.07)' }}>
+              <div style={{
+                height: '100%', borderRadius: 3,
+                background: 'linear-gradient(90deg, rgba(155,32,64,0.5), #16a34a)',
+                width: `${Math.min(100, ((userCoverage - 600) / (5000 - 600)) * 100)}%`,
+                transition: 'width 0.1s',
+              }} />
+            </div>
+            <input
+              type="range" min={600} max={5000} step={50} value={userCoverage}
+              onChange={(e) => setUserCoverage(Number(e.target.value))}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }}
+            />
+          </div>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 700, color: '#fdf8f2', minWidth: 120, textAlign: 'right' }}>
+            {formatSGD(userCoverage)}/mo
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+          <span style={{ fontSize: '0.7rem', color: 'rgba(253,248,242,0.3)' }}>S$600</span>
+          <span style={{ fontSize: '0.7rem', color: 'rgba(253,248,242,0.3)' }}>S$5,000</span>
+        </div>
+        {gapReduction > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginTop: '1rem', padding: '12px 16px',
+              background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)',
+              borderRadius: 10,
+            }}
+          >
+            <p style={{ fontSize: '0.85rem', color: '#16a34a', margin: 0, fontWeight: 600, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              Your supplement erases {Math.min(100, gapReduction)}% of the shortfall — {monthlyGap > 0 ? `${formatSGD(monthlyGap)}/mo still uncovered` : 'gap fully covered!'}
+            </p>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* ── Care duration slider ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.08, ease: 'easeOut' }}
+        style={cardStyle}
+      >
+        <p style={{ ...statLabelStyle, color: '#c4a882', marginBottom: '0.75rem' }}>
+          Expected Care Duration
+        </p>
+        <p style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '0.85rem', color: 'rgba(253,248,242,0.55)', marginBottom: '1rem' }}>
+          CareShield Life pays for life, but care costs depend on how long you need support. Adjust to see the total impact.
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ height: 6, borderRadius: 3, background: 'rgba(253,248,242,0.07)' }}>
+              <div style={{
+                height: '100%', borderRadius: 3,
+                background: 'linear-gradient(90deg, rgba(155,32,64,0.5), #d97706)',
+                width: `${((durationYears - 5) / (30 - 5)) * 100}%`,
+                transition: 'width 0.1s',
+              }} />
+            </div>
+            <input
+              type="range" min={5} max={30} step={1} value={durationYears}
+              onChange={(e) => setDurationYears(Number(e.target.value))}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }}
+            />
+          </div>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 700, color: '#fdf8f2', minWidth: 100, textAlign: 'right' }}>
+            {durationYears} years
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+          <span style={{ fontSize: '0.7rem', color: 'rgba(253,248,242,0.3)' }}>5 years</span>
+          <span style={{ fontSize: '0.7rem', color: 'rgba(253,248,242,0.3)' }}>30 years</span>
+        </div>
+      </motion.div>
+
       {/* ── 3 summary stat cards ── */}
       <div className="grid-3col" style={{ gap: '1rem' }}>
         {[
           {
             label: 'Total LTC Cost',
-            sublabel: '10 years, inflation-adjusted',
+            sublabel: `${durationYears} years, inflation-adjusted`,
             value: formatSGD(TOTAL_LTC_COST),
             color: '#fdf8f2',
             delay: 0.1,
           },
           {
-            label: 'CareShield Covers',
-            sublabel: `S$${CARESHIELD_MONTHLY}/month × 10 years`,
-            value: formatSGD(CARESHIELD_TOTAL),
+            label: 'Your Coverage',
+            sublabel: `${formatSGD(userCoverage)}/month × ${durationYears} years`,
+            value: formatSGD(coverageTotal),
             color: '#16a34a',
             delay: 0.2,
           },
           {
             label: 'Protection Gap',
-            sublabel: 'Total uncovered cost',
-            value: formatSGD(TOTAL_GAP),
-            color: '#b91c1c',
+            sublabel: totalGap > 0 ? 'Total uncovered cost' : 'Fully covered!',
+            value: totalGap > 0 ? formatSGD(totalGap) : 'S$0',
+            color: totalGap > 0 ? '#b91c1c' : '#16a34a',
             delay: 0.3,
           },
         ].map((stat) => (
@@ -507,7 +600,7 @@ export default function LTCGapCalculator() {
                     fontStyle: 'italic',
                   }}
                 >
-                  Monthly LTC cost inflated at 4% per annum. CareShield base payout is fixed at S$662/month.
+                  Monthly LTC cost inflated at 4% per annum over {durationYears} years. Your coverage: {formatSGD(userCoverage)}/month. CareShield Life pays for life while severely disabled.
                 </td>
               </tr>
             </tfoot>
@@ -537,7 +630,7 @@ export default function LTCGapCalculator() {
             lineHeight: 1.3,
           }}
         >
-          This is the gap a CareShield supplement covers.
+          {monthlyGap > 0 ? 'Close the remaining gap with a supplement.' : 'Your coverage fully protects you.'}
         </p>
         <p
           style={{
@@ -549,10 +642,19 @@ export default function LTCGapCalculator() {
             maxWidth: '680px',
           }}
         >
-          A CareShield supplement can fill this S$2,290/month gap, ensuring care costs never
-          become a financial burden on your family. Without it, the shortfall compounds year
-          after year — reaching{' '}
-          <strong style={{ color: '#fdf8f2' }}>{formatSGD(TOTAL_GAP)}</strong> over a decade of care.
+          {monthlyGap > 0 ? (
+            <>
+              At your current coverage of {formatSGD(userCoverage)}/month, there&apos;s still a{' '}
+              <strong style={{ color: '#fdf8f2' }}>{formatSGD(monthlyGap)}/month</strong> shortfall.
+              Over a decade of care, that compounds to{' '}
+              <strong style={{ color: '#fdf8f2' }}>{formatSGD(totalGap)}</strong> out of pocket.
+            </>
+          ) : (
+            <>
+              At {formatSGD(userCoverage)}/month, your coverage exceeds average LTC costs.
+              You&apos;re well-protected against long-term care expenses.
+            </>
+          )}
         </p>
       </motion.div>
 

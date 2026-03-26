@@ -40,6 +40,9 @@ export interface ClientProfile {
   desired_monthly_income: number
   dividend_yield: number
   inflation_rate: number
+  spouse_income: number
+  spouse_dob: string | null
+  dependent_ages: number[]
   role: UserRole
   pipeline_status: string
   created_at: string

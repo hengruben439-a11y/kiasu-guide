@@ -3,6 +3,8 @@ import { ClientProfile } from '@/types'
 import InsuranceBenefits from '@/components/tools/InsuranceBenefits'
 import PolicyVault from '@/components/tools/PolicyVault'
 import PolicyReminders from '@/components/tools/PolicyReminders'
+import PlanLinksBar from '@/components/PlanLinksBar'
+import { buildPlanMetrics } from '@/lib/scoring'
 
 export interface BenefitBlock {
   id: string
@@ -26,7 +28,7 @@ export default async function InsurancePage() {
   const [{ data: profile }, { data: benefits }, { data: documents }, { data: reminders }] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('monthly_income, monthly_expenses, liquid_savings, preferred_name')
+      .select('monthly_income, monthly_expenses, liquid_savings, preferred_name, cpf_oa, cpf_sa, cpf_ma, monthly_investment, retirement_age, desired_monthly_income, dividend_yield, inflation_rate, target_return_rate, dob')
       .eq('user_id', user!.id)
       .single<Partial<ClientProfile>>(),
     supabase
@@ -46,6 +48,10 @@ export default async function InsurancePage() {
       .order('reminder_date', { ascending: true }),
   ])
 
+  const planGaps = profile && Number(profile.monthly_income) > 0
+    ? buildPlanMetrics(profile, benefits).gaps.filter(g => g.id !== 'protection')
+    : []
+
   return (
     <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 32 }}>
@@ -57,11 +63,11 @@ export default async function InsurancePage() {
         </p>
         <h1 style={{
           fontFamily: "'Playfair Display', serif", fontSize: 28,
-          fontWeight: 700, color: '#2a1f1a', margin: '0 0 8px', letterSpacing: '-0.02em',
+          fontWeight: 700, color: '#fdf8f2', margin: '0 0 8px', letterSpacing: '-0.02em',
         }}>
           Protection Coverage
         </h1>
-        <p style={{ fontSize: 14, color: '#a89070', margin: 0 }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', margin: 0 }}>
           Review your coverage gaps, protection score, and add new policies.
         </p>
       </div>
@@ -84,6 +90,7 @@ export default async function InsurancePage() {
           initialDocuments={documents ?? []}
         />
       </div>
+      <PlanLinksBar gaps={planGaps} title="Other areas of your plan" />
     </div>
   )
 }

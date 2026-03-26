@@ -28,11 +28,11 @@ export default async function CostOfWaitingPage() {
         <h1 style={{
           fontFamily: "'Playfair Display', serif",
           fontSize: 28, fontWeight: 700,
-          color: '#2a1f1a', margin: '0 0 8px', letterSpacing: '-0.02em',
+          color: '#fdf8f2', margin: '0 0 8px', letterSpacing: '-0.02em',
         }}>
           The Cost of Waiting
         </h1>
-        <p style={{ fontSize: 14, color: '#a89070', margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.5)', margin: 0, lineHeight: 1.6 }}>
           Every year you delay, compounding works against you. See exactly how much more you must invest each month to reach the same goal.
         </p>
       </div>

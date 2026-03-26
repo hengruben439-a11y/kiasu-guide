@@ -3,15 +3,17 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { formatSGD } from '@/lib/utils'
-import { ClientProfile } from '@/types'
-
-type ClientRow = Pick<ClientProfile,
-  'user_id' | 'preferred_name' | 'role' | 'pipeline_status' |
-  'monthly_income' | 'liquid_savings' | 'retirement_age' | 'cpf_oa' | 'cpf_sa' | 'cpf_ma'
->
+import { ClientRiskRow } from '@/app/admin/page'
 
 interface Props {
-  clients: ClientRow[]
+  clients: ClientRiskRow[]
+}
+
+const RISK_DOT: Record<string, { color: string; label: string }> = {
+  critical:   { color: '#dc2626', label: 'Critical' },
+  attention:  { color: '#d97706', label: 'Attention' },
+  good:       { color: '#16a34a', label: 'On track' },
+  'no-data':  { color: 'rgba(196,168,130,0.4)', label: 'No data' },
 }
 
 const statusColour: Record<string, { bg: string; text: string }> = {
@@ -102,10 +104,10 @@ export default function ClientTable({ clients }: Props) {
 
       {/* Table */}
       <div className="table-scroll">
-      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650 }}>
         <thead>
           <tr style={{ background: 'rgba(10,6,5,0.5)' }}>
-            {['Name', 'Pipeline', 'Monthly Income', 'Savings', 'CPF Total', ''].map((h) => (
+            {['Name', 'Risk', 'Pipeline', 'Monthly Income', 'Savings', ''].map((h) => (
               <th key={h} style={{
                 textAlign: 'left', padding: '10px 20px',
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
@@ -119,9 +121,9 @@ export default function ClientTable({ clients }: Props) {
         </thead>
         <tbody>
           {filtered.map((client) => {
-            const cpfTotal = Number(client.cpf_oa) + Number(client.cpf_sa) + Number(client.cpf_ma)
             const status   = client.pipeline_status ?? 'prospect'
             const colours  = statusColour[status] ?? statusColour.prospect
+            const risk     = RISK_DOT[client.riskLevel] ?? RISK_DOT['no-data']
             return (
               <tr
                 key={client.user_id}
@@ -131,6 +133,12 @@ export default function ClientTable({ clients }: Props) {
                   <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', margin: 0 }}>
                     {client.preferred_name ?? '(no name)'}
                   </p>
+                </td>
+                <td style={{ padding: '14px 20px' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: risk.color, display: 'inline-block', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: risk.color }}>{risk.label}</span>
+                  </span>
                 </td>
                 <td style={{ padding: '14px 20px' }}>
                   <span style={{
@@ -147,9 +155,6 @@ export default function ClientTable({ clients }: Props) {
                 </td>
                 <td style={{ padding: '14px 20px', fontSize: 13, color: '#fdf8f2' }}>
                   {Number(client.liquid_savings) > 0 ? formatSGD(Number(client.liquid_savings)) : '—'}
-                </td>
-                <td style={{ padding: '14px 20px', fontSize: 13, color: '#fdf8f2' }}>
-                  {cpfTotal > 0 ? formatSGD(cpfTotal) : '—'}
                 </td>
                 <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                   <Link
