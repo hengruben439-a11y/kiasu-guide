@@ -44,7 +44,12 @@
       "Bash(mkdir -p /Users/rue/kiasu-guide/.claude/skills)",
       "Bash(cp -r ~/.claude/skills/* /Users/rue/kiasu-guide/.claude/skills/)",
       "Bash(wc:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(du -sh /Users/rue/kiasu-guide/.claude/skills/*)",
+      "Bash(pnpm run:*)",
+      "Bash(node:*)",
+      "Bash(pnpm remove:*)"
     ]
   }
 }
