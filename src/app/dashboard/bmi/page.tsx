@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import BMICalculator from '@/components/tools/BMICalculator'
 
 export default async function BMIPage() {
@@ -12,7 +13,8 @@ export default async function BMIPage() {
     .single()
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 600 }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 600 }}>
       <div style={{ marginBottom: 32 }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
           Health Metrics
@@ -30,5 +32,6 @@ export default async function BMIPage() {
         userId={user!.id}
       />
     </div>
+    </PageWrapper>
   )
 }

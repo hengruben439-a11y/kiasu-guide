@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import CPFPlanner from '@/components/tools/CPFPlanner'
 
@@ -17,7 +18,8 @@ export default async function CPFPage() {
     : 35
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 32 }}>
         <p style={{
           fontSize: 11, fontWeight: 600, letterSpacing: '0.15em',
@@ -46,5 +48,6 @@ export default async function CPFPage() {
         inflationRate={Number(profile?.inflation_rate ?? 0.03)}
       />
     </div>
+    </PageWrapper>
   )
 }

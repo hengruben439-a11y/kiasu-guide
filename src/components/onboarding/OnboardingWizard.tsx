@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { WelcomeAnimation } from './WelcomeAnimation'
 
 interface Props {
   userId: string
@@ -106,6 +107,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 
 export default function OnboardingWizard({ userId, existing }: Props) {
   const router = useRouter()
+  const [showWelcome, setShowWelcome] = useState(!existing?.onboarding_complete)
   const [phase, setPhase] = useState<'phase1' | 'pivot' | 'phase2'>('phase1')
   const [step, setStep] = useState(0) // within current phase
   const [saving, setSaving] = useState(false)
@@ -380,6 +382,15 @@ export default function OnboardingWizard({ userId, existing }: Props) {
         </div>
         {error && <p style={{ color: '#7a1c2e', fontSize: 13, marginTop: 12, textAlign: 'center' }}>{error}</p>}
       </motion.div>
+    )
+  }
+
+  if (showWelcome) {
+    return (
+      <WelcomeAnimation
+        clientName={data.preferred_name || 'there'}
+        onComplete={() => setShowWelcome(false)}
+      />
     )
   }
 

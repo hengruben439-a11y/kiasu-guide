@@ -55,12 +55,12 @@ const CATEGORY_META: { key: string; label: string; colour: string; keywords: str
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatSGD(v: number): string {
-  return `$${Math.round(v).toLocaleString('en-SG')}`
+  return `S$${Math.round(v).toLocaleString('en-SG')}`
 }
 function formatSGDShort(v: number): string {
-  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
-  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`
-  return `$${Math.round(v)}`
+  if (v >= 1_000_000) return `S$${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `S$${(v / 1_000).toFixed(1)}K`
+  return `S$${Math.round(v)}`
 }
 
 function categorise(description: string): string {

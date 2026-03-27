@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import RetirementAnalytics from '@/components/tools/RetirementAnalytics'
 import PlanLinksBar from '@/components/PlanLinksBar'
@@ -26,7 +27,8 @@ export default async function RetirementPage() {
     : null
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 32 }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
           Retirement Planning
@@ -54,5 +56,6 @@ export default async function RetirementPage() {
       />
       <PlanLinksBar gaps={planGaps} title="Other areas of your plan" />
     </div>
+    </PageWrapper>
   )
 }

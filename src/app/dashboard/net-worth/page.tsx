@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import NetWorthTracker from '@/components/tools/NetWorthTracker'
 
@@ -13,7 +14,8 @@ export default async function NetWorthPage() {
     .single<Partial<ClientProfile>>()
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 1000 }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 1000 }}>
       <div style={{ marginBottom: 36 }}>
         <p style={{
           fontSize: 11, fontWeight: 600, letterSpacing: '0.15em',
@@ -44,5 +46,6 @@ export default async function NetWorthPage() {
         userId={user!.id}
       />
     </div>
+    </PageWrapper>
   )
 }

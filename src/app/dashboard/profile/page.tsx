@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import FinancialProfileForm from '@/components/profile/FinancialProfileForm'
 
@@ -13,7 +14,8 @@ export default async function ProfilePage() {
     .single<Partial<ClientProfile>>()
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 780 }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 780 }}>
       <div style={{ marginBottom: 36 }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
           Your Data
@@ -27,5 +29,6 @@ export default async function ProfilePage() {
       </div>
       <FinancialProfileForm userId={user!.id} profile={profile ?? null} />
     </div>
+    </PageWrapper>
   )
 }

@@ -121,7 +121,7 @@ function simulate(
   inflationRate: number,
   events: ScenarioEvent[],
   withInsurance: boolean,
-  simYears = 45,
+  simYears = 50,
 ): SimYear[] {
   const results: SimYear[] = []
   let liquid = liquidSavings
@@ -290,10 +290,12 @@ function EventCard({ event, onUpdate, onRemove }: {
 
 export default function StressTest({
   monthly_income, monthly_expenses, liquid_savings,
-  cpf_oa: _cpf_oa, cpf_sa: _cpf_sa, cpf_ma: _cpf_ma,
+  cpf_oa, cpf_sa, cpf_ma,
   monthly_investment, inflation_rate, currentAge,
   benefitBlocks = [],
 }: Props) {
+  // Include CPF balances as part of effective liquid savings
+  const effectiveSavings = liquid_savings + cpf_oa + cpf_sa + cpf_ma
   const [events, setEvents] = useState<ScenarioEvent[]>([])
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showChart, setShowChart] = useState(false)
@@ -301,16 +303,16 @@ export default function StressTest({
   const [showAllYears, setShowAllYears] = useState(false)
 
   const baseline = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, [], false),
-  [monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [], false),
+  [monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
 
   const stressedNoInsurance = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, events, false),
-  [events, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, false),
+  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
 
   const stressedWithInsurance = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, events, true),
-  [events, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, true),
+  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
 
   const chartData = useMemo(() =>
     baseline.map((b, i) => ({
@@ -351,8 +353,8 @@ export default function StressTest({
     if (events.length === 0) return []
     const baseDepletion = baseline.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
     return events.map(event => {
-      const soloNoIns = simulate(currentAge, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, [event], false)
-      const soloWithIns = simulate(currentAge, monthly_income, monthly_expenses, liquid_savings, monthly_investment, inflation_rate, [event], true)
+      const soloNoIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], false)
+      const soloWithIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], true)
       const depletionAge = soloNoIns.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
       const depletionAgeWithIns = soloWithIns.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
       const runwayYears = depletionAge - currentAge

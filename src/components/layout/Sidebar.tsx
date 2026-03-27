@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { UserRole } from '@/types'
 
 interface SidebarProps {
@@ -197,10 +198,12 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
         <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
 
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} style={linkStyle(isActive(item.href, item.exact))}>
-              <span style={{ fontSize: 12, flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
-              {item.label}
-            </Link>
+            <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+              <Link href={item.href} style={linkStyle(isActive(item.href, item.exact))}>
+                <span style={{ fontSize: 12, flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
+                {item.label}
+              </Link>
+            </motion.div>
           ))}
 
           {role === 'client' && (
@@ -221,10 +224,12 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
                 <span style={{ fontSize: 9, transition: 'transform 0.2s', transform: toolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)', color: 'rgba(196,168,130,0.4)' }}>▾</span>
               </button>
               {toolsOpen && clientTools.map((item) => (
-                <Link key={item.href} href={item.href} style={linkStyle(pathname === item.href)}>
-                  <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
-                  {item.label}
-                </Link>
+                <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+                  <Link href={item.href} style={linkStyle(pathname === item.href)}>
+                    <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
+                    {item.label}
+                  </Link>
+                </motion.div>
               ))}
             </>
           )}

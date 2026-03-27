@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import StressTest from '@/components/tools/StressTest'
 import PlanLinksBar from '@/components/PlanLinksBar'
@@ -11,7 +12,7 @@ export default async function StressTestPage() {
   const [{ data: profile }, { data: benefitBlocks }] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, monthly_investment, inflation_rate, dob, retirement_age, desired_monthly_income, dividend_yield, target_return_rate')
+      .select('monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, cpf_toggle, monthly_investment, inflation_rate, dob, retirement_age, desired_monthly_income, dividend_yield, target_return_rate')
       .eq('user_id', user!.id)
       .single<Partial<ClientProfile>>(),
     supabase
@@ -29,7 +30,8 @@ export default async function StressTestPage() {
     : 35
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 36 }}>
         <p style={{
           fontSize: 11, fontWeight: 600, letterSpacing: '0.15em',
@@ -53,9 +55,9 @@ export default async function StressTestPage() {
         monthly_income={Number(profile?.monthly_income ?? 0)}
         monthly_expenses={Number(profile?.monthly_expenses ?? 3000)}
         liquid_savings={Number(profile?.liquid_savings ?? 0)}
-        cpf_oa={Number(profile?.cpf_oa ?? 0)}
-        cpf_sa={Number(profile?.cpf_sa ?? 0)}
-        cpf_ma={Number(profile?.cpf_ma ?? 0)}
+        cpf_oa={profile?.cpf_toggle !== false ? Number(profile?.cpf_oa ?? 0) : 0}
+        cpf_sa={profile?.cpf_toggle !== false ? Number(profile?.cpf_sa ?? 0) : 0}
+        cpf_ma={profile?.cpf_toggle !== false ? Number(profile?.cpf_ma ?? 0) : 0}
         monthly_investment={Number(profile?.monthly_investment ?? 0)}
         inflation_rate={Number(profile?.inflation_rate ?? 0.03)}
         currentAge={currentAge}
@@ -63,5 +65,6 @@ export default async function StressTestPage() {
       />
       <PlanLinksBar gaps={planGaps} title="Other areas of your plan" />
     </div>
+    </PageWrapper>
   )
 }

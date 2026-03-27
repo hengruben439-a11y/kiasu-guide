@@ -31,6 +31,7 @@ export interface ClientProfile {
   cpf_oa: number
   cpf_sa: number
   cpf_ma: number
+  cpf_toggle: boolean
   property_value: number
   property_liquid: boolean
   monthly_investment: number

@@ -1,8 +1,10 @@
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import LTCGapCalculator from '@/components/tools/LTCGapCalculator'
 
 export default function LTCPage() {
   return (
-    <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
+    <PageWrapper>
+        <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Page Header */}
       <div style={{ marginBottom: '2rem' }}>
         <p
@@ -44,5 +46,6 @@ export default function LTCPage() {
 
       <LTCGapCalculator />
     </div>
+    </PageWrapper>
   )
 }

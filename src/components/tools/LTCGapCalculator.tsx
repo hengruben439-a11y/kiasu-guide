@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 
 // ─── Fixed assumptions ────────────────────────────────────────────────────────
-const DEFAULT_DURATION_YEARS = 20
+const DEFAULT_DURATION_YEARS = 15
 const LTC_INFLATION = 0.04
 const DEFAULT_CARESHIELD_MONTHLY = 662
 const AVG_LTC_MONTHLY = 2952
@@ -382,7 +382,7 @@ export default function LTCGapCalculator() {
             marginBottom: '1.5rem',
           }}
         >
-          Over 10 years, CareShield Life covers only a fraction of total care costs.
+          Over {durationYears} years, CareShield Life covers only a fraction of total care costs.
         </p>
 
         <ResponsiveContainer width="100%" height={280}>
@@ -448,7 +448,7 @@ export default function LTCGapCalculator() {
           {[
             { color: '#16a34a', label: 'CareShield Life covers' },
             { color: '#b91c1c', label: 'Protection gap (uncovered)' },
-            { color: '#9b2040', label: 'Total LTC cost (10 yrs)' },
+            { color: '#9b2040', label: `Total LTC cost (${durationYears} yrs)` },
           ].map((item) => (
             <div
               key={item.label}
@@ -722,7 +722,7 @@ export default function LTCGapCalculator() {
               },
               {
                 label: 'Care Duration',
-                value: '10 years',
+                value: `${durationYears} years (adjustable)`,
                 source: 'Industry standard assumption',
               },
               {

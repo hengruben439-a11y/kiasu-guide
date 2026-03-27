@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import { formatSGD } from '@/lib/utils'
 import Link from 'next/link'
@@ -48,7 +49,8 @@ export default async function OverviewPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 1100 }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif", maxWidth: 1100 }}>
       <style>{`
         .ov-gap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
         .ov-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -282,5 +284,6 @@ export default async function OverviewPage() {
         </>
       )}
     </div>
+    </PageWrapper>
   )
 }

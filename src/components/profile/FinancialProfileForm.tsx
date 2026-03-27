@@ -37,7 +37,7 @@ const ASSET_CATEGORIES = ['Cash & Savings', 'CPF', 'Property', 'Stocks & ETFs', 
 const LIABILITY_CATEGORIES = ['Home Loan', 'Car Loan', 'Personal Loan', 'Credit Card', 'Student Loan', 'Other Liability']
 
 function formatSGD(v: number) {
-  return `$${Math.round(v).toLocaleString('en-SG')}`
+  return `S$${Math.round(v).toLocaleString('en-SG')}`
 }
 
 function NetWorthTab({ userId }: { userId: string }) {

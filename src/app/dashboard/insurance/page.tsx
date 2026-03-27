@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import InsuranceBenefits from '@/components/tools/InsuranceBenefits'
 import PolicyVault from '@/components/tools/PolicyVault'
@@ -53,7 +54,8 @@ export default async function InsurancePage() {
     : []
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+    <PageWrapper>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 32 }}>
         <p style={{
           fontSize: 11, fontWeight: 600, letterSpacing: '0.15em',
@@ -92,5 +94,6 @@ export default async function InsurancePage() {
       </div>
       <PlanLinksBar gaps={planGaps} title="Other areas of your plan" />
     </div>
+    </PageWrapper>
   )
 }

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import { formatSGD } from '@/lib/utils'
 import ReportPrintButton from '@/components/report/ReportPrintButton'
@@ -169,7 +170,8 @@ export default async function ReportPage() {
   }
 
   return (
-    <>
+    <PageWrapper>
+        <>
       {/* Print CSS */}
       <style>{`
         @media print {
@@ -539,5 +541,6 @@ export default async function ReportPage() {
 
       </div>
     </>
+    </PageWrapper>
   )
 }
