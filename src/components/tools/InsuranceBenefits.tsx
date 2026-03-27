@@ -529,6 +529,42 @@ export default function InsuranceBenefits({
   if (!hasPA) gaps.push('No personal accident coverage detected')
   if (!hasCS) gaps.push('No CareShield / LTC coverage detected')
 
+  // Coverage summary data
+  const coverageSummaryRows = BENEFIT_META.map((meta) => {
+    let yourCov: number | null = null
+    let rec: number | null = null
+    let hasIt = false
+
+    if (meta.type === 'death') { yourCov = deathCov; rec = meta.rec(annualIncome); hasIt = deathCov > 0 }
+    else if (meta.type === 'tpd') { yourCov = tpdCov; rec = meta.rec(annualIncome); hasIt = tpdCov > 0 }
+    else if (meta.type === 'aci') { yourCov = aciCov; rec = meta.rec(annualIncome); hasIt = aciCov > 0 }
+    else if (meta.type === 'eci') { yourCov = eciCov; rec = meta.rec(annualIncome); hasIt = eciCov > 0 }
+    else if (meta.type === 'hospitalisation') { hasIt = hasHosp }
+    else if (meta.type === 'pa') { hasIt = hasPA }
+    else if (meta.type === 'careshield') { hasIt = hasCS }
+
+    const gap = rec !== null && yourCov !== null ? Math.max(0, rec - yourCov) : null
+    const status: 'ok' | 'gap' | 'missing' =
+      rec !== null
+        ? (yourCov ?? 0) >= rec ? 'ok' : 'gap'
+        : hasIt ? 'ok' : 'missing'
+
+    return { meta, yourCov, rec, gap, status, hasIt }
+  })
+
+  const totalAnnualPremiums = blocks
+    .filter((b) => b.enabled)
+    .reduce((sum, b) => sum + ((b as BenefitBlock & { annual_premium?: number }).annual_premium ?? 0), 0)
+  const premiumBurden = annualIncome > 0 ? totalAnnualPremiums / annualIncome : 0
+
+  const biggestGapRow = coverageSummaryRows
+    .filter((r) => r.gap && r.gap > 0)
+    .sort((a, b) => (b.gap ?? 0) - (a.gap ?? 0))[0]
+
+  const activePoliciesCount = blocks.filter((b) => b.enabled).length
+  const coveredAreasCount = coverageSummaryRows.filter((r) => r.hasIt).length
+  const scoreLabel = score >= 80 ? 'Well Protected' : score >= 60 ? 'Adequate' : score >= 40 ? 'Fair' : 'Under-protected'
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -544,44 +580,157 @@ export default function InsuranceBenefits({
         </p>
       </div>
 
-      {/* Score + quick stats row */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="rounded-2xl border p-6 flex flex-col items-center justify-center"
-          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
-        >
-          <p
-            className="text-sm font-semibold mb-4"
-            style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
-          >
-            Protection Score
+      {/* Hero verdict */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="rounded-2xl border p-5"
+        style={{ background: 'rgba(122,28,46,0.10)', borderColor: 'rgba(196,168,130,0.20)' }}
+      >
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Your Protection Position
+        </p>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 6px', lineHeight: 1.4 }}>
+          Protection score:{' '}
+          <span style={{ color: score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626' }}>{score}/100 — {scoreLabel}</span>.
+          {' '}You have {activePoliciesCount} active {activePoliciesCount === 1 ? 'policy' : 'policies'} covering {coveredAreasCount} risk {coveredAreasCount === 1 ? 'area' : 'areas'}.
+        </p>
+        {biggestGapRow ? (
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0 }}>
+            Your biggest gap:{' '}
+            <strong style={{ color: '#f59e0b' }}>{biggestGapRow.meta.label}</strong>
+            {' '}— you&apos;re{' '}
+            <strong style={{ color: '#f59e0b' }}>{formatSGD(biggestGapRow.gap!)}</strong>
+            {' '}below the recommended coverage.
           </p>
-          <CircleProgress score={score} />
-        </motion.div>
+        ) : blocks.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0 }}>
+            Add your policies below to see your full coverage picture.
+          </p>
+        ) : (
+          <p style={{ fontSize: 13, color: '#16a34a', margin: 0 }}>
+            All quantifiable coverage targets are met. Review your policy details below.
+          </p>
+        )}
+      </motion.div>
 
+      {/* Step 1 — Protection Score */}
+      <div>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Step 1 · Protection Score
+        </p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-2xl border p-6 flex flex-col items-center justify-center"
+            style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
+          >
+            <p
+              className="text-sm font-semibold mb-4"
+              style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            >
+              Protection Score
+            </p>
+            <CircleProgress score={score} />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+            className="rounded-2xl border p-6 space-y-3"
+            style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
+          >
+            <p
+              className="text-sm font-semibold mb-1"
+              style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+            >
+              Quick Stats
+            </p>
+            <StatRow label="Annual income" value={formatSGD(annualIncome)} />
+            <StatRow label="Total death cover" value={formatSGD(deathCov)} />
+            <StatRow label="Total CI cover" value={formatSGD(eciCov + aciCov)} />
+            <StatRow label="Liquid savings" value={formatSGD(liquidSavings)} />
+            <StatRow label="Policies on file" value={String(blocks.length)} />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Step 2 — Gap Analysis */}
+      <div>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Step 2 · Gap Analysis
+        </p>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.08 }}
-          className="rounded-2xl border p-6 space-y-3"
-          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="rounded-2xl border overflow-hidden"
+          style={{ borderColor: 'rgba(196,168,130,0.15)' }}
         >
-          <p
-            className="text-sm font-semibold mb-1"
-            style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}
-          >
-            Quick Stats
-          </p>
-          <StatRow label="Annual income" value={formatSGD(annualIncome)} />
-          <StatRow label="Total death cover" value={formatSGD(deathCov)} />
-          <StatRow label="Total CI cover" value={formatSGD(eciCov + aciCov)} />
-          <StatRow label="Liquid savings" value={formatSGD(liquidSavings)} />
-          <StatRow label="Policies on file" value={String(blocks.length)} />
+          <div className="px-5 py-3 border-b" style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)' }}>
+            <p className="text-sm font-semibold" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Coverage Summary</p>
+            <p className="text-xs mt-0.5" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Your coverage vs recommended benchmarks for your income level.</p>
+          </div>
+          {/* Table header */}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1.2fr 80px', padding: '8px 20px', borderBottom: '1px solid rgba(196,168,130,0.08)', background: 'rgba(42,31,26,0.3)' }}>
+            {['Benefit', 'Your Coverage', 'Recommended', 'Gap', 'Status'].map((h) => (
+              <span key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{h}</span>
+            ))}
+          </div>
+          {coverageSummaryRows.map(({ meta, yourCov, rec, gap, status }) => (
+            <div
+              key={meta.type}
+              style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1.2fr 80px', padding: '12px 20px', borderBottom: '1px solid rgba(196,168,130,0.06)', alignItems: 'center' }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 500 }}>
+                <span style={{ fontSize: 14 }}>{meta.icon}</span>
+                {meta.label}
+              </span>
+              <span style={{ fontSize: 13, color: 'rgba(253,248,242,0.7)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                {rec !== null ? formatSGD(yourCov ?? 0) : (yourCov !== null ? formatSGD(yourCov) : '—')}
+              </span>
+              <span style={{ fontSize: 13, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                {rec !== null ? formatSGD(rec) : 'In Force'}
+              </span>
+              <span style={{ fontSize: 13, fontFamily: "'Cabinet Grotesk', sans-serif", color: gap && gap > 0 ? '#f59e0b' : 'rgba(253,248,242,0.35)' }}>
+                {gap && gap > 0 ? `−${formatSGD(gap)}` : '—'}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: status === 'ok' ? '#16a34a' : status === 'gap' ? '#f59e0b' : '#dc2626', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: status === 'ok' ? '#16a34a' : status === 'gap' ? '#f59e0b' : '#dc2626', fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 600 }}>
+                  {status === 'ok' ? 'Met' : status === 'gap' ? 'Gap' : 'Missing'}
+                </span>
+              </span>
+            </div>
+          ))}
+          {/* Totals row */}
+          {totalAnnualPremiums > 0 && (
+            <div style={{ padding: '12px 20px', background: 'rgba(42,31,26,0.4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Total annual premiums on file</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{formatSGD(totalAnnualPremiums)}/yr</span>
+            </div>
+          )}
+          {/* Premium burden warning */}
+          {premiumBurden > 0.15 && (
+            <div style={{ padding: '10px 20px', background: 'rgba(245,158,11,0.08)', borderTop: '1px solid rgba(245,158,11,0.15)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+              <p style={{ fontSize: 12, color: '#f59e0b', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.5 }}>
+                Your premiums represent <strong>{Math.round(premiumBurden * 100)}%</strong> of annual income — above the recommended 15% ceiling. Consider reviewing your portfolio for overlapping coverage.
+              </p>
+            </div>
+          )}
         </motion.div>
       </div>
+
+      {/* Step 3 — Your Policies */}
+      <div>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Step 3 · Your Policies
+        </p>
 
       {/* Coverage breakdown with expandable cards */}
       <div className="rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(196,168,130,0.15)' }}>
@@ -1007,6 +1156,8 @@ export default function InsuranceBenefits({
           </p>
         </motion.div>
       )}
+
+      </div> {/* end Step 3 */}
 
       <AIInsightPanel
         tool="insurance"

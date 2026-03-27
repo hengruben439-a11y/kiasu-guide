@@ -34,9 +34,9 @@ const PAYOUT_2024: Record<string, number> = {
 }
 
 function formatM(v: number): string {
-  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`
-  if (v >= 1_000) return `$${Math.round(v / 1_000)}K`
-  return `$${Math.round(v)}`
+  if (v >= 1_000_000) return `S$${(v / 1_000_000).toFixed(2)}M`
+  if (v >= 1_000) return `S$${Math.round(v / 1_000)}K`
+  return `S$${Math.round(v)}`
 }
 
 function formatSGD(v: number): string {
@@ -111,6 +111,8 @@ export default function CPFTriLock({ cpfOa, cpfSa, currentAge, retirementAge = 6
     : onTrackFor === 'frs' ? tiers[2]
     : null
 
+  const estimatedMonthlyPayout = onTrackFor !== 'below' ? PAYOUT[onTrackFor] : 0
+
   return (
     <div style={{
       background: '#fff',
@@ -118,6 +120,31 @@ export default function CPFTriLock({ cpfOa, cpfSa, currentAge, retirementAge = 6
       borderRadius: 14,
       padding: '28px 28px 24px',
     }}>
+      {/* Hero verdict */}
+      <div style={{ marginBottom: 24, padding: '16px 20px', background: 'rgba(122,28,46,0.04)', border: '1px solid rgba(122,28,46,0.10)', borderRadius: 12 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Your CPF Retirement Position
+        </p>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#2a1f1a', margin: '0 0 4px', lineHeight: 1.4 }}>
+          Projected RA at 55:{' '}
+          <span style={{ color: '#7a1c2e' }}>{formatSGD(Math.round(raAt55))}</span>
+          {estimatedMonthlyPayout > 0 && (
+            <>
+              {' '}· CPF Life at 65:{' '}
+              <span style={{ color: '#7a1c2e' }}>{formatSGD(estimatedMonthlyPayout)}/mo</span>
+            </>
+          )}
+        </p>
+        <p style={{ fontSize: 12, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          {onTrackFor === 'below'
+            ? `You're currently below BRS (${formatSGD(frsAt55.brs)}). Top up your SA to unlock CPF Life payouts.`
+            : onTrackFor === 'ers'
+            ? 'You\'ve reached the maximum Enhanced Retirement Sum tier.'
+            : `On track for the ${onTrackFor.toUpperCase()} tier. ${nextTier ? `Top up ${formatSGD(Math.round(nextTier.target - raAt55))} more to reach ${nextTier.abbr}.` : ''}`
+          }
+        </p>
+      </div>
+
       <div style={{ marginBottom: 20 }}>
         <p style={{
           fontSize: 11, fontWeight: 700, letterSpacing: '0.14em',

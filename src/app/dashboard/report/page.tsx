@@ -3,6 +3,7 @@ import { PageWrapper } from '@/components/layout/PageWrapper'
 import { ClientProfile } from '@/types'
 import { formatSGD } from '@/lib/utils'
 import ReportPrintButton from '@/components/report/ReportPrintButton'
+import SessionSummary from '@/components/tools/SessionSummary'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -516,6 +517,27 @@ export default async function ReportPage() {
               <p style={sub}>{numPolicies === 1 ? 'policy on record' : 'policies on record'}</p>
             </div>
           </div>
+        </div>
+
+        {/* ── Session Summary ───────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 28 }} className="no-print">
+          <SessionSummary
+            userId={user!.id}
+            profile={{
+              monthly_income: income,
+              monthly_expenses: expenses,
+              liquid_savings: savings,
+              cpf_oa: cpfOa,
+              cpf_sa: cpfSa,
+              cpf_ma: cpfMa,
+              monthly_investment: monthlyInv,
+              retirement_age: retAge,
+              desired_monthly_income: desiredInc,
+              portfolio_value: Number(profile.portfolio_value) || 0,
+            }}
+            benefits={(benefits ?? []).filter(b => b.enabled)}
+            healthScore={healthScore}
+          />
         </div>
 
         {/* ── Disclaimer footer ─────────────────────────────────────────────── */}

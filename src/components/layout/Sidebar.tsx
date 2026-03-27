@@ -14,24 +14,58 @@ interface SidebarProps {
   email: string
 }
 
-const clientNav = [
-  { href: '/dashboard', label: 'Overview', icon: '◈', exact: true },
-  { href: '/dashboard/profile', label: 'Financial Profile', icon: '◉', exact: false },
-]
-
-const clientTools = [
-  { href: '/dashboard/overview', label: 'Financial Overview', icon: '◉' },
-  { href: '/dashboard/health-score', label: 'Health Score', icon: '⊛' },
-  { href: '/dashboard/insurance', label: 'Insurance Coverage', icon: '◍' },
-  { href: '/dashboard/stress-test', label: 'Stress Test', icon: '◇' },
-  { href: '/dashboard/cpf', label: 'CPF Planning', icon: '⬟' },
-  { href: '/dashboard/retirement', label: 'Retirement Analytics', icon: '◈' },
-  { href: '/dashboard/cashflow', label: 'Cash Flow', icon: '⊞' },
-  { href: '/dashboard/net-worth', label: 'Net Worth', icon: '⊜' },
-  { href: '/dashboard/cost-of-waiting', label: 'Cost of Waiting', icon: '△' },
-  { href: '/dashboard/ltc', label: 'LTC Gap', icon: '⊗' },
-  { href: '/dashboard/bmi', label: 'BMI Calculator', icon: '⊕' },
-  { href: '/dashboard/mpci', label: 'MPCI Benefits', icon: '⊙' },
+const phases = [
+  {
+    number: 1,
+    label: 'Know Your Position',
+    items: [
+      { href: '/dashboard', label: 'Overview', icon: '◈', exact: true },
+      { href: '/dashboard/profile', label: 'Financial Profile', icon: '◉' },
+      { href: '/dashboard/bmi', label: 'BMI & Health', icon: '⊕' },
+    ],
+  },
+  {
+    number: 2,
+    label: 'Find the Gaps',
+    items: [
+      { href: '/dashboard/insurance', label: 'Insurance Coverage', icon: '◍' },
+      { href: '/dashboard/ltc', label: 'LTC Gap', icon: '⊗' },
+      { href: '/dashboard/stress-test', label: 'Stress Test', icon: '◇' },
+    ],
+  },
+  {
+    number: 3,
+    label: 'Plot the Path',
+    items: [
+      { href: '/dashboard/retirement', label: 'Retirement Analytics', icon: '◈' },
+      { href: '/dashboard/cost-of-waiting', label: 'Cost of Waiting', icon: '△' },
+      { href: '/dashboard/cpf', label: 'CPF Planning', icon: '⬟' },
+    ],
+  },
+  {
+    number: 4,
+    label: 'Understand the Tools',
+    items: [
+      { href: '/dashboard/health-score', label: 'Health Score', icon: '⊛' },
+      { href: '/dashboard/mpci', label: 'MPCI Benefits', icon: '⊙' },
+    ],
+  },
+  {
+    number: 5,
+    label: 'Optimise the Plan',
+    items: [
+      { href: '/dashboard/cashflow', label: 'Cash Flow', icon: '⊞' },
+      { href: '/dashboard/net-worth', label: 'Net Worth', icon: '⊜' },
+    ],
+  },
+  {
+    number: 6,
+    label: 'The Recommendation',
+    items: [
+      { href: '/dashboard/report', label: 'Session Summary', icon: '◉' },
+      { href: '/dashboard/overview', label: 'Financial Overview', icon: '◉' },
+    ],
+  },
 ]
 
 const adminNav = [
@@ -42,7 +76,7 @@ const adminNav = [
 export default function Sidebar({ role, fullName, email }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [toolsOpen, setToolsOpen] = useState(true)
+  const [openPhases, setOpenPhases] = useState<Set<number>>(new Set([1, 2, 3, 4, 5, 6]))
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -61,11 +95,22 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
     return () => { document.body.style.overflow = '' }
   }, [isMobile, isOpen])
 
-  const navItems = role === 'admin' ? adminNav : clientNav
-
-  function isActive(href: string, exact: boolean) {
+  function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href
     return pathname === href || pathname.startsWith(href + '/')
+  }
+
+  function phaseHasActive(phaseItems: typeof phases[0]['items']) {
+    return phaseItems.some(item => isActive(item.href, item.exact))
+  }
+
+  function togglePhase(num: number) {
+    setOpenPhases(prev => {
+      const next = new Set(prev)
+      if (next.has(num)) next.delete(num)
+      else next.add(num)
+      return next
+    })
   }
 
   async function handleSignOut() {
@@ -80,7 +125,7 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
       display: 'flex',
       alignItems: 'center',
       gap: 9,
-      padding: '7px 12px',
+      padding: '6px 10px 6px 22px',
       borderRadius: 8,
       fontFamily: "'Cabinet Grotesk', sans-serif",
       fontSize: 12,
@@ -195,43 +240,84 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 0, overflowY: 'auto' }}>
 
-          {navItems.map((item) => (
-            <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
-              <Link href={item.href} style={linkStyle(isActive(item.href, item.exact))}>
-                <span style={{ fontSize: 12, flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
-                {item.label}
-              </Link>
-            </motion.div>
-          ))}
+          {role === 'admin' ? (
+            adminNav.map((item) => (
+              <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+                <Link href={item.href} style={linkStyle(item.exact ? pathname === item.href : pathname.startsWith(item.href))}>
+                  <span style={{ fontSize: 12, flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              </motion.div>
+            ))
+          ) : (
+            phases.map((phase) => {
+              const isPhaseActive = phaseHasActive(phase.items)
+              const isPhaseOpen = openPhases.has(phase.number)
 
-          {role === 'client' && (
-            <>
-              <button
-                onClick={() => setToolsOpen((v) => !v)}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  width: '100%', padding: '8px 12px',
-                  background: 'transparent', border: 'none',
-                  cursor: 'pointer', marginTop: 10,
-                  fontFamily: "'Cabinet Grotesk', sans-serif",
-                  fontSize: 9, fontWeight: 700, letterSpacing: '0.14em',
-                  textTransform: 'uppercase', color: 'rgba(196,168,130,0.6)',
-                }}
-              >
-                <span>Tools</span>
-                <span style={{ fontSize: 9, transition: 'transform 0.2s', transform: toolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)', color: 'rgba(196,168,130,0.4)' }}>▾</span>
-              </button>
-              {toolsOpen && clientTools.map((item) => (
-                <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
-                  <Link href={item.href} style={linkStyle(pathname === item.href)}>
-                    <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
-                    {item.label}
-                  </Link>
-                </motion.div>
-              ))}
-            </>
+              return (
+                <div key={phase.number} style={{ marginBottom: 2 }}>
+                  {/* Phase header */}
+                  <button
+                    onClick={() => togglePhase(phase.number)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      width: '100%', padding: '6px 10px',
+                      background: isPhaseActive ? 'rgba(155,32,64,0.08)' : 'transparent',
+                      border: 'none', borderRadius: 7,
+                      cursor: 'pointer', marginTop: 4,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: 16, height: 16, borderRadius: 4,
+                        background: isPhaseActive ? 'rgba(155,32,64,0.35)' : 'rgba(196,168,130,0.08)',
+                        border: `1px solid ${isPhaseActive ? 'rgba(155,32,64,0.5)' : 'rgba(196,168,130,0.15)'}`,
+                        fontFamily: "'Cabinet Grotesk', sans-serif",
+                        fontSize: 8, fontWeight: 800,
+                        color: isPhaseActive ? '#c4a882' : 'rgba(196,168,130,0.4)',
+                        flexShrink: 0,
+                      }}>
+                        {phase.number}
+                      </span>
+                      <span style={{
+                        fontFamily: "'Cabinet Grotesk', sans-serif",
+                        fontSize: 9, fontWeight: 700, letterSpacing: '0.10em',
+                        textTransform: 'uppercase',
+                        color: isPhaseActive ? 'rgba(196,168,130,0.85)' : 'rgba(196,168,130,0.4)',
+                      }}>
+                        {phase.label}
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: 9,
+                      color: 'rgba(196,168,130,0.3)',
+                      transition: 'transform 0.2s',
+                      transform: isPhaseOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                    }}>▾</span>
+                  </button>
+
+                  {/* Phase items */}
+                  {isPhaseOpen && (
+                    <div style={{ paddingBottom: 4 }}>
+                      {phase.items.map((item) => {
+                        const active = isActive(item.href, (item as { exact?: boolean }).exact)
+                        return (
+                          <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+                            <Link href={item.href} style={linkStyle(active)}>
+                              <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
+                              {item.label}
+                            </Link>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })
           )}
         </nav>
 

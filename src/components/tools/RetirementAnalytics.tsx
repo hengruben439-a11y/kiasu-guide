@@ -791,6 +791,26 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
           background: `radial-gradient(circle, ${verdictColor}12 0%, transparent 70%)`,
           pointerEvents: 'none',
         }} />
+        {/* Plain-English verdict sentence */}
+        <div style={{ position: 'relative', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid rgba(196,168,130,0.1)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
+            Your Retirement Position
+          </p>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 6px', lineHeight: 1.4 }}>
+            You need{' '}
+            <span style={{ color: verdictColor }}>{fmtSGD(d.effectiveReq)}</span>
+            {' '}by age {d.effectiveRetAge}. You&apos;re projected to reach{' '}
+            <span style={{ color: verdictColor }}>{fmtSGD(d.effectiveProjected)}</span>.
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0 }}>
+            You&apos;re{' '}
+            <strong style={{ color: verdictColor }}>{Math.round(d.actualFundedPct * 100)}% of the way there</strong>
+            {d.actualFundedPct < 1
+              ? ` — a ${fmtSGD(Math.abs(d.effectiveProjected - d.effectiveReq))} gap at current pace.`
+              : ' — your plan is on track.'
+            }
+          </p>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap', position: 'relative' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             <FundingRing pct={d.actualFundedPct} size={124} />
@@ -852,7 +872,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
       {/* ── 2. Your Goals (COLLAPSIBLE, collapsed) ──────────────────────────── */}
       <CollapsibleSection
         title="Your Goals"
-        eyebrow="Settings"
+        eyebrow="Step 1 · Settings"
         badge={`S$${Math.round(desiredMonthly).toLocaleString()}/mo target`}
         defaultOpen={false}
       >
@@ -937,7 +957,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
       {/* ── 3. The Retirement Equation (COLLAPSIBLE, open) ──────────────────── */}
       <CollapsibleSection
         title="The Retirement Equation"
-        eyebrow="Tri-Lock Calculator"
+        eyebrow="Step 2 · Tri-Lock Calculator"
         badge={`Solving for ${solvedFor}`}
         defaultOpen={true}
       >
@@ -995,7 +1015,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
       {/* ── 4. Retirement Strategy (COLLAPSIBLE, collapsed) ─────────────────── */}
       <CollapsibleSection
         title="Retirement Strategy"
-        eyebrow="Distribution"
+        eyebrow="Step 3 · Distribution"
         badge={retirementMode === 'dividend' ? 'Dividend Income' : 'Capital Drawdown'}
         defaultOpen={false}
       >
@@ -1196,7 +1216,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
         )}
       </CollapsibleSection>
 
-      {/* ── 6. Wealth Journey Chart (ALWAYS VISIBLE) ────────────────────────── */}
+      {/* ── 6. Wealth Journey Chart (Step 4 — ALWAYS VISIBLE) ──────────────── */}
       <div style={{
         background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)',
         borderRadius: 16, padding: '24px 28px',
@@ -1204,7 +1224,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>
-              Wealth Journey
+              Step 4 · Wealth Journey Chart
             </p>
             <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.4)', margin: 0 }}>
               Portfolio NAV (left axis) · Monthly income streams post-retirement (right axis, dashed lines)

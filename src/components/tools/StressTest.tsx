@@ -298,7 +298,7 @@ export default function StressTest({
   const effectiveSavings = liquid_savings + cpf_oa + cpf_sa + cpf_ma
   const [events, setEvents] = useState<ScenarioEvent[]>([])
   const [showAddMenu, setShowAddMenu] = useState(false)
-  const [showChart, setShowChart] = useState(false)
+  const [showChart, setShowChart] = useState(true)
   const [showTable, setShowTable] = useState(false)
   const [showAllYears, setShowAllYears] = useState(false)
 
@@ -441,7 +441,7 @@ export default function StressTest({
 
       {/* ── Section 1: Header + Baseline Stats ─────────────────────────────── */}
       <div style={{ marginBottom: 4 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px' }}>Stress Test</p>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px' }}>Step 1 · Your Financial Base</p>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
           How long can you survive if everything stops?
         </h1>
@@ -478,8 +478,8 @@ export default function StressTest({
       <GlassCard>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: events.length > 0 ? 20 : 0 }}>
           <div>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Scenario Builder</p>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>Your Life Events</h3>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Step 2 · Scenario Builder</p>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>Choose a Life Event to Stress Test</h3>
           </div>
           <div style={{ position: 'relative' }}>
             <button onClick={() => setShowAddMenu(v => !v)} style={{
@@ -558,7 +558,7 @@ export default function StressTest({
               padding: '28px 32px',
               borderBottom: '1px solid rgba(196,168,130,0.1)',
             }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 10px' }}>YOUR FINANCIAL STORY</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 10px' }}>Step 3 · Your Results</p>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#fdf8f2', margin: 0, lineHeight: 1.4 }}>
                 &ldquo;If {firstEventLabel} happens at age {firstEventAge}...&rdquo;
               </p>
@@ -745,9 +745,9 @@ export default function StressTest({
       {/* ── Section 4: Per-Event Impact Cards (Enhanced) ────────────────────── */}
       {eventImpacts.length > 0 && (
         <GlassCard>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Scenario Impact</p>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Step 4 · Event Breakdown</p>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 16px' }}>
-            What closes each gap?
+            How each event impacts your runway
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {eventImpacts.map(impact => {
@@ -847,9 +847,9 @@ export default function StressTest({
           style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
           <div>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Financial Runway</p>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>Step 3 · Financial Runway Chart</p>
             <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>
-              {events.length === 0 ? 'Baseline (no events)' : 'Detailed Chart View'}
+              {events.length === 0 ? 'Your baseline trajectory' : 'How your savings hold up'}
             </h3>
           </div>
           <span style={{ color: '#c4a882', fontSize: 20 }}>{showChart ? '▲' : '▼'}</span>
@@ -884,7 +884,9 @@ export default function StressTest({
                     <XAxis dataKey="age" tick={{ fontSize: 9, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }} />
                     <YAxis tickFormatter={fmt} tick={{ fontSize: 8, fill: 'rgba(253,248,242,0.35)', fontFamily: "'Cabinet Grotesk', sans-serif" }} width={60} />
                     <Tooltip content={<ChartTip />} />
-                    <ReferenceLine y={0} stroke="rgba(239,68,68,0.35)" strokeDasharray="4 4" />
+                    <ReferenceLine y={0} stroke="rgba(239,68,68,0.5)" strokeDasharray="4 4"
+                      label={{ value: 'Savings depleted', position: 'insideBottomLeft', fontSize: 10, fill: 'rgba(239,68,68,0.6)', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                    />
                     {events.map(e => (
                       <ReferenceLine key={e.id} x={e.age} stroke={EVENT_TEMPLATES[e.type].color} strokeDasharray="4 3"
                         label={{ value: EVENT_TEMPLATES[e.type].icon, position: 'top', fontSize: 12 }} />

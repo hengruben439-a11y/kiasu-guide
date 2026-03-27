@@ -184,6 +184,27 @@ export default function CostOfWaiting({
         </p>
       </div>
 
+      {/* Hero verdict */}
+      <div style={{ background: 'rgba(122,28,46,0.10)', border: '1px solid rgba(196,168,130,0.20)', borderRadius: 14, padding: '20px 24px' }}>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
+          Your Delay Cost
+        </p>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px', lineHeight: 1.4 }}>
+          {fiveYearExtra > 0
+            ? <>Waiting 5 years costs you an extra <span style={{ color: '#ef4444' }}>{fmtFull(fiveYearExtra)}/mo</span>. Starting today, you need <span style={{ color: '#10b981' }}>{pmtNow === Infinity ? 'an unreachable target' : `${fmtFull(pmtNow)}/mo`}</span>.</>
+            : <>Starting today, you need <span style={{ color: '#10b981' }}>{pmtNow === Infinity ? 'an unreachable target' : `${fmtFull(pmtNow)}/mo`}</span> to build {fmtFull(corpus)} by age {retirement_age}.</>
+          }
+        </p>
+        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0 }}>
+          Every year of delay means permanently higher monthly contributions — compounding works against you.
+        </p>
+      </div>
+
+      {/* Step 1 — Your Target */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px' }}>
+        Step 1 · Your Retirement Target
+      </p>
+
       {/* Target corpus */}
       <div style={{
         background: 'rgba(122,28,46,0.08)',
@@ -206,6 +227,11 @@ export default function CostOfWaiting({
           </p>
         </div>
       </div>
+
+      {/* Step 2 — The Cost of Delay */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px' }}>
+        Step 2 · The Cost of Delay
+      </p>
 
       {/* Scenario cards */}
       <div className="grid-3col" style={{ gap: 14 }}>
@@ -329,6 +355,11 @@ export default function CostOfWaiting({
           </div>
         </div>
       )}
+
+      {/* Step 3 — Wealth Divergence Chart */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px' }}>
+        Step 3 · Wealth Divergence Chart
+      </p>
 
       {/* Diverging chart */}
       <div style={{

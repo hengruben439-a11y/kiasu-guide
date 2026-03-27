@@ -161,8 +161,10 @@ export default function NetWorthTracker(props: Props) {
           <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 700, color: '#fdf8f2', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
             S${displayTotal.toLocaleString('en-SG')}
           </p>
-          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '10px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            All assets combined — liquid, invested, CPF, and property
+          <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '8px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            {illiquidTotal > 0
+              ? `Liquid: ${formatSGD(liquidTotal)} · Illiquid property: ${formatSGD(illiquidTotal)}`
+              : `All assets are liquid or semi-liquid.`}
           </p>
         </div>
 
@@ -194,6 +196,11 @@ export default function NetWorthTracker(props: Props) {
           })}
         </div>
       </div>
+
+      {/* Step 1 — Asset Breakdown */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 1 · Asset Breakdown
+      </p>
 
       {/* ── Liquid vs Illiquid ─────────────────────────────────────────────── */}
       <div className="grid-2col" style={{ gap: 14 }}>
@@ -231,6 +238,11 @@ export default function NetWorthTracker(props: Props) {
           </p>
         </div>
       </div>
+
+      {/* Step 2 — Allocation */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 2 · Allocation
+      </p>
 
       {/* ── Pie chart + breakdown ──────────────────────────────────────────── */}
       <div className="grid-sidebar" style={{ gap: 20 }}>
@@ -351,6 +363,11 @@ export default function NetWorthTracker(props: Props) {
           </div>
         </div>
       </div>
+
+      {/* Step 3 — Update Your Figures */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 3 · Update Your Figures
+      </p>
 
       {/* ── Editable property value ──────────────────────────────────────── */}
       <div style={{ ...card, padding: '24px 28px' }}>

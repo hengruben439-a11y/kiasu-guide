@@ -417,6 +417,42 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         </p>
       </div>
 
+      {/* Hero verdict */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="rounded-2xl border p-5"
+        style={{ background: surplus >= 0 ? 'rgba(22,163,74,0.07)' : 'rgba(239,68,68,0.07)', borderColor: surplus >= 0 ? 'rgba(22,163,74,0.25)' : 'rgba(239,68,68,0.25)' }}
+      >
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Your Cash Flow Position
+        </p>
+        {surplus >= 0 ? (
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px', lineHeight: 1.4 }}>
+            Your monthly surplus is{' '}
+            <span style={{ color: '#16a34a' }}>{formatSGD(surplus)}</span>.
+            {' '}You&apos;re saving{' '}
+            <span style={{ color: '#16a34a' }}>{Math.round(savingsRate)}%</span>
+            {' '}of income.
+          </p>
+        ) : (
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px', lineHeight: 1.4 }}>
+            You&apos;re spending{' '}
+            <span style={{ color: '#ef4444' }}>{formatSGD(Math.abs(surplus))}</span>
+            {' '}more than you earn each month.
+          </p>
+        )}
+        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          {health.desc}
+        </p>
+      </motion.div>
+
+      {/* Step 1 — Your Numbers */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 1 · Your Numbers
+      </p>
+
       {/* Top stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
@@ -468,6 +504,11 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           </p>
         </div>
       </motion.div>
+
+      {/* Step 2 — Spending Breakdown */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 2 · Spending Breakdown
+      </p>
 
       {/* Category amounts + pie chart */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -686,6 +727,11 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           </ResponsiveContainer>
         </motion.div>
       </div>
+
+      {/* Step 3 — Savings Efficiency */}
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        Step 3 · Savings Efficiency
+      </p>
 
       {/* 50/30/20 Analysis */}
       <motion.div
