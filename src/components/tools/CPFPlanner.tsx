@@ -198,7 +198,16 @@ function ProgressRing({ pct, size = 96, stroke = 8, color = '#7a1c2e' }: { pct: 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function CPFPlanner(props: Props) {
   const [annualTopup, setAnnualTopup] = useState(0)
+  const [selectedTier, setSelectedTier] = useState<'brs' | 'frs' | 'ers' | null>(null)
   const safeAge = Math.max(18, Math.min(props.currentAge, props.retirementAge - 1))
+
+  // Project BRS/FRS/ERS targets to user's age 55
+  const yearsTo55 = Math.max(0, 55 - safeAge)
+  const tierTargets = {
+    brs: Math.round(102900 * Math.pow(1.035, yearsTo55)),
+    frs: Math.round(205800 * Math.pow(1.035, yearsTo55)),
+    ers: Math.round(308700 * Math.pow(1.035, yearsTo55)),
+  }
 
   // Base projection (no top-up)
   const basePoints = useMemo(
@@ -215,13 +224,15 @@ export default function CPFPlanner(props: Props) {
   const baseRetirement = basePoints[basePoints.length - 1]
   const topupRetirement = topupPoints[topupPoints.length - 1]
 
-  // CPF Life monthly payout: RA_at_retirement / 240 * 1.25
+  // CPF Life monthly payout: RA × 0.0081 (consistent with CPF Board Standard Plan ratio)
   const baseRA = baseRetirement.ra > 0 ? baseRetirement.ra : baseRetirement.sa
   const topupRA = topupRetirement.ra > 0 ? topupRetirement.ra : topupRetirement.sa
-  const baseCpfLife = (baseRA / 240) * 1.25
-  const topupCpfLife = (topupRA / 240) * 1.25
+  const baseCpfLife = baseRA * 0.0081
+  const topupCpfLife = topupRA * 0.0081
   const cpfLifeMonthly = annualTopup > 0 ? topupCpfLife : baseCpfLife
   const topupDelta = topupCpfLife - baseCpfLife
+  // Detect ERS cap — if topup RA equals base RA, the cap prevented any additional benefit
+  const ersCapHit = annualTopup > 0 && Math.abs(topupRA - baseRA) < 1
 
   // Inflation-adjusted desired income
   const yearsToRet = props.retirementAge - safeAge
@@ -245,6 +256,18 @@ export default function CPFPlanner(props: Props) {
 
   // Find the RA formation age (55 or retirement, whichever applies)
   const raFormAge = safeAge <= 55 ? 55 : null
+
+  // Find age at which user's projected SA hits the selected tier's RA target
+  const tierHitAge = useMemo(() => {
+    if (!selectedTier) return null
+    const target = tierTargets[selectedTier]
+    for (const pt of topupPoints) {
+      const total = pt.ra > 0 ? pt.ra : pt.sa + pt.oa
+      if (total >= target) return pt.age
+    }
+    return null
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTier, topupPoints, tierTargets.brs, tierTargets.frs, tierTargets.ers])
 
   // Balance summary cards
   const ret = topupRetirement
@@ -440,12 +463,53 @@ export default function CPFPlanner(props: Props) {
         transition={{ delay: 0.5, duration: 0.5 }}
         style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 14, padding: '24px 28px', backdropFilter: 'blur(12px)' }}
       >
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
-          CPF Balance Projection — Age {safeAge} to {props.retirementAge}
-        </p>
-        <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '0 0 20px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-          OA · SA · MA · RA (formed at 55)
-        </p>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+          <div>
+            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
+              CPF Balance Projection — Age {safeAge} to {props.retirementAge}
+            </p>
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              OA · SA · MA · RA (formed at 55)
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, color: 'rgba(196,168,130,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Tier target:</span>
+            {([
+              { id: 'brs' as const, label: 'BRS', color: '#f59e0b', target: tierTargets.brs },
+              { id: 'frs' as const, label: 'FRS', color: '#10b981', target: tierTargets.frs },
+              { id: 'ers' as const, label: 'ERS', color: '#0ea5e9', target: tierTargets.ers },
+            ]).map(t => (
+              <button
+                key={t.id}
+                onClick={() => setSelectedTier(selectedTier === t.id ? null : t.id)}
+                style={{
+                  padding: '4px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontSize: 11, fontWeight: 700,
+                  background: selectedTier === t.id ? `${t.color}22` : 'rgba(196,168,130,0.08)',
+                  color: selectedTier === t.id ? t.color : 'rgba(253,248,242,0.4)',
+                  outline: selectedTier === t.id ? `1px solid ${t.color}50` : '1px solid transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {selectedTier && (
+          <div style={{ marginBottom: 12, padding: '8px 14px', borderRadius: 8, background: 'rgba(196,168,130,0.06)', border: '1px solid rgba(196,168,130,0.12)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)' }}>
+              {selectedTier.toUpperCase()} target (age 55): <strong style={{ color: '#fdf8f2' }}>{fmt(tierTargets[selectedTier])}</strong>
+              {tierHitAge !== null
+                ? tierHitAge <= 55
+                  ? <> · <span style={{ color: '#10b981' }}>You&apos;re already on track ✓</span></>
+                  : <> · At your current pace, you&apos;ll hit {selectedTier.toUpperCase()} at <strong style={{ color: '#10b981' }}>age {tierHitAge}</strong></>
+                : <> · <span style={{ color: '#ef4444' }}>You won&apos;t reach {selectedTier.toUpperCase()} by 55 — top up SA to close the gap</span></>
+              }
+            </span>
+          </div>
+        )}
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
             <defs>
@@ -477,6 +541,19 @@ export default function CPFPlanner(props: Props) {
                 label={{ value: 'RA formed', position: 'top', fontSize: 10, fill: '#7a1c2e', fontFamily: "'Cabinet Grotesk', sans-serif" }}
               />
             )}
+            {selectedTier && (() => {
+              const tierColors = { brs: '#f59e0b', frs: '#10b981', ers: '#0ea5e9' }
+              const color = tierColors[selectedTier]
+              return (
+                <ReferenceLine
+                  y={tierTargets[selectedTier]}
+                  stroke={color}
+                  strokeDasharray="5 3"
+                  strokeWidth={1.5}
+                  label={{ value: `${selectedTier.toUpperCase()} ${fmt(tierTargets[selectedTier])}`, position: 'insideTopRight', fill: color, fontSize: 10, fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                />
+              )
+            })()}
             <Area type="monotone" dataKey="oa" name="OA" stroke="#c4a882" fill="url(#gOA)" strokeWidth={2} stackId="a" />
             <Area type="monotone" dataKey="sa" name="SA" stroke="#8b5a6a" fill="url(#gSA)" strokeWidth={2} stackId="a" />
             <Area type="monotone" dataKey="ma" name="MA" stroke="#a89070" fill="url(#gMA)" strokeWidth={2} stackId="a" />
@@ -520,19 +597,33 @@ export default function CPFPlanner(props: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
               style={{
-                background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.2)',
+                background: ersCapHit ? 'rgba(245,158,11,0.06)' : 'rgba(22,163,74,0.06)',
+                border: `1px solid ${ersCapHit ? 'rgba(245,158,11,0.25)' : 'rgba(22,163,74,0.2)'}`,
                 borderRadius: 10, padding: '16px 20px',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
               }}
             >
-              <p style={{ fontSize: 13, color: '#fdf8f2', margin: 0, lineHeight: 1.6 }}>
-                Contributing <strong style={{ color: '#16a34a' }}>S${annualTopup.toLocaleString('en-SG')}/yr</strong> to SA now would increase your CPF Life payout by{' '}
-                <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta).toLocaleString('en-SG')}/mo</strong>{' '}
-                — that&apos;s <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta * 12).toLocaleString('en-SG')}/yr</strong> more in retirement.
-              </p>
-              <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '6px 0 0', lineHeight: 1.5 }}>
-                Base CPF Life: {fmtFull(baseCpfLife)}/mo → With top-up: {fmtFull(topupCpfLife)}/mo
-              </p>
+              {ersCapHit ? (
+                <>
+                  <p style={{ fontSize: 13, color: '#f59e0b', margin: 0, lineHeight: 1.6, fontWeight: 600 }}>
+                    ERS cap reached — top-up has no additional effect
+                  </p>
+                  <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '6px 0 0', lineHeight: 1.5 }}>
+                    Your projected SA + OA at age 55 already exceeds the Enhanced Retirement Sum limit. SA top-ups won&apos;t increase your RA or CPF Life payout further.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: 13, color: '#fdf8f2', margin: 0, lineHeight: 1.6 }}>
+                    Contributing <strong style={{ color: '#16a34a' }}>S${annualTopup.toLocaleString('en-SG')}/yr</strong> to SA now would increase your CPF Life payout by{' '}
+                    <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta).toLocaleString('en-SG')}/mo</strong>{' '}
+                    — that&apos;s <strong style={{ color: '#16a34a' }}>S${Math.round(topupDelta * 12).toLocaleString('en-SG')}/yr</strong> more in retirement.
+                  </p>
+                  <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.5)', margin: '6px 0 0', lineHeight: 1.5 }}>
+                    Base CPF Life: {fmtFull(baseCpfLife)}/mo → With top-up: {fmtFull(topupCpfLife)}/mo
+                  </p>
+                </>
+              )}
             </motion.div>
           ) : (
             <motion.div

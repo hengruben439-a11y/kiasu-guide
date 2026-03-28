@@ -12,7 +12,7 @@ export default async function StressTestPage() {
   const [{ data: profile }, { data: benefitBlocks }] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, cpf_toggle, monthly_investment, inflation_rate, dob, retirement_age, desired_monthly_income, dividend_yield, target_return_rate')
+      .select('monthly_income, monthly_expenses, liquid_savings, portfolio_value, total_liabilities, cpf_oa, cpf_sa, cpf_ma, cpf_toggle, monthly_investment, inflation_rate, dob, retirement_age, desired_monthly_income, dividend_yield, target_return_rate')
       .eq('user_id', user!.id)
       .single<Partial<ClientProfile>>(),
     supabase
@@ -55,6 +55,8 @@ export default async function StressTestPage() {
         monthly_income={Number(profile?.monthly_income ?? 0)}
         monthly_expenses={Number(profile?.monthly_expenses ?? 3000)}
         liquid_savings={Number(profile?.liquid_savings ?? 0)}
+        portfolio_value={Number(profile?.portfolio_value ?? 0)}
+        total_liabilities={Number(profile?.total_liabilities ?? 0)}
         cpf_oa={profile?.cpf_toggle !== false ? Number(profile?.cpf_oa ?? 0) : 0}
         cpf_sa={profile?.cpf_toggle !== false ? Number(profile?.cpf_sa ?? 0) : 0}
         cpf_ma={profile?.cpf_toggle !== false ? Number(profile?.cpf_ma ?? 0) : 0}

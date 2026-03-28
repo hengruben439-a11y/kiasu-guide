@@ -19,9 +19,9 @@ const phases = [
     number: 1,
     label: 'Know Your Position',
     items: [
-      { href: '/dashboard', label: 'Overview', icon: '◈', exact: true },
       { href: '/dashboard/profile', label: 'Financial Profile', icon: '◉' },
       { href: '/dashboard/bmi', label: 'BMI & Health', icon: '⊕' },
+      { href: '/dashboard/overview', label: 'Financial Overview', icon: '◈' },
     ],
   },
   {
@@ -47,7 +47,6 @@ const phases = [
     label: 'Understand the Tools',
     items: [
       { href: '/dashboard/health-score', label: 'Health Score', icon: '⊛' },
-      { href: '/dashboard/mpci', label: 'MPCI Benefits', icon: '⊙' },
     ],
   },
   {
@@ -63,7 +62,6 @@ const phases = [
     label: 'The Recommendation',
     items: [
       { href: '/dashboard/report', label: 'Session Summary', icon: '◉' },
-      { href: '/dashboard/overview', label: 'Financial Overview', icon: '◉' },
     ],
   },
 ]
@@ -101,7 +99,7 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
   }
 
   function phaseHasActive(phaseItems: typeof phases[0]['items']) {
-    return phaseItems.some(item => isActive(item.href, item.exact))
+    return phaseItems.some(item => isActive(item.href, (item as { href: string; label: string; icon: string; exact?: boolean }).exact))
   }
 
   function togglePhase(num: number) {

@@ -32,6 +32,13 @@ interface Category {
   colour: string
 }
 
+interface ExpenseItem {
+  id: string
+  category_key: string
+  label: string
+  amount: number
+}
+
 interface ParsedTx {
   description: string
   amount: number
@@ -211,6 +218,13 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
   const fileRef = useRef<HTMLInputElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Expandable line items state
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const [categoryItems, setCategoryItems] = useState<Record<string, ExpenseItem[]>>({})
+  const [addingItem, setAddingItem] = useState<string | null>(null)
+  const [newItemLabel, setNewItemLabel] = useState('')
+  const [newItemAmount, setNewItemAmount] = useState('')
+
   // Load saved categories on mount
   useEffect(() => {
     const supabase = createClient()
@@ -244,6 +258,22 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           }
         }
         setCategoriesLoaded(true)
+      })
+
+    // Also load expense items
+    createClient()
+      .from('expense_items')
+      .select('id, category_key, label, amount')
+      .eq('user_id', userId)
+      .then(({ data: items }) => {
+        if (items && items.length > 0) {
+          const grouped: Record<string, ExpenseItem[]> = {}
+          for (const item of items) {
+            if (!grouped[item.category_key]) grouped[item.category_key] = []
+            grouped[item.category_key].push(item as ExpenseItem)
+          }
+          setCategoryItems(grouped)
+        }
       })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
@@ -344,6 +374,54 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
     })
     setShowManualEntry(false)
     setManualTxs([])
+  }
+
+  // ── Expense item helpers ──
+  function toggleCategory(key: string) {
+    setExpandedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+    setAddingItem(null)
+    setNewItemLabel('')
+    setNewItemAmount('')
+  }
+
+  async function addExpenseItem(categoryKey: string) {
+    const amt = parseFloat(newItemAmount.replace(/[^0-9.]/g, ''))
+    if (!newItemLabel.trim() || isNaN(amt) || amt <= 0) return
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('expense_items')
+      .insert({ user_id: userId, category_key: categoryKey, label: newItemLabel.trim(), amount: Math.round(amt) })
+      .select('id, category_key, label, amount')
+      .single()
+    if (!data) return
+    const newItem = data as ExpenseItem
+    setCategoryItems(prev => ({
+      ...prev,
+      [categoryKey]: [...(prev[categoryKey] ?? []), newItem],
+    }))
+    // Update category total from items
+    const newItems = [...(categoryItems[categoryKey] ?? []), newItem]
+    const total = newItems.reduce((s, it) => s + it.amount, 0)
+    updateAmount(categoryKey, total)
+    setNewItemLabel('')
+    setNewItemAmount('')
+    setAddingItem(null)
+  }
+
+  async function removeExpenseItem(categoryKey: string, itemId: string) {
+    const supabase = createClient()
+    await supabase.from('expense_items').delete().eq('id', itemId).eq('user_id', userId)
+    setCategoryItems(prev => {
+      const updated = (prev[categoryKey] ?? []).filter(it => it.id !== itemId)
+      const total = updated.reduce((s, it) => s + it.amount, 0)
+      updateAmount(categoryKey, total > 0 ? total : 0)
+      return { ...prev, [categoryKey]: updated }
+    })
   }
 
   const QUICK_ADD = [
@@ -636,7 +714,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
               transition={{ duration: 0.3, delay: i * 0.04 }}
               whileHover={{ y: -3, boxShadow: `0 8px 28px rgba(${c.key === 'housing' ? '122,28,46' : '0,0,0'},0.22)` }}
               style={{
-                borderRadius: 16, overflow: 'hidden',
+                borderRadius: 16,
                 border: '1px solid rgba(196,168,130,0.12)',
                 background: 'rgba(122,28,46,0.05)',
                 backdropFilter: 'blur(12px)',
@@ -645,17 +723,31 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
               }}
             >
               {/* Colour accent top strip */}
-              <div style={{ height: 4, background: c.colour, width: '100%' }} />
+              <div style={{ height: 4, background: c.colour, width: '100%', borderRadius: '16px 16px 0 0' }} />
 
               <div style={{ padding: '16px 18px 14px' }}>
-                {/* Category name */}
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.7)', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                  {c.label}
-                </p>
+                {/* Category name + expand toggle */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.7)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    {c.label}
+                  </p>
+                  <button
+                    onClick={() => toggleCategory(c.key)}
+                    title={expandedCategories.has(c.key) ? 'Collapse' : 'Expand line items'}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(196,168,130,0.5)', fontSize: 14, padding: '0 2px', lineHeight: 1, display: 'flex', alignItems: 'center' }}
+                  >
+                    {expandedCategories.has(c.key) ? '▲' : '▼'}
+                  </button>
+                </div>
 
                 {/* Amount (large, Playfair, clickable) */}
                 <div style={{ marginBottom: 10 }}>
                   <AmountCell value={c.amount} onChange={(v) => updateAmount(c.key, v)} colour={c.colour} large />
+                  {(categoryItems[c.key]?.length ?? 0) > 0 && (
+                    <p style={{ fontSize: 9, color: 'rgba(196,168,130,0.5)', margin: '3px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                      {categoryItems[c.key].length} line item{categoryItems[c.key].length > 1 ? 's' : ''}
+                    </p>
+                  )}
                 </div>
 
                 {/* % of income + % of expenses */}
@@ -685,6 +777,81 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
                   </p>
                 )}
               </div>
+
+              {/* Expanded line items */}
+              <AnimatePresence>
+                {expandedCategories.has(c.key) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    style={{ overflow: 'hidden', borderTop: '1px solid rgba(196,168,130,0.10)' }}
+                  >
+                    <div style={{ padding: '10px 18px 14px' }}>
+                      {/* Existing items */}
+                      {(categoryItems[c.key] ?? []).length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
+                          {categoryItems[c.key].map(item => (
+                            <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', borderRadius: 6, background: 'rgba(196,168,130,0.04)' }}>
+                              <span style={{ flex: 1, fontSize: 11, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {item.label}
+                              </span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(253,248,242,0.7)', fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}>
+                                {formatSGD(item.amount)}
+                              </span>
+                              <button
+                                onClick={() => removeExpenseItem(c.key, item.id)}
+                                style={{ background: 'none', border: 'none', color: 'rgba(253,248,242,0.25)', fontSize: 13, cursor: 'pointer', padding: '0 2px', flexShrink: 0, lineHeight: 1 }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.3)', fontFamily: "'Cabinet Grotesk', sans-serif", margin: '0 0 8px' }}>
+                          No line items yet — add one below.
+                        </p>
+                      )}
+
+                      {/* Add entry */}
+                      {addingItem === c.key ? (
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          <input
+                            value={newItemLabel}
+                            onChange={e => setNewItemLabel(e.target.value)}
+                            placeholder="Description"
+                            onKeyDown={e => { if (e.key === 'Enter') addExpenseItem(c.key); if (e.key === 'Escape') setAddingItem(null) }}
+                            autoFocus
+                            style={{ flex: 2, minWidth: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }}
+                          />
+                          <input
+                            value={newItemAmount}
+                            onChange={e => setNewItemAmount(e.target.value)}
+                            placeholder="S$"
+                            onKeyDown={e => { if (e.key === 'Enter') addExpenseItem(c.key); if (e.key === 'Escape') setAddingItem(null) }}
+                            style={{ width: 64, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }}
+                          />
+                          <button onClick={() => addExpenseItem(c.key)} style={{ padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, background: '#9b2040', color: '#fdf8f2', border: 'none', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                            Add
+                          </button>
+                          <button onClick={() => setAddingItem(null)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 11, background: 'none', color: 'rgba(253,248,242,0.4)', border: '1px solid rgba(196,168,130,0.15)', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => { setAddingItem(c.key); setNewItemLabel(''); setNewItemAmount('') }}
+                          style={{ fontSize: 11, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px dashed rgba(196,168,130,0.25)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}
+                        >
+                          + Add Entry
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )
         })}

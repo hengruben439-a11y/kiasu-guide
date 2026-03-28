@@ -131,10 +131,11 @@ function ChartTip({ active, payload, label }: {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function CostOfWaiting({
-  liquid_savings, retirement_age, target_return_rate,
+  liquid_savings, monthly_investment, retirement_age, target_return_rate,
   desired_monthly_income, dividend_yield, currentAge,
 }: Props) {
   const [sliderDelay, setSliderDelay] = useState(0)
+  const [scenarioMode, setScenarioMode] = useState<'more-needed' | 'same-invest'>('more-needed')
 
   const swr = dividend_yield > 0 ? dividend_yield : 0.04
   const corpus = (desired_monthly_income * 12) / swr
@@ -156,6 +157,25 @@ export default function CostOfWaiting({
   const sliderExtra = Math.max(0, sliderPmt - pmtNow)
   const animatedExtra = useCountUp(Math.round(sliderExtra))
 
+  // Scenario 2: same investment, different start dates → arrival portfolio
+  const sameInvestScenarios = SCENARIOS
+    .filter(s => s.years < yearsToRetirement - 1)
+    .map(s => {
+      const proj = buildProjection(liquid_savings, monthly_investment, target_return_rate, yearsToRetirement, s.years)
+      const arrivalPortfolio = proj[yearsToRetirement] ?? 0
+      const shortfall = Math.max(0, corpus - arrivalPortfolio)
+      const shortfallPct = corpus > 0 ? (shortfall / corpus) * 100 : 0
+      return { ...s, arrivalPortfolio, shortfall, shortfallPct }
+    })
+
+  const sliderArrival = (() => {
+    const proj = buildProjection(liquid_savings, monthly_investment, target_return_rate, yearsToRetirement, sliderDelay)
+    return proj[yearsToRetirement] ?? 0
+  })()
+  const sliderShortfall = Math.max(0, corpus - sliderArrival)
+  const animatedArrival = useCountUp(Math.round(sliderArrival))
+  const animatedShortfall = useCountUp(Math.round(sliderShortfall))
+
   // Chart data
   const chartData = Array.from({ length: yearsToRetirement + 1 }, (_, i) => {
     const age = currentAge + i
@@ -172,17 +192,6 @@ export default function CostOfWaiting({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-
-      {/* Page header */}
-      <div style={{ marginBottom: 4 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 6px' }}>Cost of Waiting</p>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
-          Time is the one thing you can't buy back
-        </h1>
-        <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.50)', margin: 0 }}>
-          Every year of delay doesn't just cost you now — it costs you compounding. Drag the slider to feel it.
-        </p>
-      </div>
 
       {/* Hero verdict */}
       <div style={{ background: 'rgba(122,28,46,0.10)', border: '1px solid rgba(196,168,130,0.20)', borderRadius: 14, padding: '20px 24px' }}>
@@ -233,43 +242,120 @@ export default function CostOfWaiting({
         Step 2 · The Cost of Delay
       </p>
 
-      {/* Scenario cards */}
-      <div className="grid-3col" style={{ gap: 14 }}>
-        {scenarios.map((s) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+      {/* Scenario mode tabs */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        {([
+          { id: 'more-needed' as const, label: 'How much more do I need?' },
+          { id: 'same-invest' as const, label: 'What if I invest the same?' },
+        ]).map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setScenarioMode(tab.id)}
             style={{
-              background: s.years === 0 ? 'rgba(16,185,129,0.08)' : 'rgba(10,6,5,0.5)',
-              border: `1px solid ${s.years === 0 ? 'rgba(16,185,129,0.25)' : 'rgba(196,168,130,0.12)'}`,
-              borderRadius: 14, padding: '18px 20px',
-              borderLeft: `3px solid ${s.color}`,
+              padding: '7px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+              fontFamily: "'Cabinet Grotesk', sans-serif",
+              fontSize: 11, fontWeight: 600,
+              background: scenarioMode === tab.id ? 'rgba(196,168,130,0.18)' : 'transparent',
+              color: scenarioMode === tab.id ? '#fdf8f2' : 'rgba(253,248,242,0.4)',
+              transition: 'all 0.15s',
+              outline: scenarioMode === tab.id ? '1px solid rgba(196,168,130,0.3)' : '1px solid transparent',
             }}
           >
-            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: s.color, margin: '0 0 6px' }}>
-              {s.label}
-            </p>
-            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#fdf8f2', margin: '0 0 8px' }}>
-              {s.pmt === Infinity ? 'Impossible' : `${fmtFull(s.pmt)}/mo`}
-            </p>
-            {s.years === 0 ? (
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 20 }}>
-                Baseline — start now
-              </span>
-            ) : s.extra > 0 ? (
-              <div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 20 }}>
-                  +{fmtFull(s.extra)}/mo more
-                </span>
-                <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.40)', margin: '6px 0 0' }}>
-                  {Math.round(s.extraPct)}% higher than starting now
-                </p>
-              </div>
-            ) : null}
-          </motion.div>
+            {tab.label}
+          </button>
         ))}
       </div>
+
+      <AnimatePresence mode="wait">
+        {scenarioMode === 'more-needed' ? (
+          <motion.div key="more-needed" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+            {/* Scenario 1 cards — extra monthly investment needed */}
+            <div className="grid-3col" style={{ gap: 14 }}>
+              {scenarios.map((s) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    background: s.years === 0 ? 'rgba(16,185,129,0.08)' : 'rgba(10,6,5,0.5)',
+                    border: `1px solid ${s.years === 0 ? 'rgba(16,185,129,0.25)' : 'rgba(196,168,130,0.12)'}`,
+                    borderRadius: 14, padding: '18px 20px',
+                    borderLeft: `3px solid ${s.color}`,
+                  }}
+                >
+                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: s.color, margin: '0 0 6px' }}>
+                    {s.label}
+                  </p>
+                  <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#fdf8f2', margin: '0 0 8px' }}>
+                    {s.pmt === Infinity ? 'Impossible' : `${fmtFull(s.pmt)}/mo`}
+                  </p>
+                  {s.years === 0 ? (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 20 }}>
+                      Baseline — start now
+                    </span>
+                  ) : s.extra > 0 ? (
+                    <div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 20 }}>
+                        +{fmtFull(s.extra)}/mo more
+                      </span>
+                      <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.40)', margin: '6px 0 0' }}>
+                        {Math.round(s.extraPct)}% higher than starting now
+                      </p>
+                    </div>
+                  ) : null}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div key="same-invest" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+            {/* Scenario 2 cards — arrival portfolio with same monthly investment */}
+            <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.45)', margin: '0 0 12px', lineHeight: 1.6 }}>
+              Investing <strong style={{ color: '#fdf8f2' }}>{fmtFull(monthly_investment)}/mo</strong> from each start date — how much do you arrive at by age {retirement_age}?
+            </p>
+            <div className="grid-3col" style={{ gap: 14 }}>
+              {sameInvestScenarios.map((s) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    background: s.years === 0 ? 'rgba(16,185,129,0.08)' : s.shortfallPct > 30 ? 'rgba(239,68,68,0.06)' : 'rgba(10,6,5,0.5)',
+                    border: `1px solid ${s.years === 0 ? 'rgba(16,185,129,0.25)' : s.shortfallPct > 30 ? 'rgba(239,68,68,0.2)' : 'rgba(196,168,130,0.12)'}`,
+                    borderRadius: 14, padding: '18px 20px',
+                    borderLeft: `3px solid ${s.color}`,
+                  }}
+                >
+                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: s.color, margin: '0 0 6px' }}>
+                    {s.label}
+                  </p>
+                  <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: '#fdf8f2', margin: '0 0 4px' }}>
+                    {fmt(s.arrivalPortfolio)}
+                  </p>
+                  {s.years === 0 && s.shortfall === 0 ? (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 20 }}>
+                      On track
+                    </span>
+                  ) : s.shortfall > 0 ? (
+                    <div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 20 }}>
+                        {fmt(s.shortfall)} short
+                      </span>
+                      <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.40)', margin: '6px 0 0' }}>
+                        {Math.round(s.shortfallPct)}% below your goal
+                      </p>
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 20 }}>
+                      Goal met
+                    </span>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Delay slider — the emotional centrepiece */}
       <div style={{
@@ -304,31 +390,66 @@ export default function CostOfWaiting({
         />
 
         <AnimatePresence mode="wait">
-          {sliderDelay > 0 ? (
+          {scenarioMode === 'more-needed' ? (
+            sliderDelay > 0 ? (
+              <motion.div
+                key={`delay-${sliderDelay}`}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.22 }}
+                style={{ marginTop: 24, textAlign: 'center' }}
+              >
+                <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '0 0 6px' }}>
+                  Waiting <strong style={{ color: '#ef4444' }}>{sliderDelay} year{sliderDelay > 1 ? 's' : ''}</strong> means you need an extra
+                </p>
+                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 800, color: '#ef4444', margin: '0 0 4px', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                  {fmtFull(animatedExtra)}
+                  <span style={{ fontSize: 18, fontWeight: 400, color: 'rgba(253,248,242,0.50)', marginLeft: 6 }}>/month</span>
+                </p>
+                <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.35)', margin: 0 }}>
+                  to reach the same retirement target — for the rest of your working life
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div key="now-more" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 20, textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: '#10b981' }}>
+                  Starting today gives you the lowest possible monthly commitment — every year of delay makes this number grow.
+                </p>
+              </motion.div>
+            )
+          ) : (
             <motion.div
-              key={`delay-${sliderDelay}`}
+              key={`same-${sliderDelay}`}
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.22 }}
-              style={{ marginTop: 24, textAlign: 'center' }}
+              style={{ marginTop: 24 }}
             >
-              <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '0 0 6px' }}>
-                Waiting <strong style={{ color: '#ef4444' }}>{sliderDelay} year{sliderDelay > 1 ? 's' : ''}</strong> means you need an extra
-              </p>
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 800, color: '#ef4444', margin: '0 0 4px', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {fmtFull(animatedExtra)}
-                <span style={{ fontSize: 18, fontWeight: 400, color: 'rgba(253,248,242,0.50)', marginLeft: 6 }}>/month</span>
-              </p>
-              <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.35)', margin: 0 }}>
-                to reach the same retirement target — for the rest of your working life
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div key="now" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 20, textAlign: 'center' }}>
-              <p style={{ fontSize: 13, color: '#10b981' }}>
-                Starting today gives you the lowest possible monthly commitment — every year of delay makes this number grow.
-              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', margin: '0 0 4px' }}>
+                    {sliderDelay === 0 ? 'You arrive at' : `After waiting ${sliderDelay} yr${sliderDelay > 1 ? 's' : ''}, you arrive at`}
+                  </p>
+                  <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800, color: '#fdf8f2', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                    {fmt(animatedArrival)}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', margin: '0 0 4px' }}>
+                    {sliderShortfall > 0 ? 'Short of your goal by' : 'You exceed your goal by'}
+                  </p>
+                  <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 800, color: sliderShortfall > 0 ? '#ef4444' : '#10b981', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                    {fmt(animatedShortfall)}
+                  </p>
+                </div>
+              </div>
+              {sliderDelay > 0 && sliderShortfall > 0 && (
+                <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.35)', margin: '12px 0 0', textAlign: 'center' }}>
+                  Investing {fmtFull(monthly_investment)}/mo starting {sliderDelay} year{sliderDelay > 1 ? 's' : ''} from now — you'd arrive {Math.round((sliderShortfall / corpus) * 100)}% short of your target.
+                </p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

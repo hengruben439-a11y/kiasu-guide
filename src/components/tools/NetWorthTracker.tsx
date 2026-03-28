@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
-import { animate } from 'framer-motion'
+import { useEffect, useState, useCallback } from 'react'
+import { motion, useSpring } from 'framer-motion'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 
@@ -14,26 +13,19 @@ interface Props {
   cpfOa: number
   cpfSa: number
   cpfMa: number
+  totalLiabilities?: number
   userId: string
 }
 
-// ─── Count-up hook (Framer Motion animate) ────────────────────────────────────
-function useCountUp(target: number, duration = 1.4) {
-  const [value, setValue] = useState(0)
-  const prevRef = useRef(0)
+// ─── Count-up hook (Framer Motion useSpring — handles rapid updates gracefully) ─
+function useCountUp(target: number) {
+  const motionVal = useSpring(target, { stiffness: 60, damping: 18, mass: 0.8 })
+  const [display, setDisplay] = useState(target)
 
-  useEffect(() => {
-    const from = prevRef.current
-    const controls = animate(from, target, {
-      duration,
-      ease: [0.25, 0.1, 0.25, 1],
-      onUpdate: (v) => setValue(Math.round(v)),
-      onComplete: () => { prevRef.current = target },
-    })
-    return controls.stop
-  }, [target, duration])
+  useEffect(() => { motionVal.set(target) }, [target, motionVal])
+  useEffect(() => motionVal.on('change', (v) => setDisplay(Math.round(v))), [motionVal])
 
-  return value
+  return display
 }
 
 function formatSGD(v: number): string {
@@ -60,10 +52,12 @@ export default function NetWorthTracker(props: Props) {
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
 
   const cpf = props.cpfOa + props.cpfSa + props.cpfMa
-  const totalNetWorth = liquidSavings + portfolioValue + cpf + propertyValue
+  const liabilities = props.totalLiabilities ?? 0
+  const totalAssets = liquidSavings + portfolioValue + cpf + propertyValue
+  const totalNetWorth = totalAssets - liabilities
 
   // Count-up for main headline
-  const displayTotal = useCountUp(totalNetWorth, 1400)
+  const displayTotal = useCountUp(totalNetWorth)
 
   // ─── Asset segments ─────────────────────────────────────────────────────
   const segments = [
@@ -151,9 +145,11 @@ export default function NetWorthTracker(props: Props) {
             S${displayTotal.toLocaleString('en-SG')}
           </p>
           <p style={{ fontSize: 13, color: 'rgba(253,248,242,0.55)', margin: '8px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            {illiquidTotal > 0
-              ? `Liquid: ${formatSGD(liquidTotal)} · Illiquid property: ${formatSGD(illiquidTotal)}`
-              : `All assets are liquid or semi-liquid.`}
+            {liabilities > 0
+              ? <>{formatSGD(totalAssets)} assets − <span style={{ color: '#ef4444' }}>{formatSGD(liabilities)} liabilities</span></>
+              : illiquidTotal > 0
+                ? `Liquid: ${formatSGD(liquidTotal)} · Illiquid property: ${formatSGD(illiquidTotal)}`
+                : `All assets are liquid or semi-liquid.`}
           </p>
         </div>
 
@@ -227,6 +223,20 @@ export default function NetWorthTracker(props: Props) {
           </p>
         </div>
       </div>
+
+      {liabilities > 0 && (
+        <div style={{ ...card, padding: '20px 24px', border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#ef4444', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Total Liabilities
+          </p>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 700, color: '#ef4444', margin: '0 0 4px' }}>
+            −{formatSGD(liabilities)}
+          </p>
+          <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.45)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            Mortgages, loans, and other obligations. Update in Financial Profile.
+          </p>
+        </div>
+      )}
 
       {/* Step 2 — Allocation */}
       <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '4px 0 -6px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>

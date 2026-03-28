@@ -11,36 +11,53 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
     const body = await request.json()
-    const { profile, benefits, healthScore } = body
+    const { profile, benefits, healthScore, planMetrics } = body
+
+    const monthlyIncome = Number(profile.monthly_income) || 0
+    const monthlyExpenses = Number(profile.monthly_expenses) || 0
+    const surplus = monthlyIncome - monthlyExpenses
+    const retirementFundedPct = planMetrics?.retirementFundedPct ?? null
+    const coverageGaps = (benefits ?? []).filter((b: { enabled: boolean }) => b.enabled).length
+    const totalPolicies = (benefits ?? []).length
 
     const client = new Anthropic()
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 1800,
       messages: [{
         role: 'user',
         content: `You are a financial planning assistant helping a Singapore financial adviser named Noah summarise a client session.
 
-Write a plain-English session summary in exactly 3 paragraphs (no headers, no bullet points, no markdown). Use simple, warm language a non-financial person can understand. Do not use jargon like "corpus", "annualized", or "bifurcated". Write as if summarising a real conversation.
+Write a plain-English session summary in exactly 5 paragraphs with the following section labels (bold the label, then continue on the same line):
 
-Paragraph 1: Where the client stands today (income, savings, protection coverage, key strengths).
-Paragraph 2: The gaps and risks identified (retirement shortfall, insurance gaps, cash flow concerns).
-Paragraph 3: The recommended next steps and what would make the biggest difference.
+**Financial Position Overview:** ...
+**Protection Gaps:** ...
+**Retirement Outlook:** ...
+**Cash Flow Health:** ...
+**Recommended Actions:** ...
+
+Rules:
+- Plain English only. No jargon like "corpus", "annualised", "bifurcated", or "ACO".
+- Warm, human tone — as if summarising a real conversation.
+- Each paragraph should be 2–4 sentences.
+- The Recommended Actions paragraph should name exactly 2–3 concrete steps Noah should discuss with the client (specific, not generic).
 
 Client data:
-- Monthly income: S$${profile.monthly_income}
-- Monthly expenses: S$${profile.monthly_expenses}
-- Monthly surplus: S$${profile.monthly_income - profile.monthly_expenses}
-- Liquid savings: S$${profile.liquid_savings}
-- CPF (OA/SA/MA): S$${profile.cpf_oa} / S$${profile.cpf_sa} / S$${profile.cpf_ma}
-- Monthly investment: S$${profile.monthly_investment}
-- Retirement target age: ${profile.retirement_age}
-- Desired monthly income in retirement: S$${profile.desired_monthly_income}
-- Portfolio value: S$${profile.portfolio_value}
-- Number of insurance policies on file: ${benefits?.length ?? 0}
-- Financial health score: ${healthScore}/100
+- Monthly income: S$${monthlyIncome.toLocaleString()}
+- Monthly expenses: S$${monthlyExpenses.toLocaleString()}
+- Monthly surplus: S$${surplus.toLocaleString()} (${monthlyIncome > 0 ? Math.round((surplus / monthlyIncome) * 100) : 0}% of income)
+- Liquid savings: S$${Number(profile.liquid_savings || 0).toLocaleString()}
+- Portfolio value: S$${Number(profile.portfolio_value || 0).toLocaleString()}
+- CPF (OA/SA/MA): S$${Number(profile.cpf_oa || 0).toLocaleString()} / S$${Number(profile.cpf_sa || 0).toLocaleString()} / S$${Number(profile.cpf_ma || 0).toLocaleString()}
+- Monthly investment: S$${Number(profile.monthly_investment || 0).toLocaleString()}
+- Retirement target age: ${profile.retirement_age ?? 65}
+- Desired retirement income: S$${Number(profile.desired_monthly_income || 0).toLocaleString()}/mo
+- Retirement funded: ${retirementFundedPct !== null ? `${Math.round(retirementFundedPct * 100)}% of target` : 'not calculated'}
+- Insurance policies on file: ${totalPolicies} (${coverageGaps} enabled)
+- Financial health score: ${healthScore ?? '?'}/100
+- Total liabilities: S$${Number(profile.total_liabilities || 0).toLocaleString()}
 
-Write the 3-paragraph summary now:`
+Write the 5-paragraph summary now:`
       }]
     })
 

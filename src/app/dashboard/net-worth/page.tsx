@@ -9,7 +9,7 @@ export default async function NetWorthPage() {
 
   const { data: profile } = await supabase
     .from('client_profiles')
-    .select('liquid_savings, portfolio_value, property_value, property_liquid, cpf_oa, cpf_sa, cpf_ma')
+    .select('liquid_savings, portfolio_value, property_value, property_liquid, cpf_oa, cpf_sa, cpf_ma, total_liabilities')
     .eq('user_id', user!.id)
     .single<Partial<ClientProfile>>()
 
@@ -43,6 +43,7 @@ export default async function NetWorthPage() {
         cpfOa={Number(profile?.cpf_oa ?? 0)}
         cpfSa={Number(profile?.cpf_sa ?? 0)}
         cpfMa={Number(profile?.cpf_ma ?? 0)}
+        totalLiabilities={Number(profile?.total_liabilities ?? 0)}
         userId={user!.id}
       />
     </div>

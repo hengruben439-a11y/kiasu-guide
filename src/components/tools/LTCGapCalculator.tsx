@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ComposedChart,
@@ -67,7 +67,7 @@ function useCountUp(target: number, duration = 1400): number {
 function buildYearRows(coverage: number, durationYears: number) {
   return Array.from({ length: durationYears }, (_, i) => {
     const monthlyLTC = Math.round(AVG_LTC_MONTHLY * Math.pow(1 + LTC_INFLATION, i))
-    const gap = Math.max(0, monthlyLTC - coverage)
+    const gap = monthlyLTC - coverage  // can be negative (surplus)
     return { year: i + 1, monthlyLTC, careshield: coverage, gap }
   })
 }
@@ -75,7 +75,14 @@ function buildYearRows(coverage: number, durationYears: number) {
 function buildChartData(coverage: number, durationYears: number) {
   const totalLTC = calcTotalLTCCost(durationYears)
   const coverageTotal = coverage * 12 * durationYears
+  const surplus = Math.max(0, coverageTotal - totalLTC)
   const gapTotal = Math.max(0, totalLTC - coverageTotal)
+  if (surplus > 0) {
+    return [
+      { name: 'LTC Cost', value: totalLTC, fill: '#a89070' },
+      { name: 'Coverage Surplus', value: surplus, fill: '#16a34a' },
+    ]
+  }
   return [
     { name: 'Your Coverage', value: Math.min(coverageTotal, totalLTC), fill: '#16a34a' },
     { name: 'Protection Gap', value: gapTotal, fill: '#b91c1c' },
@@ -107,23 +114,35 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function LTCGapCalculator() {
-  const [userCoverage, setUserCoverage] = useState(DEFAULT_CARESHIELD_MONTHLY)
+interface LTCProps {
+  initialLtcCoverage?: number  // pre-loaded from benefit_blocks (careshield/ltc policies)
+}
+
+export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) {
+  const [userCoverage, setUserCoverage] = useState(initialLtcCoverage ?? DEFAULT_CARESHIELD_MONTHLY)
   const [durationYears, setDurationYears] = useState(DEFAULT_DURATION_YEARS)
   const [showAssumptions, setShowAssumptions] = useState(false)
 
-  // Dynamic calculations based on user's coverage and duration
-  const TOTAL_LTC_COST = calcTotalLTCCost(durationYears)
-  const monthlyGap = Math.max(0, AVG_LTC_MONTHLY - userCoverage)
+  // Sync if prop changes (e.g. parent fetches data after mount)
+  useEffect(() => {
+    if (initialLtcCoverage !== undefined) setUserCoverage(initialLtcCoverage)
+  }, [initialLtcCoverage])
+
+  // Dynamic calculations — all derived from userCoverage + durationYears
+  const TOTAL_LTC_COST = useMemo(() => calcTotalLTCCost(durationYears), [durationYears])
+  const monthlyGap = AVG_LTC_MONTHLY - userCoverage  // negative = surplus
   const coverageTotal = userCoverage * 12 * durationYears
-  const totalGap = Math.max(0, TOTAL_LTC_COST - coverageTotal)
-  const gapReduction = DEFAULT_CARESHIELD_MONTHLY < userCoverage
+  const totalGap = TOTAL_LTC_COST - coverageTotal  // negative = surplus
+  const yearRows = useMemo(() => buildYearRows(userCoverage, durationYears), [userCoverage, durationYears])
+  const chartData = useMemo(() => buildChartData(userCoverage, durationYears), [userCoverage, durationYears])
+
+  const absMonthlyGap = Math.abs(monthlyGap)
+  const animatedGap = useCountUp(absMonthlyGap, 1400)
+  const isSurplus = monthlyGap < 0
+  const isFullyCovered = monthlyGap === 0
+  const gapReduction = DEFAULT_CARESHIELD_MONTHLY < userCoverage && AVG_LTC_MONTHLY > DEFAULT_CARESHIELD_MONTHLY
     ? Math.round(((userCoverage - DEFAULT_CARESHIELD_MONTHLY) / (AVG_LTC_MONTHLY - DEFAULT_CARESHIELD_MONTHLY)) * 100)
     : 0
-  const yearRows = buildYearRows(userCoverage, durationYears)
-  const chartData = buildChartData(userCoverage, durationYears)
-
-  const animatedGap = useCountUp(monthlyGap, 1400)
 
   const cardStyle: React.CSSProperties = {
     background: 'rgba(122,28,46,0.06)',
@@ -178,19 +197,19 @@ export default function LTCGapCalculator() {
             marginBottom: '0.75rem',
           }}
         >
-          Monthly Protection Gap
+          {isSurplus ? 'Monthly Coverage Surplus' : isFullyCovered ? 'Monthly Gap' : 'Monthly Protection Gap'}
         </p>
         <div
           style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: '3.5rem',
             fontWeight: 700,
-            color: '#9b2040',
+            color: isSurplus ? '#16a34a' : isFullyCovered ? '#d97706' : '#9b2040',
             lineHeight: 1,
             marginBottom: '0.75rem',
           }}
         >
-          S${animatedGap.toLocaleString('en-SG')}
+          {isSurplus ? '+' : ''}S${animatedGap.toLocaleString('en-SG')}
           <span
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -200,7 +219,7 @@ export default function LTCGapCalculator() {
               marginLeft: '0.4rem',
             }}
           >
-            per month
+            {isSurplus ? 'surplus/mo' : isFullyCovered ? 'fully covered' : 'per month'}
           </span>
         </div>
         <p

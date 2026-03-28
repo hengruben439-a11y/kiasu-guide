@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
 import {
   ComposedChart, Area, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine, CartesianGrid,
@@ -598,6 +599,24 @@ export default function RetirementAnalytics({
   const [passiveMode, setPassiveMode] = useState<'goal' | 'bonus'>('goal')
   const [showMilestones, setShowMilestones] = useState(false)
   const [showProcrastination, setShowProcrastination] = useState(false)
+  const [showCpfTiers, setShowCpfTiers] = useState(false)
+  const [chartScenario, setChartScenario] = useState<'base' | 'optimistic' | 'pessimistic'>('base')
+  const [savedToast, setSavedToast] = useState(false)
+
+  const saveToProfile = useCallback(async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from('client_profiles').update({
+      desired_monthly_income: desiredMonthly,
+      dividend_yield: dividendYield,
+      inflation_rate: inflation,
+      retirement_age: retAge,
+      monthly_investment: monthly,
+    }).eq('user_id', user.id)
+    setSavedToast(true)
+    setTimeout(() => setSavedToast(false), 1500)
+  }, [desiredMonthly, dividendYield, inflation, retAge, monthly])
 
   function addStream() {
     setPassiveStreams(s => [...s, { id: newId(), name: 'Rental Income', monthlyAmount: 1000, startAge: retAge }])
@@ -765,18 +784,20 @@ export default function RetirementAnalytics({
 
   // Augment chartData with CPF NAV trajectory (pre-retirement only)
   const chartDataWithCpf = useMemo(() => {
-    if (!includeCpf || (cpfOa <= 0 && cpfSa <= 0)) return d.chartData
     return d.chartData.map((pt) => {
       const yr = pt.age - currentAge
-      if (pt.age < d.effectiveRetAge) {
-        const cpfNAV = Math.round(
-          cpfOa * Math.pow(1.025, yr) + (cpfSa + cpfMa) * Math.pow(1.04, yr)
-        )
-        return { ...pt, cpfNAV }
-      }
-      return { ...pt, cpfNAV: null }
+      const isRetirement = pt.age >= d.effectiveRetAge
+      const cpfNAV = (includeCpf && (cpfOa > 0 || cpfSa > 0) && !isRetirement)
+        ? Math.round(cpfOa * Math.pow(1.025, yr) + (cpfSa + cpfMa) * Math.pow(1.04, yr))
+        : null
+      // Per-scenario dividend income (for G5)
+      const optimisticIncome = (isRetirement && pt.optimistic != null)
+        ? Math.round(pt.optimistic * dividendYield / 12) : null
+      const pessimisticIncome = (isRetirement && pt.pessimistic != null)
+        ? Math.round(pt.pessimistic * dividendYield / 12) : null
+      return { ...pt, cpfNAV, optimisticIncome, pessimisticIncome }
     })
-  }, [d.chartData, d.effectiveRetAge, cpfOa, cpfSa, cpfMa, currentAge, includeCpf])
+  }, [d.chartData, d.effectiveRetAge, cpfOa, cpfSa, cpfMa, currentAge, includeCpf, dividendYield])
 
   // AI context
   const aiContext = `
@@ -830,7 +851,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             <FundingRing pct={d.actualFundedPct} size={124} />
             <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.35)', margin: 0, textAlign: 'center', maxWidth: 120, lineHeight: 1.5 }}>
-              Projected ÷ Required corpus, using your actual inputs
+              Projected ÷ Required savings, using your actual inputs
             </p>
           </div>
 
@@ -849,8 +870,8 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             </div>
             <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
               {[
-                { label: 'Required corpus', value: fmtSGD(d.effectiveReq), dim: true },
-                { label: 'Projected corpus', value: fmtSGD(d.effectiveProjected), dim: false },
+                { label: 'Required savings', value: fmtSGD(d.effectiveReq), dim: true },
+                { label: 'Projected savings', value: fmtSGD(d.effectiveProjected), dim: false },
                 {
                   label: d.effectiveProjected >= d.effectiveReq ? 'Surplus' : 'Gap',
                   value: fmtSGD(Math.abs(d.effectiveProjected - d.effectiveReq)),
@@ -873,11 +894,11 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             </p>
             {d.depletionAge && d.depletionAge <= 90 ? (
               <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '8px 12px' }}>
-                <p style={{ fontSize: 11, color: '#ef4444', margin: 0, fontWeight: 600 }}>⚠ Corpus runs out ~age {d.depletionAge}</p>
+                <p style={{ fontSize: 11, color: '#ef4444', margin: 0, fontWeight: 600 }}>⚠ Savings run out ~age {d.depletionAge}</p>
               </div>
             ) : d.effectiveProjected >= d.effectiveReq ? (
               <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, padding: '8px 12px' }}>
-                <p style={{ fontSize: 11, color: '#10b981', margin: 0, fontWeight: 600 }}>✓ Corpus self-sustaining</p>
+                <p style={{ fontSize: 11, color: '#10b981', margin: 0, fontWeight: 600 }}>✓ Your portfolio grows faster than you withdraw</p>
               </div>
             ) : null}
           </div>
@@ -900,10 +921,10 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             onChange={setDesiredMonthly}
           />
           <SliderInput
-            label="Dividend Yield / SWR"
+            label="Dividend Yield / Withdrawal Rate"
             value={dividendYield} min={0.02} max={0.10} step={0.005}
             format={(v) => `${(v * 100).toFixed(1)}%`}
-            tooltip="The annual % your portfolio pays out as income. This determines how large a corpus you need — lower yield = larger corpus needed."
+            tooltip="The annual % your portfolio pays out as income. This determines how large a retirement savings pool you need — lower yield = larger savings needed."
             onChange={setDividendYield}
           />
           <SliderInput
@@ -915,10 +936,37 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
           />
           {monthlyIncome > 0 && (
             <div style={{ padding: '10px 14px', background: 'rgba(196,168,130,0.04)', border: '1px solid rgba(196,168,130,0.1)', borderRadius: 10 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.45)', margin: '0 0 3px' }}>Monthly Income</p>
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>S${Math.round(monthlyIncome).toLocaleString()}</p>
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.45)', margin: '0 0 3px' }}>Current Monthly Income (from your profile)</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>S${Math.round(monthlyIncome).toLocaleString()}/mo</p>
+              <p style={{ fontSize: 10, color: 'rgba(196,168,130,0.4)', margin: '3px 0 0' }}>Read-only — update in Financial Profile</p>
             </div>
           )}
+
+          {/* Save to Profile button */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
+            <AnimatePresence>
+              {savedToast && (
+                <motion.span
+                  initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+                  style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}
+                >
+                  Saved ✓
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={saveToProfile}
+              style={{
+                padding: '8px 18px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                background: 'rgba(155,32,64,0.22)', color: '#c4a882',
+                fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
+                outline: '1px solid rgba(155,32,64,0.4)', transition: 'all 0.15s',
+              }}
+            >
+              Save to Profile ↑
+            </button>
+          </div>
 
           {/* CPF toggle */}
           <div>
@@ -1084,7 +1132,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
               </p>
               {d.netGrowthRate < 0 && (
                 <p style={{ fontSize: 11, color: '#f97316', margin: '6px 0 0' }}>
-                  ⚠ Negative NAV growth — corpus will shrink over time
+                  ⚠ Negative NAV growth — your portfolio will shrink over time
                 </p>
               )}
             </div>
@@ -1095,7 +1143,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
               label="Monthly Drawdown Amount"
               value={drawdownMonthly} min={500} max={30000} step={500}
               format={(v) => `S$${v.toLocaleString()}/mo`}
-              tooltip="Fixed monthly withdrawal from your corpus after retirement."
+              tooltip="Fixed monthly withdrawal from your retirement savings after retirement."
               onChange={setDrawdownMonthly}
             />
           </div>
@@ -1244,22 +1292,41 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             <p style={{ fontSize: 12, color: 'rgba(253,248,242,0.4)', margin: 0 }}>
               Portfolio NAV (left axis) · Monthly income streams post-retirement (right axis, dashed lines)
             </p>
-            <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.28)', margin: '3px 0 0' }}>
-              Optimistic assumes +2% p.a. above your rate · Pessimistic assumes −2% p.a. · Reflects market uncertainty over {d.effectiveYears} years
-            </p>
           </div>
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-            {[
-              { color: '#10b981', label: 'Optimistic NAV', dashed: false },
-              { color: '#9b2040', label: 'Base NAV', dashed: false },
-              { color: '#6b7280', label: 'Pessimistic NAV', dashed: true },
-              { color: '#c4a882', label: 'Required corpus', dashed: true },
-            ].map(({ color, label, dashed }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <div style={{ width: 18, height: 0, borderTop: `2px ${dashed ? 'dashed' : 'solid'} ${color}` }} />
-                <span style={{ fontSize: 10, color: 'rgba(253,248,242,0.4)' }}>{label}</span>
-              </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            {([
+              { id: 'base' as const, label: 'Base', color: '#9b2040', desc: `${(d.effectiveRate * 100).toFixed(1)}% p.a.` },
+              { id: 'optimistic' as const, label: 'Optimistic +2%', color: '#10b981', desc: `${((d.effectiveRate + 0.02) * 100).toFixed(1)}% p.a.` },
+              { id: 'pessimistic' as const, label: 'Pessimistic −2%', color: '#6b7280', desc: `${(Math.max(0.01, d.effectiveRate - 0.02) * 100).toFixed(1)}% p.a.` },
+            ]).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setChartScenario(tab.id)}
+                style={{
+                  padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                  fontFamily: "'Cabinet Grotesk', sans-serif",
+                  fontSize: 10, fontWeight: 600,
+                  background: chartScenario === tab.id ? `${tab.color}22` : 'transparent',
+                  color: chartScenario === tab.id ? tab.color : 'rgba(253,248,242,0.35)',
+                  outline: chartScenario === tab.id ? `1px solid ${tab.color}50` : '1px solid transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {tab.label}
+              </button>
             ))}
+            <button
+              onClick={() => setShowCpfTiers(v => !v)}
+              style={{
+                padding: '4px 10px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                background: showCpfTiers ? 'rgba(167,139,250,0.2)' : 'rgba(196,168,130,0.08)',
+                color: showCpfTiers ? '#a78bfa' : 'rgba(253,248,242,0.4)',
+                border: `1px solid ${showCpfTiers ? 'rgba(167,139,250,0.3)' : 'rgba(196,168,130,0.12)'}`,
+                fontFamily: "'Cabinet Grotesk', sans-serif", transition: 'all 0.15s',
+              }}
+            >
+              {showCpfTiers ? '▼ Hide CPF Tiers' : '▲ Show CPF Tier Targets'}
+            </button>
           </div>
         </div>
 
@@ -1296,21 +1363,44 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             />
             <Tooltip content={<ChartTooltip />} />
             <ReferenceLine yAxisId="left" x={d.effectiveRetAge} stroke="rgba(196,168,130,0.25)" strokeDasharray="4 4" label={{ value: 'Retire', fill: 'rgba(196,168,130,0.5)', fontSize: 10, position: 'top' }} />
+            {/* CPF Tier reference lines (BRS/FRS/ERS) — shown when toggle is on */}
+            {showCpfTiers && <>
+              <ReferenceLine yAxisId="left" y={106500} stroke="#f59e0b" strokeDasharray="4 3" strokeWidth={1} label={{ value: 'BRS S$107K', position: 'right', fill: '#f59e0b', fontSize: 9 }} />
+              <ReferenceLine yAxisId="left" y={213000} stroke="#10b981" strokeDasharray="4 3" strokeWidth={1} label={{ value: 'FRS S$213K', position: 'right', fill: '#10b981', fontSize: 9 }} />
+              <ReferenceLine yAxisId="left" y={319500} stroke="#0ea5e9" strokeDasharray="4 3" strokeWidth={1} label={{ value: 'ERS S$320K', position: 'right', fill: '#0ea5e9', fontSize: 9 }} />
+            </>}
             {/* CPF NAV growth trajectory — purple area, pre-retirement only */}
             {includeCpf && (cpfOa > 0 || cpfSa > 0) && (
               <Area yAxisId="left" type="monotone" dataKey="cpfNAV" name="CPF NAV" fill="url(#gradCpf)" stroke="#a78bfa" strokeWidth={1.5} dot={false} connectNulls={false} isAnimationActive={true} animationDuration={900} />
             )}
-            <Area yAxisId="left" type="monotone" dataKey="optimistic" name="Optimistic" fill="url(#gradOpt)" stroke="#10b981" strokeWidth={1.5} dot={false} isAnimationActive={true} animationDuration={1000} />
-            <Area yAxisId="left" type="monotone" dataKey="base" name="Base" fill="url(#gradBase)" stroke="#9b2040" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={1000} />
-            <Line yAxisId="left" type="monotone" dataKey="pessimistic" name="Pessimistic" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="3 3" isAnimationActive={true} animationDuration={1000} />
-            <Line yAxisId="left" type="monotone" dataKey="required" name="Required corpus" stroke="#c4a882" strokeWidth={1.5} dot={false} strokeDasharray="6 3" connectNulls={false} />
-            {/* Income lines — right axis, post-retirement only */}
-            <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name={retirementMode === 'dividend' ? 'Dividend income' : 'Drawdown'} stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            {/* Single scenario line based on selected tab (G4) */}
+            {chartScenario === 'base' && (
+              <Area yAxisId="left" type="monotone" dataKey="base" name="Base" fill="url(#gradBase)" stroke="#9b2040" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={900} />
+            )}
+            {chartScenario === 'optimistic' && (
+              <Area yAxisId="left" type="monotone" dataKey="optimistic" name="Optimistic +2%" fill="url(#gradOpt)" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={900} />
+            )}
+            {chartScenario === 'pessimistic' && (
+              <Line yAxisId="left" type="monotone" dataKey="pessimistic" name="Pessimistic −2%" stroke="#6b7280" strokeWidth={2} dot={false} strokeDasharray="3 3" isAnimationActive={true} animationDuration={900} />
+            )}
+            <Line yAxisId="left" type="monotone" dataKey="required" name="Required savings" stroke="#c4a882" strokeWidth={1.5} dot={false} strokeDasharray="6 3" connectNulls={false} />
+            {/* Income lines — right axis, post-retirement only (G5: per-scenario dividend income) */}
+            {chartScenario === 'base' && retirementMode === 'dividend' && (
+              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Dividend income" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            )}
+            {chartScenario === 'optimistic' && retirementMode === 'dividend' && (
+              <Line yAxisId="right" type="monotone" dataKey="optimisticIncome" name="Dividend income" stroke="#10b981" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            )}
+            {chartScenario === 'pessimistic' && retirementMode === 'dividend' && (
+              <Line yAxisId="right" type="monotone" dataKey="pessimisticIncome" name="Dividend income" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            )}
+            {retirementMode === 'drawdown' && (
+              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Drawdown" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            )}
             <Line yAxisId="right" type="monotone" dataKey="cpfIncome" name="CPF Life" stroke="#a78bfa" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
             {passiveStreams.length > 0 && (
               <Line yAxisId="right" type="monotone" dataKey="otherPassiveIncome" name="Other passive" stroke="#0ea5e9" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
             )}
-            {/* totalPassiveIncome omitted from chart — visible in tooltip only */}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -1393,7 +1483,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
           {
             label: 'Retirement Runway',
             value: d.depletionAge && d.depletionAge <= 90 ? `${d.depletionAge - d.effectiveRetAge} yrs` : '∞',
-            sub: d.depletionAge && d.depletionAge <= 90 ? `Corpus runs out ~age ${d.depletionAge}` : 'Corpus sustains at this rate',
+            sub: d.depletionAge && d.depletionAge <= 90 ? `Savings run out ~age ${d.depletionAge}` : 'At this withdrawal rate, your savings don\'t run out',
             color: d.depletionAge && d.depletionAge <= 90 ? '#ef4444' : '#10b981',
             icon: '⏳',
           },

@@ -36,6 +36,7 @@ export interface ClientProfile {
   property_liquid: boolean
   monthly_investment: number
   portfolio_value: number
+  total_liabilities: number
   target_return_rate: number
   retirement_age: number
   desired_monthly_income: number
@@ -46,6 +47,58 @@ export interface ClientProfile {
   dependent_ages: number[]
   role: UserRole
   pipeline_status: string
+  created_at: string
+  updated_at: string
+}
+
+export type BenefitType =
+  | 'death' | 'tpd' | 'eci' | 'aci' | 'hospitalisation'
+  | 'pa' | 'careshield' | 'multi_pay_ci'
+
+export interface BenefitBlock {
+  id: string
+  user_id: string
+  benefit_type: BenefitType
+  policy_name: string | null
+  coverage: number
+  payout_mode: 'lump_sum' | 'monthly' | 'multipay' | null
+  multiplier: number
+  max_claims: number | null
+  cooldown_years: number | null
+  expiry_age: number | null
+  renewal_date: string | null
+  enabled: boolean
+  // Sprint 6 additions
+  inception_date: string | null
+  payment_date: number | null   // day of month (1-28)
+  expiry_date: string | null    // actual calendar date
+  annual_premium: number
+  insurer: string | null
+  created_at: string
+  updated_at: string
+  // Joined from policy_riders (optional)
+  riders?: PolicyRider[]
+}
+
+export interface PolicyRider {
+  id: string
+  benefit_block_id: string
+  user_id: string
+  name: string
+  benefit_type: BenefitType | null
+  coverage: number
+  annual_premium: number
+  expiry_age: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ExpenseItem {
+  id: string
+  user_id: string
+  category_key: string
+  label: string
+  amount: number
   created_at: string
   updated_at: string
 }
