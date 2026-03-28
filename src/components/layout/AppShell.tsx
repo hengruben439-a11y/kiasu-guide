@@ -1,4 +1,5 @@
 import Sidebar from './Sidebar'
+import AnimatedMain from './AnimatedMain'
 import { UserRole } from '@/types'
 
 interface AppShellProps {
@@ -21,7 +22,7 @@ export default function AppShell({ children, role, fullName, email }: AppShellPr
           overflowY: 'auto',
         }}
       >
-        {children}
+        <AnimatedMain>{children}</AnimatedMain>
       </main>
     </div>
   )

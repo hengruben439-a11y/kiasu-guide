@@ -137,7 +137,7 @@ function useCountUp(target: number, duration = 900): number {
 
 // ─── Editable amount input ────────────────────────────────────────────────────
 
-function AmountCell({ value, onChange, colour }: { value: number; onChange: (v: number) => void; colour: string }) {
+function AmountCell({ value, onChange, colour, large }: { value: number; onChange: (v: number) => void; colour: string; large?: boolean }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -163,9 +163,11 @@ function AmountCell({ value, onChange, colour }: { value: number; onChange: (v: 
         onBlur={commit}
         onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }}
         style={{
-          width: 80, textAlign: 'right', fontSize: 13, fontWeight: 600,
-          border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px',
-          outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif",
+          width: large ? 120 : 80, textAlign: large ? 'left' : 'right',
+          fontSize: large ? 20 : 13, fontWeight: 700,
+          border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 8px',
+          outline: 'none',
+          fontFamily: large ? "'Playfair Display', serif" : "'Cabinet Grotesk', sans-serif",
           color: '#fdf8f2', background: 'rgba(122,28,46,0.10)',
         }}
         autoFocus
@@ -179,9 +181,11 @@ function AmountCell({ value, onChange, colour }: { value: number; onChange: (v: 
       title="Click to edit"
       style={{
         background: 'none', border: 'none', cursor: 'text',
-        fontSize: 13, fontWeight: 700, color: '#fdf8f2',
-        fontFamily: "'Cabinet Grotesk', sans-serif", padding: '1px 4px',
+        fontSize: large ? 22 : 13, fontWeight: 700, color: '#fdf8f2',
+        fontFamily: large ? "'Playfair Display', serif" : "'Cabinet Grotesk', sans-serif",
+        padding: large ? '0' : '1px 4px',
         borderBottom: `1px dashed ${colour}40`,
+        lineHeight: 1.2,
       }}
     >
       {formatSGD(value)}
@@ -510,223 +514,215 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         Step 2 · Spending Breakdown
       </p>
 
-      {/* Category amounts + pie chart */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Category editor */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="rounded-2xl border p-6 space-y-3"
-          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div>
-              <p className="font-semibold text-sm" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                Monthly Expenses
-              </p>
-              <p className="text-xs" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                Click any amount to edit
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                onClick={() => setShowManualEntry(v => !v)}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
-                  fontSize: 12, fontWeight: 600, color: showManualEntry ? '#fdf8f2' : '#c4a882',
-                  border: `1px solid ${showManualEntry ? 'rgba(155,32,64,0.4)' : 'rgba(196,168,130,0.25)'}`, borderRadius: 8, padding: '5px 10px',
-                  background: showManualEntry ? 'rgba(155,32,64,0.2)' : 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
-                }}
-              >
-                + Manual
-              </button>
-              <label
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
-                  fontSize: 12, fontWeight: 600, color: '#c4a882',
-                  border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8, padding: '5px 10px',
-                  background: 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
-                }}
-                title="Upload a CSV bank statement to auto-populate"
-              >
-                ↑ CSV
-                <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFile} />
-              </label>
-            </div>
-          </div>
+      {/* Import / manual entry toolbar */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}
+      >
+        <p className="text-xs" style={{ color: 'rgba(253,248,242,0.4)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Click any amount to edit it directly
+        </p>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <motion.button
+            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            onClick={() => setShowManualEntry(v => !v)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, color: showManualEntry ? '#fdf8f2' : '#c4a882',
+              border: `1px solid ${showManualEntry ? 'rgba(155,32,64,0.4)' : 'rgba(196,168,130,0.25)'}`, borderRadius: 8, padding: '5px 10px',
+              background: showManualEntry ? 'rgba(155,32,64,0.2)' : 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
+            }}
+          >
+            + Manual
+          </motion.button>
+          <motion.label
+            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, color: '#c4a882',
+              border: '1px solid rgba(196,168,130,0.25)', borderRadius: 8, padding: '5px 10px',
+              background: 'rgba(122,28,46,0.08)', fontFamily: "'Cabinet Grotesk', sans-serif",
+            }}
+            title="Upload a CSV bank statement to auto-populate"
+          >
+            ↑ CSV
+            <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFile} />
+          </motion.label>
+        </div>
+      </motion.div>
 
-          {/* Manual entry panel */}
-          <AnimatePresence>
-            {showManualEntry && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                style={{ overflow: 'hidden' }}
-              >
-                <div style={{ background: 'rgba(10,6,5,0.4)', borderRadius: 10, padding: '14px 16px', marginBottom: 12, border: '1px solid rgba(196,168,130,0.1)' }}>
-                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 10px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                    Add Transactions
-                  </p>
-                  {/* Quick-add presets */}
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-                    {QUICK_ADD.map(q => (
-                      <button
-                        key={q.label}
-                        onClick={() => setManualTxs(prev => [...prev, { id: Math.random().toString(36).slice(2, 9), description: q.label, amount: q.amt, category: q.cat }])}
-                        style={{
-                          padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
-                          background: 'rgba(196,168,130,0.08)', border: '1px solid rgba(196,168,130,0.15)',
-                          color: 'rgba(253,248,242,0.6)', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
-                        }}
-                      >
-                        {q.label}
-                      </button>
-                    ))}
+      {/* Manual entry panel */}
+      <AnimatePresence>
+        {showManualEntry && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ background: 'rgba(10,6,5,0.4)', borderRadius: 12, padding: '16px 18px', border: '1px solid rgba(196,168,130,0.1)' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 10px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                Add Transactions
+              </p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                {QUICK_ADD.map(q => (
+                  <motion.button
+                    key={q.label}
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    onClick={() => setManualTxs(prev => [...prev, { id: Math.random().toString(36).slice(2, 9), description: q.label, amount: q.amt, category: q.cat }])}
+                    style={{
+                      padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
+                      background: 'rgba(196,168,130,0.08)', border: '1px solid rgba(196,168,130,0.15)',
+                      color: 'rgba(253,248,242,0.6)', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
+                    }}
+                  >
+                    {q.label}
+                  </motion.button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                <input value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Description" onKeyDown={e => e.key === 'Enter' && addManualTx()} style={{ flex: 2, minWidth: 120, padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+                <input value={newAmount} onChange={e => setNewAmount(e.target.value)} placeholder="Amount" onKeyDown={e => e.key === 'Enter' && addManualTx()} style={{ width: 80, padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+                <select value={newCat} onChange={e => setNewCat(e.target.value)} style={{ width: 110, padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }}>
+                  {CATEGORY_META.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
+                </select>
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={addManualTx} style={{ padding: '7px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700, background: '#9b2040', color: '#fdf8f2', border: 'none', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Add</motion.button>
+              </div>
+              {manualTxs.length > 0 && (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 180, overflowY: 'auto', marginBottom: 10 }}>
+                    {manualTxs.map(tx => {
+                      const meta = CATEGORY_META.find(m => m.key === tx.category)
+                      return (
+                        <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6, background: 'rgba(196,168,130,0.04)' }}>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: meta?.colour ?? '#64748b', flexShrink: 0 }} />
+                          <span style={{ flex: 1, fontSize: 11, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{tx.description}</span>
+                          <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{meta?.label}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{formatSGD(tx.amount)}</span>
+                          <button onClick={() => removeManualTx(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(253,248,242,0.3)', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>×</button>
+                        </div>
+                      )
+                    })}
                   </div>
-                  {/* Input row */}
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
-                    <input
-                      value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Description"
-                      onKeyDown={e => e.key === 'Enter' && addManualTx()}
-                      style={{
-                        flex: 2, minWidth: 120, padding: '7px 10px', borderRadius: 7,
-                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
-                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
-                      }}
-                    />
-                    <input
-                      value={newAmount} onChange={e => setNewAmount(e.target.value)} placeholder="Amount"
-                      onKeyDown={e => e.key === 'Enter' && addManualTx()}
-                      style={{
-                        width: 80, padding: '7px 10px', borderRadius: 7,
-                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
-                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
-                      }}
-                    />
-                    <select
-                      value={newCat} onChange={e => setNewCat(e.target.value)}
-                      style={{
-                        width: 110, padding: '7px 10px', borderRadius: 7,
-                        border: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.6)',
-                        color: '#fdf8f2', fontSize: 12, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none',
-                      }}
-                    >
-                      {CATEGORY_META.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
-                    </select>
-                    <button
-                      onClick={addManualTx}
-                      style={{
-                        padding: '7px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
-                        background: '#9b2040', color: '#fdf8f2', border: 'none', cursor: 'pointer',
-                        fontFamily: "'Cabinet Grotesk', sans-serif",
-                      }}
-                    >
-                      Add
-                    </button>
-                  </div>
-                  {/* Transaction list */}
-                  {manualTxs.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 200, overflowY: 'auto', marginBottom: 10 }}>
-                      {manualTxs.map(tx => {
-                        const meta = CATEGORY_META.find(m => m.key === tx.category)
-                        return (
-                          <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6, background: 'rgba(196,168,130,0.04)' }}>
-                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: meta?.colour ?? '#64748b', flexShrink: 0 }} />
-                            <span style={{ flex: 1, fontSize: 11, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{tx.description}</span>
-                            <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.5)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{meta?.label}</span>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{formatSGD(tx.amount)}</span>
-                            <button onClick={() => removeManualTx(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(253,248,242,0.3)', fontSize: 14, cursor: 'pointer', padding: '0 2px' }}>×</button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                  {manualTxs.length > 0 && (
-                    <button
-                      onClick={applyManualTxs}
-                      style={{
-                        width: '100%', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                        background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(22,163,74,0.3)',
-                        color: '#10b981', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif",
-                      }}
-                    >
-                      Apply {manualTxs.length} transactions to categories
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={applyManualTxs} style={{ width: '100%', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(22,163,74,0.3)', color: '#10b981', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    Apply {manualTxs.length} transactions to categories
+                  </motion.button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {categories.map((c) => {
-            const pct = totalExpenses > 0 ? (c.amount / totalExpenses) * 100 : 0
-            return (
-              <div key={c.key}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: c.colour, flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                      {c.label}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-                      {pct.toFixed(1)}%
-                    </span>
-                    <AmountCell value={c.amount} onChange={(v) => updateAmount(c.key, v)} colour={c.colour} />
-                  </div>
+      {/* Large category cards — 2-col grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
+        {categories.map((c, i) => {
+          const pctOfIncome = monthlyIncome > 0 ? (c.amount / monthlyIncome) * 100 : 0
+          const pctOfExpenses = totalExpenses > 0 ? (c.amount / totalExpenses) * 100 : 0
+          const budgetMax: Record<string, number> = { housing: 30, food: 15, transport: 10, utilities: 8, healthcare: 5, insurance: 10, entertainment: 8, shopping: 10, other: 10 }
+          const rec = budgetMax[c.key] ?? 10
+          const overBudget = monthlyIncome > 0 && pctOfIncome > rec * 1.2
+          const fillColor = pctOfIncome <= rec ? '#16a34a' : pctOfIncome <= rec * 1.2 ? '#f59e0b' : '#ef4444'
+          const fillPct = Math.min(100, (pctOfIncome / rec) * 100)
+
+          return (
+            <motion.div
+              key={c.key}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.04 }}
+              whileHover={{ y: -3, boxShadow: `0 8px 28px rgba(${c.key === 'housing' ? '122,28,46' : '0,0,0'},0.22)` }}
+              style={{
+                borderRadius: 16, overflow: 'hidden',
+                border: '1px solid rgba(196,168,130,0.12)',
+                background: 'rgba(122,28,46,0.05)',
+                backdropFilter: 'blur(12px)',
+                cursor: 'default',
+                transition: 'border-color 0.2s',
+              }}
+            >
+              {/* Colour accent top strip */}
+              <div style={{ height: 4, background: c.colour, width: '100%' }} />
+
+              <div style={{ padding: '16px 18px 14px' }}>
+                {/* Category name */}
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.7)', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                  {c.label}
+                </p>
+
+                {/* Amount (large, Playfair, clickable) */}
+                <div style={{ marginBottom: 10 }}>
+                  <AmountCell value={c.amount} onChange={(v) => updateAmount(c.key, v)} colour={c.colour} large />
                 </div>
-                <div style={{ height: 4, background: 'rgba(196,168,130,0.10)', borderRadius: 2, overflow: 'hidden' }}>
+
+                {/* % of income + % of expenses */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    {pctOfExpenses.toFixed(1)}% of spending
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: fillColor, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                    {pctOfIncome.toFixed(1)}% of income
+                  </span>
+                </div>
+
+                {/* Fill bar */}
+                <div style={{ height: 5, background: 'rgba(196,168,130,0.10)', borderRadius: 3, overflow: 'hidden', marginBottom: overBudget ? 8 : 0 }}>
                   <motion.div
-                    style={{ height: '100%', background: c.colour, borderRadius: 2 }}
+                    style={{ height: '100%', background: fillColor, borderRadius: 3 }}
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, pct)}%` }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                    animate={{ width: `${fillPct}%` }}
+                    transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                   />
                 </div>
+
+                {/* Amber tip if over budget */}
+                {overBudget && (
+                  <p style={{ fontSize: 10, color: '#f59e0b', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.4 }}>
+                    ⚠ {(pctOfIncome - rec).toFixed(1)}% over the recommended {rec}% ceiling
+                  </p>
+                )}
               </div>
-            )
-          })}
-
-          <div style={{ borderTop: '1px solid rgba(196,168,130,0.12)', paddingTop: 8, display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Total</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-              {formatSGD(totalExpenses)}
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Pie chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.28 }}
-          className="rounded-2xl border p-6"
-          style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
-        >
-          <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            Spending Distribution
-          </p>
-          <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
-            Each slice shows your monthly spend in that category. Hover for exact amounts.
-          </p>
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              <Pie data={pieData} dataKey="amount" nameKey="label" cx="50%" cy="50%" outerRadius={95} innerRadius={48} paddingAngle={2}>
-                {pieData.map((c) => <Cell key={c.key} fill={c.colour} />)}
-              </Pie>
-              <Tooltip
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                formatter={(value: any, name: any) => [formatSGD(Number(value)), String(name ?? '')]}
-                contentStyle={{ background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, color: '#fdf8f2' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </motion.div>
+            </motion.div>
+          )
+        })}
       </div>
+
+      {/* Total bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 18px', background: 'rgba(122,28,46,0.08)', border: '1px solid rgba(196,168,130,0.12)', borderRadius: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(253,248,242,0.6)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Total monthly expenses</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#fdf8f2', fontFamily: "'Playfair Display', serif" }}>{formatSGD(totalExpenses)}</span>
+      </div>
+
+      {/* Spending Distribution pie — stays below cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="rounded-2xl border p-6"
+        style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
+      >
+        <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Spending Distribution
+        </p>
+        <p className="text-xs mb-4" style={{ color: 'rgba(253,248,242,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          Each slice shows your monthly spend in that category. Hover for exact amounts.
+        </p>
+        <ResponsiveContainer width="100%" height={260}>
+          <PieChart>
+            <Pie data={pieData} dataKey="amount" nameKey="label" cx="50%" cy="50%" outerRadius={95} innerRadius={48} paddingAngle={2} isAnimationActive>
+              {pieData.map((c) => <Cell key={c.key} fill={c.colour} />)}
+            </Pie>
+            <Tooltip
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: any, name: any) => [formatSGD(Number(value)), String(name ?? '')]}
+              contentStyle={{ background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, color: '#fdf8f2' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </motion.div>
 
       {/* Step 3 — Savings Efficiency */}
       <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -16px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>

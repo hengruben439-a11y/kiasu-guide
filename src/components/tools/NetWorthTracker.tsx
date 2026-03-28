@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { animate } from 'framer-motion'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 
@@ -15,33 +17,20 @@ interface Props {
   userId: string
 }
 
-// ─── Count-up hook (rAF-based, not framer-motion) ────────────────────────────
-function useCountUp(target: number, duration = 1400) {
+// ─── Count-up hook (Framer Motion animate) ────────────────────────────────────
+function useCountUp(target: number, duration = 1.4) {
   const [value, setValue] = useState(0)
-  const raf = useRef<number | null>(null)
-  const start = useRef<number | null>(null)
-  const prev = useRef(0)
+  const prevRef = useRef(0)
 
   useEffect(() => {
-    const from = prev.current
-    start.current = null
-    if (raf.current) cancelAnimationFrame(raf.current)
-
-    const step = (timestamp: number) => {
-      if (start.current === null) start.current = timestamp
-      const elapsed = timestamp - start.current
-      const progress = Math.min(elapsed / duration, 1)
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(from + (target - from) * eased))
-      if (progress < 1) {
-        raf.current = requestAnimationFrame(step)
-      } else {
-        prev.current = target
-      }
-    }
-    raf.current = requestAnimationFrame(step)
-    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
+    const from = prevRef.current
+    const controls = animate(from, target, {
+      duration,
+      ease: [0.25, 0.1, 0.25, 1],
+      onUpdate: (v) => setValue(Math.round(v)),
+      onComplete: () => { prevRef.current = target },
+    })
+    return controls.stop
   }, [target, duration])
 
   return value

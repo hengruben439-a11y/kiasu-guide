@@ -763,6 +763,21 @@ export default function RetirementAnalytics({
   const verdictColor = d.actualFundedPct >= 1 ? '#10b981' : d.actualFundedPct >= 0.75 ? '#f59e0b' : '#ef4444'
   const verdictText = d.actualFundedPct >= 1 ? 'On Track' : d.actualFundedPct >= 0.75 ? 'At Risk' : 'Off Track'
 
+  // Augment chartData with CPF NAV trajectory (pre-retirement only)
+  const chartDataWithCpf = useMemo(() => {
+    if (!includeCpf || (cpfOa <= 0 && cpfSa <= 0)) return d.chartData
+    return d.chartData.map((pt) => {
+      const yr = pt.age - currentAge
+      if (pt.age < d.effectiveRetAge) {
+        const cpfNAV = Math.round(
+          cpfOa * Math.pow(1.025, yr) + (cpfSa + cpfMa) * Math.pow(1.04, yr)
+        )
+        return { ...pt, cpfNAV }
+      }
+      return { ...pt, cpfNAV: null }
+    })
+  }, [d.chartData, d.effectiveRetAge, cpfOa, cpfSa, cpfMa, currentAge, includeCpf])
+
   // AI context
   const aiContext = `
 Retirement plan for age ${currentAge}. Retiring at ${d.effectiveRetAge} (${d.effectiveYears} yrs).
@@ -1249,7 +1264,7 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
         </div>
 
         <ResponsiveContainer width="100%" height={320}>
-          <ComposedChart data={d.chartData} margin={{ top: 4, right: 80, bottom: 0, left: 0 }}>
+          <ComposedChart data={chartDataWithCpf} margin={{ top: 4, right: 80, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id="gradBase" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#9b2040" stopOpacity={0.25} />
@@ -1258,6 +1273,10 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
               <linearGradient id="gradOpt" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
                 <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradCpf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.20} />
+                <stop offset="100%" stopColor="#a78bfa" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(196,168,130,0.05)" />
@@ -1277,9 +1296,13 @@ ${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sust
             />
             <Tooltip content={<ChartTooltip />} />
             <ReferenceLine yAxisId="left" x={d.effectiveRetAge} stroke="rgba(196,168,130,0.25)" strokeDasharray="4 4" label={{ value: 'Retire', fill: 'rgba(196,168,130,0.5)', fontSize: 10, position: 'top' }} />
-            <Area yAxisId="left" type="monotone" dataKey="optimistic" name="Optimistic" fill="url(#gradOpt)" stroke="#10b981" strokeWidth={1.5} dot={false} />
-            <Area yAxisId="left" type="monotone" dataKey="base" name="Base" fill="url(#gradBase)" stroke="#9b2040" strokeWidth={2} dot={false} />
-            <Line yAxisId="left" type="monotone" dataKey="pessimistic" name="Pessimistic" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="3 3" />
+            {/* CPF NAV growth trajectory — purple area, pre-retirement only */}
+            {includeCpf && (cpfOa > 0 || cpfSa > 0) && (
+              <Area yAxisId="left" type="monotone" dataKey="cpfNAV" name="CPF NAV" fill="url(#gradCpf)" stroke="#a78bfa" strokeWidth={1.5} dot={false} connectNulls={false} isAnimationActive={true} animationDuration={900} />
+            )}
+            <Area yAxisId="left" type="monotone" dataKey="optimistic" name="Optimistic" fill="url(#gradOpt)" stroke="#10b981" strokeWidth={1.5} dot={false} isAnimationActive={true} animationDuration={1000} />
+            <Area yAxisId="left" type="monotone" dataKey="base" name="Base" fill="url(#gradBase)" stroke="#9b2040" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={1000} />
+            <Line yAxisId="left" type="monotone" dataKey="pessimistic" name="Pessimistic" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="3 3" isAnimationActive={true} animationDuration={1000} />
             <Line yAxisId="left" type="monotone" dataKey="required" name="Required corpus" stroke="#c4a882" strokeWidth={1.5} dot={false} strokeDasharray="6 3" connectNulls={false} />
             {/* Income lines — right axis, post-retirement only */}
             <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name={retirementMode === 'dividend' ? 'Dividend income' : 'Drawdown'} stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
