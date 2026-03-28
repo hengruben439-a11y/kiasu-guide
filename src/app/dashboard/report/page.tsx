@@ -399,7 +399,7 @@ export default async function ReportPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
 
               <div>
-                <p style={eyebrow}>Projected Corpus at Age {retAge}</p>
+                <p style={eyebrow}>Projected Savings at Age {retAge}</p>
                 <p style={{
                   fontFamily: "'Playfair Display', serif",
                   fontSize: 30,
@@ -415,7 +415,7 @@ export default async function ReportPage() {
               </div>
 
               <div>
-                <p style={eyebrow}>Required Corpus (Inflation-Adjusted)</p>
+                <p style={eyebrow}>Required Savings (Inflation-Adjusted)</p>
                 <p style={{
                   fontFamily: "'Playfair Display', serif",
                   fontSize: 30,
@@ -520,7 +520,7 @@ export default async function ReportPage() {
         </div>
 
         {/* ── Session Summary ───────────────────────────────────────────────── */}
-        <div style={{ marginBottom: 28 }} className="no-print">
+        <div style={{ marginBottom: 28, background: '#0a0605', borderRadius: 16, padding: '24px 28px', border: '1px solid rgba(196,168,130,0.15)' }} className="no-print">
           <SessionSummary
             userId={user!.id}
             profile={{

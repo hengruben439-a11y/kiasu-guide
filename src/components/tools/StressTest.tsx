@@ -811,7 +811,32 @@ export default function StressTest({
         </AnimatePresence>
       </GlassCard>
 
-      {/* ── Step 6: Year-by-Year Table ───────────────────────────────────────── */}
+      {/* ── Step 6: How We Calculate Your Runway ─────────────────────────────── */}
+      {events.length > 0 && (
+        <GlassCard>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px' }}>How We Calculate</p>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#fdf8f2', margin: '0 0 16px' }}>Your Financial Runway</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+            {[
+              { step: '1', label: 'Starting Resources', value: fmtSGD(effectiveSavings), desc: `Liquid savings${includeCpf ? ' + CPF' : ''} + portfolio − liabilities`, color: '#10b981' },
+              { step: '2', label: 'Monthly Burn Rate', value: `${fmtSGD(monthly_expenses)}/mo`, desc: `Expenses × inflation (${(inflation_rate * 100).toFixed(1)}% p.a.)`, color: '#ef4444' },
+              { step: '3', label: 'Insurance Support', value: fmtSGD(totalInsuranceHelp), desc: 'Lump sums + monthly benefits + multi-pay claims', color: '#a78bfa' },
+              { step: '4', label: 'Financial Runway', value: withInsuranceDepletionAge ? `Age ${withInsuranceDepletionAge}` : 'Indefinite', desc: '(Starting + Insurance) ÷ Monthly Burn', color: '#c4a882' },
+            ].map(s => (
+              <div key={s.step} style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(10,6,5,0.3)', border: '1px solid rgba(196,168,130,0.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: `${s.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: s.color, fontFamily: "'Cabinet Grotesk', sans-serif", flexShrink: 0 }}>{s.step}</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(253,248,242,0.7)', fontFamily: "'Cabinet Grotesk', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</span>
+                </div>
+                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, color: s.color, margin: '0 0 4px' }}>{s.value}</p>
+                <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.4)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1.4 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      )}
+
+      {/* ── Step 7: Year-by-Year Table ───────────────────────────────────────── */}
       {events.length > 0 && (
         <GlassCard style={{ padding: 0, overflow: 'hidden' }}>
           <div onClick={() => setShowTable(!showTable)} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: showTable ? '1px solid rgba(196,168,130,0.08)' : 'none' }}>
