@@ -12,7 +12,7 @@ export default async function RetirementPage() {
   const [{ data: profile }, { data: benefits }] = await Promise.all([
     supabase
       .from('client_profiles')
-      .select('preferred_name, dob, monthly_income, monthly_expenses, liquid_savings, cpf_oa, cpf_sa, cpf_ma, monthly_investment, retirement_age, desired_monthly_income, dividend_yield, inflation_rate, target_return_rate')
+      .select('preferred_name, dob, monthly_income, monthly_expenses, liquid_savings, portfolio_value, cpf_oa, cpf_sa, cpf_ma, monthly_investment, retirement_age, desired_monthly_income, dividend_yield, inflation_rate, target_return_rate')
       .eq('user_id', user!.id)
       .single<Partial<ClientProfile>>(),
     supabase.from('benefit_blocks').select('benefit_type, coverage, enabled').eq('user_id', user!.id),
@@ -43,7 +43,7 @@ export default async function RetirementPage() {
       <RetirementAnalytics
         currentAge={age ?? 35}
         monthlyIncome={Number(profile?.monthly_income ?? 0)}
-        currentSavings={Number(profile?.liquid_savings ?? 0)}
+        currentSavings={Number(profile?.liquid_savings ?? 0) + Number(profile?.portfolio_value ?? 0)}
         monthlyInvestment={Number(profile?.monthly_investment ?? 0)}
         retirementAge={Number(profile?.retirement_age ?? 65)}
         desiredMonthlyIncome={Number(profile?.desired_monthly_income ?? 5000)}

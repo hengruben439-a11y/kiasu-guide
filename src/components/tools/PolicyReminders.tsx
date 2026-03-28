@@ -92,17 +92,17 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '9px 12px',
-    border: '1.5px solid rgba(42,31,26,0.15)',
-    borderRadius: 8, fontSize: 13, color: '#2a1f1a',
-    background: '#fdf8f2', outline: 'none',
+    border: '1.5px solid rgba(196,168,130,0.2)',
+    borderRadius: 8, fontSize: 13, color: '#fdf8f2',
+    background: 'rgba(10,6,5,0.6)', outline: 'none',
     fontFamily: "'Cabinet Grotesk', sans-serif",
     boxSizing: 'border-box',
   }
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid rgba(42,31,26,0.07)',
+      background: 'rgba(122,28,46,0.06)',
+      border: '1px solid rgba(196,168,130,0.15)',
       borderRadius: 14,
       padding: '24px 24px 20px',
     }}>
@@ -118,7 +118,7 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
           </p>
           <p style={{
             fontFamily: "'Playfair Display', serif", fontSize: 18,
-            fontWeight: 700, color: '#2a1f1a', margin: 0,
+            fontWeight: 700, color: '#fdf8f2', margin: 0,
           }}>
             Upcoming Renewals &amp; Reviews
           </p>
@@ -127,8 +127,8 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
           onClick={() => setShowForm((v) => !v)}
           style={{
             padding: '8px 16px', borderRadius: 8, cursor: 'pointer',
-            background: showForm ? '#fdf8f2' : '#7a1c2e',
-            color: showForm ? '#7a1c2e' : '#fff',
+            background: showForm ? 'rgba(122,28,46,0.08)' : '#9b2040',
+            color: showForm ? '#c4a882' : '#fdf8f2',
             border: `1.5px solid ${showForm ? 'rgba(122,28,46,0.3)' : 'transparent'}`,
             fontSize: 13, fontWeight: 600,
             fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -191,7 +191,7 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
             disabled={isPending}
             style={{
               padding: '9px 20px', borderRadius: 8, cursor: 'pointer',
-              background: '#7a1c2e', color: '#fff',
+              background: '#9b2040', color: '#fdf8f2',
               border: 'none', fontSize: 13, fontWeight: 600,
               fontFamily: "'Cabinet Grotesk', sans-serif",
               opacity: isPending ? 0.6 : 1,
@@ -206,9 +206,9 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
       {active.length === 0 ? (
         <div style={{
           padding: '32px 20px', textAlign: 'center',
-          border: '1px dashed rgba(42,31,26,0.12)', borderRadius: 10,
+          border: '1px dashed rgba(196,168,130,0.15)', borderRadius: 10,
         }}>
-          <p style={{ fontSize: 14, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+          <p style={{ fontSize: 14, color: 'rgba(253,248,242,0.4)', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             No upcoming reminders. Add one to track policy renewals.
           </p>
         </div>
@@ -224,13 +224,13 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
                   display: 'flex', alignItems: 'center', gap: 14,
                   padding: '14px 16px', borderRadius: 10,
                   background: bg,
-                  border: `1px solid rgba(42,31,26,0.08)`,
+                  border: `1px solid rgba(196,168,130,0.12)`,
                 }}
               >
                 {/* Date badge */}
                 <div style={{
                   minWidth: 52, textAlign: 'center',
-                  background: '#fff', border: `1.5px solid ${text}`,
+                  background: 'rgba(10,6,5,0.4)', border: `1.5px solid ${text}`,
                   borderRadius: 8, padding: '6px 4px',
                 }}>
                   <p style={{ fontSize: 11, color: text, fontWeight: 700, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif", lineHeight: 1 }}>
@@ -242,7 +242,7 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{
-                    fontSize: 14, fontWeight: 700, color: '#2a1f1a',
+                    fontSize: 14, fontWeight: 700, color: '#fdf8f2',
                     margin: '0 0 2px', fontFamily: "'Cabinet Grotesk', sans-serif",
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
@@ -262,8 +262,8 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
                     title="Dismiss"
                     style={{
                       padding: '6px 12px', borderRadius: 7, cursor: 'pointer',
-                      background: 'rgba(42,31,26,0.06)', color: '#a89070',
-                      border: '1px solid rgba(42,31,26,0.1)',
+                      background: 'rgba(196,168,130,0.06)', color: '#a89070',
+                      border: '1px solid rgba(196,168,130,0.15)',
                       fontSize: 12, fontWeight: 600,
                       fontFamily: "'Cabinet Grotesk', sans-serif",
                     }}

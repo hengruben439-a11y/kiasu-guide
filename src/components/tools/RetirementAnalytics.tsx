@@ -787,8 +787,9 @@ export default function RetirementAnalytics({
     return d.chartData.map((pt) => {
       const yr = pt.age - currentAge
       const isRetirement = pt.age >= d.effectiveRetAge
+      // MA is healthcare-only — exclude from retirement NAV trajectory
       const cpfNAV = (includeCpf && (cpfOa > 0 || cpfSa > 0) && !isRetirement)
-        ? Math.round(cpfOa * Math.pow(1.025, yr) + (cpfSa + cpfMa) * Math.pow(1.04, yr))
+        ? Math.round(cpfOa * Math.pow(1.025, yr) + cpfSa * Math.pow(1.04, yr))
         : null
       // Per-scenario dividend income (for G5)
       const optimisticIncome = (isRetirement && pt.optimistic != null)

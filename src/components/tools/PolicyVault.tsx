@@ -127,16 +127,16 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid rgba(42,31,26,0.07)',
+      background: 'rgba(122,28,46,0.06)',
+      border: '1px solid rgba(196,168,130,0.15)',
       borderRadius: 16,
       overflow: 'hidden',
     }}>
       {/* Header */}
       <div style={{
         padding: '20px 24px',
-        borderBottom: '1px solid rgba(42,31,26,0.06)',
-        background: '#fdf8f2',
+        borderBottom: '1px solid rgba(196,168,130,0.08)',
+        background: 'rgba(10,6,5,0.3)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -145,7 +145,7 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Policy Vault
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#2a1f1a', margin: 0 }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#fdf8f2', margin: 0 }}>
             Your Documents
           </p>
         </div>
@@ -165,9 +165,9 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
               style={{
                 padding: '6px 14px',
                 borderRadius: 20,
-                border: `1px solid ${selectedType === t.value ? '#7a1c2e' : 'rgba(42,31,26,0.12)'}`,
+                border: `1px solid ${selectedType === t.value ? '#9b2040' : 'rgba(196,168,130,0.15)'}`,
                 background: selectedType === t.value ? 'rgba(122,28,46,0.07)' : 'transparent',
-                color: selectedType === t.value ? '#7a1c2e' : '#a89070',
+                color: selectedType === t.value ? '#c4a882' : 'rgba(253,248,242,0.5)',
                 fontSize: 12, fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -184,10 +184,10 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
           onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          animate={{ borderColor: dragOver ? '#7a1c2e' : 'rgba(42,31,26,0.12)', scale: dragOver ? 1.01 : 1 }}
+          animate={{ borderColor: dragOver ? '#7a1c2e' : 'rgba(196,168,130,0.2)', scale: dragOver ? 1.01 : 1 }}
           transition={{ duration: 0.15 }}
           style={{
-            border: '2px dashed rgba(42,31,26,0.12)',
+            border: '2px dashed rgba(196,168,130,0.2)',
             borderRadius: 12,
             padding: '28px 20px',
             textAlign: 'center',
@@ -220,7 +220,7 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
           ) : (
             <>
               <p style={{ fontSize: 22, margin: '0 0 8px' }}>📎</p>
-              <p style={{ fontSize: 13, fontWeight: 600, color: '#2a1f1a', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#fdf8f2', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Drop a file here, or click to browse
               </p>
               <p style={{ fontSize: 11, color: '#a89070', margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -266,8 +266,8 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '12px 16px',
-                      background: '#fdf8f2',
-                      border: '1px solid rgba(42,31,26,0.07)',
+                      background: 'rgba(10,6,5,0.3)',
+                      border: '1px solid rgba(196,168,130,0.1)',
                       borderRadius: 10,
                       gap: 12,
                     }}
@@ -282,7 +282,7 @@ export default function PolicyVault({ userId, initialDocuments }: Props) {
                       </span>
                       <div style={{ minWidth: 0 }}>
                         <p style={{
-                          fontSize: 12, fontWeight: 600, color: '#2a1f1a', margin: '0 0 2px',
+                          fontSize: 12, fontWeight: 600, color: '#fdf8f2', margin: '0 0 2px',
                           fontFamily: "'Cabinet Grotesk', sans-serif",
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>

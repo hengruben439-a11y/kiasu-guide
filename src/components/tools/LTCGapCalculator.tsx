@@ -137,9 +137,10 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
   const chartData = useMemo(() => buildChartData(userCoverage, durationYears), [userCoverage, durationYears])
 
   const absMonthlyGap = Math.abs(monthlyGap)
-  const animatedGap = useCountUp(absMonthlyGap, 1400)
-  const isSurplus = monthlyGap < 0
-  const isFullyCovered = monthlyGap === 0
+  const absTotalGap = Math.abs(totalGap)
+  const animatedTotalGap = useCountUp(absTotalGap, 1400)
+  const isSurplus = totalGap < 0
+  const isFullyCovered = totalGap === 0
   const gapReduction = DEFAULT_CARESHIELD_MONTHLY < userCoverage && AVG_LTC_MONTHLY > DEFAULT_CARESHIELD_MONTHLY
     ? Math.round(((userCoverage - DEFAULT_CARESHIELD_MONTHLY) / (AVG_LTC_MONTHLY - DEFAULT_CARESHIELD_MONTHLY)) * 100)
     : 0
@@ -197,7 +198,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             marginBottom: '0.75rem',
           }}
         >
-          {isSurplus ? 'Monthly Coverage Surplus' : isFullyCovered ? 'Monthly Gap' : 'Monthly Protection Gap'}
+          {isSurplus ? 'Total Coverage Surplus' : isFullyCovered ? 'Fully Covered' : 'Total Protection Gap'}
         </p>
         <div
           style={{
@@ -209,7 +210,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             marginBottom: '0.75rem',
           }}
         >
-          {isSurplus ? '+' : ''}S${animatedGap.toLocaleString('en-SG')}
+          {isSurplus ? '+' : ''}S${animatedTotalGap.toLocaleString('en-SG')}
           <span
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -219,7 +220,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
               marginLeft: '0.4rem',
             }}
           >
-            {isSurplus ? 'surplus/mo' : isFullyCovered ? 'fully covered' : 'per month'}
+            over {durationYears} years
           </span>
         </div>
         <p
@@ -227,14 +228,27 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             fontFamily: "'Cabinet Grotesk', sans-serif",
             fontSize: '1rem',
             color: 'rgba(253,248,242,0.55)',
+            margin: '0 0 4px',
+          }}
+        >
+          {monthlyGap > 0
+            ? `Monthly shortfall: S$${absMonthlyGap.toLocaleString('en-SG')}/mo — grows with 4% inflation each year.`
+            : monthlyGap < 0
+            ? `Monthly surplus of S$${absMonthlyGap.toLocaleString('en-SG')}/mo today, but LTC costs inflate at 4%/yr.`
+            : 'Coverage matches average LTC costs today, but costs inflate at 4%/yr.'
+          }
+        </p>
+        <p
+          style={{
+            fontFamily: "'Cabinet Grotesk', sans-serif",
+            fontSize: '0.85rem',
+            color: 'rgba(253,248,242,0.35)',
             margin: 0,
           }}
         >
           {isSurplus
-            ? 'Your LTC coverage exceeds average care costs.'
-            : isFullyCovered
-            ? 'Your LTC coverage matches average care costs.'
-            : 'The monthly gap between average LTC costs and your coverage.'}
+            ? `Over ${durationYears} years, your total coverage (${formatSGD(coverageTotal)}) exceeds inflated LTC costs (${formatSGD(TOTAL_LTC_COST)}).`
+            : `Total care cost: ${formatSGD(TOTAL_LTC_COST)} vs your coverage: ${formatSGD(coverageTotal)} over ${durationYears} years.`}
         </p>
       </motion.div>
 
