@@ -9,17 +9,14 @@ interface Props {
   profile: Partial<ClientProfile> | null
 }
 
-type Tab = 'income' | 'savings' | 'cpf' | 'investments' | 'retirement' | 'liabilities' | 'goals' | 'networth'
+type Tab = 'income' | 'assets' | 'cpf' | 'investments' | 'retirement'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'income', label: 'Income & Expenses', emoji: '💼' },
-  { id: 'savings', label: 'Savings & Assets', emoji: '🏦' },
+  { id: 'assets', label: 'Assets & Liabilities', emoji: '🏦' },
   { id: 'cpf', label: 'CPF', emoji: '📊' },
   { id: 'investments', label: 'Investments', emoji: '📈' },
   { id: 'retirement', label: 'Retirement Goals', emoji: '🎯' },
-  { id: 'liabilities', label: 'Liabilities', emoji: '💳' },
-  { id: 'goals', label: 'Goals', emoji: '🏁' },
-  { id: 'networth', label: 'Net Worth', emoji: '⚖️' },
 ]
 
 // ─── Net Worth ────────────────────────────────────────────────────────────────
@@ -742,7 +739,7 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
   return (
     <div style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
       {/* Tab bar */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.5)', overflowX: 'auto' as const }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '1px solid rgba(196,168,130,0.15)', background: 'rgba(10,6,5,0.5)' }}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -801,9 +798,10 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
           </div>
         )}
 
-        {/* Savings & Assets */}
-        {activeTab === 'savings' && (
+        {/* Assets & Liabilities */}
+        {activeTab === 'assets' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Assets</p>
             <Field labelText="Liquid savings" hint="Cash and investments accessible within 30 days">
               <SGD value={form.liquid_savings} onChange={(v) => set('liquid_savings', v)} placeholder="50,000" />
             </Field>
@@ -825,6 +823,9 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
                 ))}
               </div>
             </div>
+            <div style={{ height: 1, background: 'rgba(196,168,130,0.12)', margin: '8px 0' }} />
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Liabilities</p>
+            <LiabilitiesTab userId={userId} />
           </div>
         )}
 
@@ -868,7 +869,7 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
           </div>
         )}
 
-        {/* Retirement */}
+        {/* Retirement Goals */}
         {activeTab === 'retirement' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <Field labelText="Target retirement age">
@@ -880,22 +881,10 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
             <Field labelText="Expected inflation rate" hint="Singapore avg ~3%. Enter as decimal: 0.03">
               <input type="number" step={0.005} min={0.01} max={0.1} value={form.inflation_rate} onChange={(e) => set('inflation_rate', e.target.value)} style={input} />
             </Field>
+            <div style={{ height: 1, background: 'rgba(196,168,130,0.12)', margin: '8px 0' }} />
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Financial Goals</p>
+            <GoalsTab userId={userId} />
           </div>
-        )}
-
-        {/* Liabilities */}
-        {activeTab === 'liabilities' && (
-          <LiabilitiesTab userId={userId} />
-        )}
-
-        {/* Goals */}
-        {activeTab === 'goals' && (
-          <GoalsTab userId={userId} />
-        )}
-
-        {/* Net Worth */}
-        {activeTab === 'networth' && (
-          <NetWorthTab userId={userId} />
         )}
 
       </div>

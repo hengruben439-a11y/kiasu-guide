@@ -637,7 +637,7 @@ export default function RetirementAnalytics({
       .reduce((sum, s) => sum + s.monthlyAmount, 0)
     const passiveForCalc = passiveMode === 'goal' ? passiveAtUserRetAge : 0
 
-    // Required investment corpus for the user's locked inputs
+    // Required retirement savings for the user's locked inputs
     const reqForUserYears = requiredInvestmentCorpus(
       desiredMonthly, inflation, userYears, dividendYield,
       cpfOa, cpfSa, includeCpf, passiveForCalc,
@@ -804,13 +804,13 @@ export default function RetirementAnalytics({
 Retirement plan for age ${currentAge}. Retiring at ${d.effectiveRetAge} (${d.effectiveYears} yrs).
 Goal: S$${Math.round(desiredMonthly).toLocaleString()}/mo today → S$${Math.round(d.nominalAtRetirement).toLocaleString()} nominal.
 Inflation: ${fmtPct(inflation)}. Dividend yield: ${fmtPct(dividendYield)}.
-Funded: ${Math.round(d.actualFundedPct * 100)}% (actual inputs). Required corpus: ${fmtFull(d.effectiveReq)}. Projected: ${fmtFull(d.effectiveProjected)}.
+Funded: ${Math.round(d.actualFundedPct * 100)}% (actual inputs). Required savings: ${fmtFull(d.effectiveReq)}. Projected: ${fmtFull(d.effectiveProjected)}.
 Tri-lock (solving for ${solvedFor}): rate ${fmtPct(d.effectiveRate)}, retire age ${d.effectiveRetAge}, invest ${fmtFull(d.effectiveMonthly)}/mo.
 CPF Life: S$${Math.round(d.cpfMonthlyAtRetirement).toLocaleString()}/mo. Mode: ${retirementMode}.
 ${retirementMode === 'dividend' ? `Fund: ${fmtPct(fundTotalReturn)} total return, ${fmtPct(fundFees)} fees, ${fmtPct(d.netGrowthRate)} net NAV growth.` : `Drawdown: S$${Math.round(drawdownMonthly).toLocaleString()}/mo.`}
 Total passive income at retirement: S$${Math.round(d.totalIncomeAtRetirement).toLocaleString()}/mo.
 Income (S$${Math.round(monthlyIncome).toLocaleString()}/mo), replacement ${Math.round(d.incomeReplacementRate * 100)}%.
-${d.depletionAge ? `Corpus depletes ~age ${d.depletionAge}.` : 'Corpus self-sustaining.'}
+${d.depletionAge ? `Savings deplete ~age ${d.depletionAge}.` : 'Your portfolio grows faster than you withdraw — it lasts indefinitely.'}
   `.trim()
 
   return (

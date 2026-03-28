@@ -47,6 +47,7 @@ interface Props {
   inflation_rate: number
   currentAge: number
   benefitBlocks?: BenefitBlock[]
+  cpf_toggle?: boolean
 }
 
 // ── Preset definitions ────────────────────────────────────────────────────────
@@ -122,10 +123,15 @@ function simulate(
   inflationRate: number,
   events: ScenarioEvent[],
   withInsurance: boolean,
+  benefitBlocks: BenefitBlock[] = [],
   simYears = 50,
 ): SimYear[] {
   const results: SimYear[] = []
   let liquid = liquidSavings
+
+  // Multi-pay CI tracking: {eventId → nextClaimAge}
+  const multipayBlocks = benefitBlocks.filter(b => b.enabled && b.payout_mode === 'multipay')
+  const multipayTracker = new Map<string, { claimsUsed: number; nextClaimAge: number }>()
 
   for (let yr = 0; yr < simYears; yr++) {
     const age = startAge + yr
@@ -151,9 +157,30 @@ function simulate(
 
     let insuranceReceived = 0
     if (withInsurance) {
+      // Standard lump sum + monthly from event config
       const lumpSum = activeEvents.filter(e => e.age === age).reduce((s, e) => s + e.coverageApplied, 0)
       const monthlyBenefits = activeEvents.reduce((s, e) => s + e.monthlyBenefit * 12, 0)
       insuranceReceived = lumpSum + monthlyBenefits
+
+      // Multi-pay CI waterfall: additional claims from multipay policies
+      const ciEvents = activeEvents.filter(e => e.type === 'eci' || e.type === 'aci')
+      if (ciEvents.length > 0 && multipayBlocks.length > 0) {
+        for (const block of multipayBlocks) {
+          const key = block.id
+          if (!multipayTracker.has(key)) {
+            // First claim at event onset (already included in coverageApplied)
+            multipayTracker.set(key, { claimsUsed: 1, nextClaimAge: age + 1 })
+          }
+          const tracker = multipayTracker.get(key)!
+          if (tracker.claimsUsed < 3 && age >= tracker.nextClaimAge) {
+            // Subsequent multi-pay claim (25-33% of coverage per claim)
+            const claimPct = tracker.claimsUsed === 1 ? 0.25 : 0.33
+            insuranceReceived += Math.round(block.coverage * claimPct)
+            tracker.claimsUsed++
+            tracker.nextClaimAge = age + 1 // 1-year cooldown
+          }
+        }
+      }
     }
 
     const investmentAnnual = incomeAnnual > expensesAnnual ? monthlyInvestment * 12 : 0
@@ -307,10 +334,13 @@ export default function StressTest({
   cpf_oa, cpf_sa, cpf_ma,
   monthly_investment, inflation_rate, currentAge,
   benefitBlocks = [],
+  cpf_toggle = true,
 }: Props) {
+  const [includeCpf, setIncludeCpf] = useState(cpf_toggle)
+
   const effectiveSavings = useMemo(
-    () => liquid_savings + cpf_oa + cpf_sa + cpf_ma + portfolio_value - total_liabilities,
-    [liquid_savings, cpf_oa, cpf_sa, cpf_ma, portfolio_value, total_liabilities]
+    () => liquid_savings + (includeCpf ? cpf_oa + cpf_sa + cpf_ma : 0) + portfolio_value - total_liabilities,
+    [liquid_savings, cpf_oa, cpf_sa, cpf_ma, portfolio_value, total_liabilities, includeCpf]
   )
 
   const [events, setEvents] = useState<ScenarioEvent[]>([])
@@ -320,16 +350,16 @@ export default function StressTest({
   const [showAllYears, setShowAllYears] = useState(false)
 
   const baseline = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [], false),
-  [monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [], false, benefitBlocks),
+  [monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge, benefitBlocks])
 
   const stressedNoInsurance = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, false),
-  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, false, benefitBlocks),
+  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge, benefitBlocks])
 
   const stressedWithInsurance = useMemo(() =>
-    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, true),
-  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge])
+    simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, events, true, benefitBlocks),
+  [events, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, currentAge, benefitBlocks])
 
   const chartData = useMemo(() =>
     baseline.map((b, i) => {
@@ -384,8 +414,8 @@ export default function StressTest({
     if (events.length === 0) return []
     const baseDepletion = baseline.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
     return events.map(event => {
-      const soloNoIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], false)
-      const soloWithIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], true)
+      const soloNoIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], false, benefitBlocks)
+      const soloWithIns = simulate(currentAge, monthly_income, monthly_expenses, effectiveSavings, monthly_investment, inflation_rate, [event], true, benefitBlocks)
       const depletionAge = soloNoIns.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
       const depletionAgeWithIns = soloWithIns.find(y => y.liquidAssets === 0)?.age ?? currentAge + 90
       const runwayYears = depletionAge - currentAge
@@ -715,6 +745,17 @@ export default function StressTest({
                       {view === 'networth' ? 'Net Worth View' : 'Cash Flow View'}
                     </button>
                   ))}
+                  <button onClick={e => { e.stopPropagation(); setIncludeCpf(!includeCpf) }}
+                    style={{
+                      marginLeft: 'auto', padding: '5px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                      background: includeCpf ? 'rgba(139,92,246,0.15)' : 'rgba(196,168,130,0.06)',
+                      color: includeCpf ? '#a78bfa' : 'rgba(253,248,242,0.45)',
+                      border: `1px solid ${includeCpf ? 'rgba(139,92,246,0.3)' : 'rgba(196,168,130,0.12)'}`,
+                      fontFamily: "'Cabinet Grotesk', sans-serif", transition: 'all 0.15s',
+                    }}
+                  >
+                    {includeCpf ? 'CPF Included' : 'CPF Excluded'}
+                  </button>
                 </div>
 
                 <ResponsiveContainer width="100%" height={320}>

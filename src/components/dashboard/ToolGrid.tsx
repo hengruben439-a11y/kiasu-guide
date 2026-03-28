@@ -54,7 +54,7 @@ const tools: Tool[] = [
   },
   {
     title: 'Retirement Analytics',
-    description: 'Required corpus, projected growth, and the Trinity solver — fix any two variables.',
+    description: 'Retirement savings target, projected growth, and the Trinity solver — fix any two variables.',
     href: '/dashboard/retirement',
     emoji: '🏖️',
     accent: '#0369a1',

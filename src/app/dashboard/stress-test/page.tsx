@@ -57,9 +57,10 @@ export default async function StressTestPage() {
         liquid_savings={Number(profile?.liquid_savings ?? 0)}
         portfolio_value={Number(profile?.portfolio_value ?? 0)}
         total_liabilities={Number(profile?.total_liabilities ?? 0)}
-        cpf_oa={profile?.cpf_toggle !== false ? Number(profile?.cpf_oa ?? 0) : 0}
-        cpf_sa={profile?.cpf_toggle !== false ? Number(profile?.cpf_sa ?? 0) : 0}
-        cpf_ma={profile?.cpf_toggle !== false ? Number(profile?.cpf_ma ?? 0) : 0}
+        cpf_oa={Number(profile?.cpf_oa ?? 0)}
+        cpf_sa={Number(profile?.cpf_sa ?? 0)}
+        cpf_ma={Number(profile?.cpf_ma ?? 0)}
+        cpf_toggle={profile?.cpf_toggle !== false}
         monthly_investment={Number(profile?.monthly_investment ?? 0)}
         inflation_rate={Number(profile?.inflation_rate ?? 0.03)}
         currentAge={currentAge}

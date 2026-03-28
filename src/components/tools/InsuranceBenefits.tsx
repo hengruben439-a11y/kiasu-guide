@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import AIInsightPanel from '@/components/ui/AIInsightPanel'
@@ -20,6 +20,14 @@ interface BenefitBlock {
   expiry_age: number | null
   renewal_date: string | null
   enabled: boolean
+}
+
+interface PolicyRider {
+  id: string
+  benefit_block_id: string
+  name: string
+  coverage: number
+  annual_premium: number
 }
 
 interface Props {
@@ -322,11 +330,23 @@ function PolicyCard({
   block,
   onDelete,
   onToggle,
+  riders = [],
+  onAddRider,
+  onDeleteRider,
+  userId,
 }: {
   block: BenefitBlock
   onDelete: (id: string) => void
   onToggle: (id: string, enabled: boolean) => void
+  riders?: PolicyRider[]
+  onAddRider?: (blockId: string, rider: Omit<PolicyRider, 'id' | 'benefit_block_id'>) => void
+  onDeleteRider?: (riderId: string) => void
+  userId?: string
 }) {
+  const [showAddRider, setShowAddRider] = useState(false)
+  const [riderName, setRiderName] = useState('')
+  const [riderCoverage, setRiderCoverage] = useState('')
+  const [riderPremium, setRiderPremium] = useState('')
   const payoutLabel =
     block.payout_mode === 'lump_sum'
       ? 'Lump Sum'
@@ -438,6 +458,44 @@ function PolicyCard({
           </span>
         )}
       </div>
+
+      {/* Riders */}
+      {riders.length > 0 && (
+        <div style={{ borderTop: '1px solid rgba(196,168,130,0.08)', paddingTop: 8 }}>
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.5)', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Riders</p>
+          {riders.map(r => (
+            <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
+              <span style={{ flex: 1, fontSize: 11, color: 'rgba(253,248,242,0.7)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{r.name}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>S${Math.round(r.coverage).toLocaleString()}</span>
+              {r.annual_premium > 0 && <span style={{ fontSize: 10, color: 'rgba(253,248,242,0.4)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>S${Math.round(r.annual_premium)}/yr</span>}
+              {onDeleteRider && <button onClick={() => onDeleteRider(r.id)} style={{ background: 'none', border: 'none', color: 'rgba(253,248,242,0.25)', fontSize: 12, cursor: 'pointer', padding: '0 2px' }}>×</button>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add Rider */}
+      {onAddRider && (
+        showAddRider ? (
+          <div style={{ borderTop: '1px solid rgba(196,168,130,0.08)', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <input value={riderName} onChange={e => setRiderName(e.target.value)} placeholder="Rider name" style={{ flex: 2, minWidth: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+              <input value={riderCoverage} onChange={e => setRiderCoverage(e.target.value)} placeholder="Coverage S$" style={{ width: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+              <input value={riderPremium} onChange={e => setRiderPremium(e.target.value)} placeholder="Premium/yr" style={{ width: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button onClick={() => {
+                if (!riderName.trim()) return
+                onAddRider(block.id, { name: riderName.trim(), coverage: parseFloat(riderCoverage) || 0, annual_premium: parseFloat(riderPremium) || 0 })
+                setRiderName(''); setRiderCoverage(''); setRiderPremium(''); setShowAddRider(false)
+              }} style={{ padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, background: '#9b2040', color: '#fdf8f2', border: 'none', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Add</button>
+              <button onClick={() => setShowAddRider(false)} style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, background: 'none', color: 'rgba(253,248,242,0.4)', border: '1px solid rgba(196,168,130,0.15)', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={() => setShowAddRider(true)} style={{ fontSize: 10, fontWeight: 600, color: '#c4a882', background: 'none', border: '1px dashed rgba(196,168,130,0.25)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontFamily: "'Cabinet Grotesk', sans-serif", alignSelf: 'flex-start' }}>+ Add Rider</button>
+        )
+      )}
     </motion.div>
   )
 }
@@ -457,6 +515,50 @@ export default function InsuranceBenefits({
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set())
+  const [riders, setRiders] = useState<Record<string, PolicyRider[]>>({})
+
+  // Load riders on mount
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('policy_riders').select('id, benefit_block_id, name, coverage, annual_premium').eq('user_id', userId)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const grouped: Record<string, PolicyRider[]> = {}
+          for (const r of data) {
+            if (!grouped[r.benefit_block_id]) grouped[r.benefit_block_id] = []
+            grouped[r.benefit_block_id].push(r as PolicyRider)
+          }
+          setRiders(grouped)
+        }
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
+  async function handleAddRider(blockId: string, rider: Omit<PolicyRider, 'id' | 'benefit_block_id'>) {
+    const supabase = createClient()
+    const { data } = await supabase.from('policy_riders')
+      .insert({ user_id: userId, benefit_block_id: blockId, ...rider })
+      .select('id, benefit_block_id, name, coverage, annual_premium')
+      .single()
+    if (data) {
+      setRiders(prev => ({
+        ...prev,
+        [blockId]: [...(prev[blockId] ?? []), data as PolicyRider],
+      }))
+    }
+  }
+
+  async function handleDeleteRider(riderId: string) {
+    const supabase = createClient()
+    await supabase.from('policy_riders').delete().eq('id', riderId)
+    setRiders(prev => {
+      const next = { ...prev }
+      for (const key in next) {
+        next[key] = next[key].filter(r => r.id !== riderId)
+      }
+      return next
+    })
+  }
 
   const annualIncome = monthlyIncome * 12
   const score = computeScore(blocks, annualIncome, liquidSavings, monthlyExpenses)
@@ -898,6 +1000,10 @@ export default function InsuranceBenefits({
                                     block={block}
                                     onDelete={handleDelete}
                                     onToggle={handleToggle}
+                                    riders={riders[block.id] ?? []}
+                                    onAddRider={handleAddRider}
+                                    onDeleteRider={handleDeleteRider}
+                                    userId={userId}
                                   />
                                 ))}
                               </AnimatePresence>

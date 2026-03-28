@@ -230,7 +230,11 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             margin: 0,
           }}
         >
-          The monthly gap CareShield Life doesn&apos;t cover.
+          {isSurplus
+            ? 'Your LTC coverage exceeds average care costs.'
+            : isFullyCovered
+            ? 'Your LTC coverage matches average care costs.'
+            : 'The monthly gap between average LTC costs and your coverage.'}
         </p>
       </motion.div>
 

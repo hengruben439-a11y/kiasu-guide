@@ -163,6 +163,11 @@ export function solveForAge(
   desiredMonthly: number,
   inflationRate: number,
 ): number {
+  // Check if already funded at current age
+  const now = projectedCorpus(currentSavings, monthlyInvestment, annualRate, 0, cpfOa, cpfSa, swr, includeCpf)
+  const reqNow = requiredCorpus(desiredMonthly, inflationRate, 0, swr)
+  if (now.total >= reqNow) return currentAge
+
   for (let age = currentAge + 1; age <= 85; age++) {
     const yrs = age - currentAge
     const proj = projectedCorpus(currentSavings, monthlyInvestment, annualRate, yrs, cpfOa, cpfSa, swr, includeCpf)
