@@ -101,7 +101,10 @@ function fmt(v: number): string {
   if (abs >= 1_000) return `${sign}S$${(abs / 1_000).toFixed(0)}K`
   return `${sign}S$${abs.toFixed(0)}`
 }
-function fmtSGD(v: number) { return `S$${Math.round(v).toLocaleString('en-SG')}` }
+function fmtSGD(v: number) {
+  const sign = v < 0 ? '−' : ''
+  return `${sign}S$${Math.abs(Math.round(v)).toLocaleString('en-SG')}`
+}
 
 // ── Simulation ────────────────────────────────────────────────────────────────
 

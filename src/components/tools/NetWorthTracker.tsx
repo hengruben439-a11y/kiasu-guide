@@ -136,7 +136,7 @@ export default function NetWorthTracker(props: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* ── Headline ──────────────────────────────────────────────────────── */}
-      <div style={{ ...card, padding: '32px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ ...card, padding: '32px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
             Total Net Worth
@@ -317,7 +317,7 @@ export default function NetWorthTracker(props: Props) {
                   key={row.label}
                   style={{
                     display: 'grid', gridTemplateColumns: '36px 1fr auto auto',
-                    alignItems: 'center', gap: 12, padding: '12px 22px',
+                    alignItems: 'center', gap: '8px 12px', padding: '12px 22px',
                     borderBottom: i < 5 ? '1px solid rgba(196,168,130,0.08)' : 'none',
                   }}
                 >
@@ -374,7 +374,7 @@ export default function NetWorthTracker(props: Props) {
           Update Property Value
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1.5px solid rgba(196,168,130,0.15)', borderRadius: 10, overflow: 'hidden', flex: '1 1 220px', maxWidth: 340 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1.5px solid rgba(196,168,130,0.15)', borderRadius: 10, overflow: 'hidden', flex: '1 1 200px', maxWidth: '100%' }}>
             <span style={{ padding: '12px 14px', background: 'rgba(122,28,46,0.10)', fontSize: 13, fontWeight: 700, color: 'rgba(253,248,242,0.55)', borderRight: '1px solid rgba(196,168,130,0.12)', fontFamily: "'Cabinet Grotesk', sans-serif", whiteSpace: 'nowrap' }}>
               S$
             </span>

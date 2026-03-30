@@ -81,7 +81,7 @@ export function WelcomeAnimation({ clientName, onComplete }: WelcomeAnimationPro
               style={{
                 fontSize: 'clamp(28px, 5vw, 48px)',
                 fontWeight: 700,
-                color: '#ffffff',
+                color: '#fdf8f2',
                 lineHeight: 1.15,
                 maxWidth: 600,
                 margin: 0,

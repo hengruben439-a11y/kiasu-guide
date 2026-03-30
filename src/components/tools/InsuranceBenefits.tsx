@@ -479,9 +479,9 @@ function PolicyCard({
         showAddRider ? (
           <div style={{ borderTop: '1px solid rgba(196,168,130,0.08)', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <input value={riderName} onChange={e => setRiderName(e.target.value)} placeholder="Rider name" style={{ flex: 2, minWidth: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
-              <input value={riderCoverage} onChange={e => setRiderCoverage(e.target.value)} placeholder="Coverage S$" style={{ width: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
-              <input value={riderPremium} onChange={e => setRiderPremium(e.target.value)} placeholder="Premium/yr" style={{ width: 80, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+              <input value={riderName} onChange={e => setRiderName(e.target.value)} placeholder="Rider name" style={{ flex: '2 1 100px', minWidth: 60, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+              <input value={riderCoverage} onChange={e => setRiderCoverage(e.target.value)} placeholder="Coverage S$" style={{ flex: '1 1 60px', minWidth: 60, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
+              <input value={riderPremium} onChange={e => setRiderPremium(e.target.value)} placeholder="Premium/yr" style={{ flex: '1 1 60px', minWidth: 60, padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(196,168,130,0.2)', background: 'rgba(10,6,5,0.6)', color: '#fdf8f2', fontSize: 11, fontFamily: "'Cabinet Grotesk', sans-serif", outline: 'none' }} />
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               <button onClick={() => {
@@ -784,7 +784,8 @@ export default function InsuranceBenefits({
             <p className="text-xs mt-0.5" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Your coverage vs recommended benchmarks for your income level.</p>
           </div>
           {/* Table header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1.2fr 80px', padding: '8px 20px', borderBottom: '1px solid rgba(196,168,130,0.08)', background: 'rgba(42,31,26,0.3)' }}>
+          <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1.4fr 1.2fr 80px', padding: '8px 20px', borderBottom: '1px solid rgba(196,168,130,0.08)', background: 'rgba(42,31,26,0.3)', minWidth: 500 }}>
             {['Benefit', 'Your Coverage', 'Recommended', 'Gap', 'Status'].map((h) => (
               <span key={h} style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(196,168,130,0.55)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{h}</span>
             ))}
@@ -831,6 +832,7 @@ export default function InsuranceBenefits({
               </p>
             </div>
           )}
+          </div>{/* close scroll wrapper */}
         </motion.div>
       </div>
 
@@ -909,7 +911,7 @@ export default function InsuranceBenefits({
                       </p>
                       {/* Mini progress bar for numeric coverage */}
                       {rec !== null && (
-                        <div style={{ marginTop: 5, height: 3, background: 'rgba(196,168,130,0.1)', borderRadius: 2, width: 120 }}>
+                        <div style={{ marginTop: 5, height: 3, background: 'rgba(196,168,130,0.1)', borderRadius: 2, width: '100%', maxWidth: 120 }}>
                           <div style={{
                             height: '100%', borderRadius: 2,
                             width: `${pct}%`,
@@ -1082,7 +1084,7 @@ export default function InsuranceBenefits({
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Benefit Type</label>
                       <select value={form.benefit_type} onChange={(e) => setForm((f) => ({ ...f, benefit_type: e.target.value as BenefitBlock['benefit_type'], payout_mode: NO_PAYOUT_MODE_TYPES.includes(e.target.value) ? 'lump_sum' : f.payout_mode }))}
-                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle}>
+                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle}>
                         {BENEFIT_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
                     </div>
@@ -1091,21 +1093,21 @@ export default function InsuranceBenefits({
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Policy Name</label>
                       <input type="text" value={form.policy_name} onChange={(e) => setForm((f) => ({ ...f, policy_name: e.target.value }))}
-                        placeholder="e.g. Great Eastern Supreme" className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. Great Eastern Supreme" className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Insurer */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Insurer (optional)</label>
                       <input type="text" value={form.insurer} onChange={(e) => setForm((f) => ({ ...f, insurer: e.target.value }))}
-                        placeholder="e.g. Great Eastern, AIA, Prudential" className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. Great Eastern, AIA, Prudential" className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Coverage */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>{coverageLabel}</label>
                       <input type="number" value={form.coverage} onChange={(e) => setForm((f) => ({ ...f, coverage: e.target.value }))}
-                        placeholder="e.g. 500000" min={0} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. 500000" min={0} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                       {noPayoutMode && (
                         <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.4)', marginTop: 4, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                           {form.benefit_type === 'hospitalisation' ? 'Covers actual medical costs — no fixed payout.' : 'Reimburses costs from accidents. Status: met if any PA policy is active.'}
@@ -1118,7 +1120,7 @@ export default function InsuranceBenefits({
                       <div>
                         <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Payout Mode</label>
                         <select value={form.payout_mode} onChange={(e) => setForm((f) => ({ ...f, payout_mode: e.target.value }))}
-                          className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle}>
+                          className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle}>
                           {PAYOUT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       </div>
@@ -1128,35 +1130,35 @@ export default function InsuranceBenefits({
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Annual Premium (S$, optional)</label>
                       <input type="number" value={form.annual_premium} onChange={(e) => setForm((f) => ({ ...f, annual_premium: e.target.value }))}
-                        placeholder="e.g. 3200" min={0} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. 3200" min={0} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Inception date */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Inception Date (optional)</label>
                       <input type="date" value={form.inception_date} onChange={(e) => setForm((f) => ({ ...f, inception_date: e.target.value }))}
-                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Expiry date */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Expiry / Next Renewal Date (optional)</label>
                       <input type="date" value={form.expiry_date} onChange={(e) => setForm((f) => ({ ...f, expiry_date: e.target.value }))}
-                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Payment date (day of month) */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Monthly Payment Day (1–28, optional)</label>
                       <input type="number" value={form.payment_date} onChange={(e) => setForm((f) => ({ ...f, payment_date: e.target.value }))}
-                        placeholder="e.g. 15" min={1} max={28} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. 15" min={1} max={28} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
 
                     {/* Expiry age */}
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#a89070', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Coverage Until Age (optional)</label>
                       <input type="number" value={form.expiry_age} onChange={(e) => setForm((f) => ({ ...f, expiry_age: e.target.value }))}
-                        placeholder="e.g. 99" min={0} max={130} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#7a1c2e]" style={inputStyle} />
+                        placeholder="e.g. 99" min={0} max={130} className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent-dim)]" style={inputStyle} />
                     </div>
                   </div>
                 )

@@ -427,7 +427,7 @@ export default function CostOfWaiting({
               transition={{ duration: 0.22 }}
               style={{ marginTop: 24 }}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: 'rgba(253,248,242,0.45)', margin: '0 0 4px' }}>
                     {sliderDelay === 0 ? 'You arrive at' : `After waiting ${sliderDelay} yr${sliderDelay > 1 ? 's' : ''}, you arrive at`}

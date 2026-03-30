@@ -137,6 +137,42 @@ body {
   .stress-timeline-grid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 480px) {
+  .grid-4col { grid-template-columns: 1fr; }
+  .grid-2col { grid-template-columns: 1fr; }
+  .stress-timeline-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Slider touch-friendly styling ───────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: rgba(196,168,130,0.15);
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #c4a882;
+  border: 2px solid #0a0605;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #c4a882;
+  border: 2px solid #0a0605;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
 /* ── Landing page ─────────────────────────────────────────────────────────── */
 .landing-about {
   padding: 100px 60px;

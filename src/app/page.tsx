@@ -100,14 +100,14 @@ function DashboardMockup() {
             {/* Score cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
               {[["Health Score","74/100","#7a1c2e"],["Retirement Gap","S$312k","#a05020"],["CI Coverage","Partial","#c4a882"],["LTC Gap","S$2,290","#2a1f1a"]].map(([l,v,c]) => (
-                <div key={l} style={{ background: "#fff", border: "1px solid rgba(42,31,26,0.07)", borderRadius: 10, padding: "14px 16px" }}>
+                <div key={l} style={{ background: "rgba(122,28,46,0.06)", border: "1px solid rgba(196,168,130,0.15)", borderRadius: 10, padding: "14px 16px" }}>
                   <p style={{ fontSize: 10, color: "#ccc", margin: "0 0 4px", fontFamily: "'Cabinet Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>{l}</p>
                   <p style={{ fontSize: 17, fontWeight: 700, color: c, margin: 0, fontFamily: "'Cabinet Grotesk', sans-serif" }}>{v}</p>
                 </div>
               ))}
             </div>
             {/* Fake chart bars */}
-            <div style={{ background: "#fff", border: "1px solid rgba(42,31,26,0.07)", borderRadius: 10, padding: "20px", height: 160, display: "flex", alignItems: "flex-end", gap: 8 }}>
+            <div style={{ background: "rgba(122,28,46,0.06)", border: "1px solid rgba(196,168,130,0.15)", borderRadius: 10, padding: "20px", height: 160, display: "flex", alignItems: "flex-end", gap: 8 }}>
               {[40,65,50,80,55,90,70,85,60,75,88,95].map((h, i) => (
                 <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: "4px 4px 0 0", background: i === 11 ? "#7a1c2e" : `rgba(122,28,46,${0.1 + h/200})` }} />
               ))}

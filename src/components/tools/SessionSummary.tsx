@@ -107,7 +107,7 @@ export default function SessionSummary({ userId, profile, benefits, healthScore 
 
       {/* AI Draft section */}
       <div style={{ background: 'rgba(122,28,46,0.06)', border: '1px solid rgba(196,168,130,0.15)', borderRadius: 16, padding: '24px 28px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 4px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
               AI Draft
@@ -151,7 +151,7 @@ export default function SessionSummary({ userId, profile, benefits, healthScore 
               style={{ background: 'rgba(10,6,5,0.4)', borderRadius: 12, padding: '18px 22px', border: '1px solid rgba(196,168,130,0.10)' }}
             >
               {aiSummary.split('\n\n').filter(Boolean).map((para, i) => (
-                <p key={i} style={{ fontSize: 13, color: 'rgba(253,248,242,0.80)', lineHeight: 1.75, margin: i === 0 ? 0 : '12px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+                <p key={i} style={{ fontSize: 13, color: 'rgba(253,248,242,0.80)', lineHeight: 1.75, margin: i === 0 ? 0 : '12px 0 0', fontFamily: "'Cabinet Grotesk', sans-serif", wordBreak: 'break-word' }}>
                   {para}
                 </p>
               ))}
@@ -207,7 +207,7 @@ export default function SessionSummary({ userId, profile, benefits, healthScore 
           value={noahNotes}
           onChange={handleNotesChange}
           placeholder="Add your session notes here — what was discussed, action items, follow-up topics…"
-          rows={8}
+          rows={5}
           style={{
             width: '100%', borderRadius: 12, border: '1px solid rgba(196,168,130,0.15)',
             background: 'rgba(10,6,5,0.4)', color: '#fdf8f2',

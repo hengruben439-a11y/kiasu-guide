@@ -28,7 +28,7 @@ export default async function RetirementPage() {
 
   return (
     <PageWrapper>
-        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+        <div style={{ padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 48px)', maxWidth: 1100, margin: '0 auto', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
       <div style={{ marginBottom: 32 }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px' }}>
           Retirement Planning

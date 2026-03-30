@@ -848,7 +848,7 @@ ${d.depletionAge ? `Savings deplete ~age ${d.depletionAge}.` : 'Your portfolio g
             }
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 4vw, 32px)', flexWrap: 'wrap', position: 'relative' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             <FundingRing pct={d.actualFundedPct} size={124} />
             <p style={{ fontSize: 10, color: 'rgba(253,248,242,0.35)', margin: 0, textAlign: 'center', maxWidth: 120, lineHeight: 1.5 }}>

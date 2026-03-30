@@ -145,7 +145,7 @@ export default function PolicyReminders({ userId, initialReminders }: Props) {
           border: '1px solid rgba(196,168,130,0.2)',
           borderRadius: 10, padding: '16px 18px', marginBottom: 20,
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#a89070', marginBottom: 5, fontFamily: "'Cabinet Grotesk', sans-serif" }}>
                 Policy / Event Name *

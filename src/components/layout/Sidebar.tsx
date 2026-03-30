@@ -285,6 +285,7 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
                         fontSize: 9, fontWeight: 700, letterSpacing: '0.10em',
                         textTransform: 'uppercase',
                         color: isPhaseActive ? 'rgba(196,168,130,0.85)' : 'rgba(196,168,130,0.4)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>
                         {phase.label}
                       </span>

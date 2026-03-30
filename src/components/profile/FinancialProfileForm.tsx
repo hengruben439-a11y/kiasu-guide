@@ -605,7 +605,7 @@ function EditableValue({ value, colour, onCommit }: { value: number; colour: str
   if (editing) return (
     <input ref={ref} type="text" value={draft} onChange={(e) => setDraft(e.target.value)}
       onBlur={commit} onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }}
-      style={{ width: 90, textAlign: 'right', fontSize: 13, fontWeight: 700, border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px', outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif", color: '#fdf8f2', background: 'rgba(10,6,5,0.6)' }}
+      style={{ width: '100%', maxWidth: 120, textAlign: 'right', fontSize: 13, fontWeight: 700, border: `1px solid ${colour}`, borderRadius: 6, padding: '2px 6px', outline: 'none', fontFamily: "'Cabinet Grotesk', sans-serif", color: '#fdf8f2', background: 'rgba(10,6,5,0.6)' }}
       autoFocus
     />
   )
