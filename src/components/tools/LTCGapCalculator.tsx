@@ -118,12 +118,9 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
     ? Math.round(((userCoverage - DEFAULT_CARESHIELD_MONTHLY) / (AVG_LTC_MONTHLY - DEFAULT_CARESHIELD_MONTHLY)) * 100)
     : 0
 
+  const cardClass = 'glass-card'
   const cardStyle: React.CSSProperties = {
-    background: 'rgba(122,28,46,0.06)',
-    border: '1px solid rgba(196,168,130,0.15)',
-    borderRadius: 12,
     padding: '1.5rem',
-    backdropFilter: 'blur(12px)',
   }
 
   const statLabelStyle: React.CSSProperties = {
@@ -149,6 +146,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
 
       {/* ── Headline stat ── */}
       <motion.div
+        className={cardClass}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -230,7 +228,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: 0.05, ease: 'easeOut' }}
-        style={cardStyle}
+        className={cardClass} style={cardStyle}
       >
         <p style={{ ...statLabelStyle, color: '#c4a882', marginBottom: '0.75rem' }}>
           Your CareShield Life + Supplement Payout
@@ -284,7 +282,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: 0.08, ease: 'easeOut' }}
-        style={cardStyle}
+        className={cardClass} style={cardStyle}
       >
         <p style={{ ...statLabelStyle, color: '#c4a882', marginBottom: '0.75rem' }}>
           Expected Care Duration
@@ -348,7 +346,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: stat.delay, ease: 'easeOut' }}
-            style={cardStyle}
+            className={cardClass} style={cardStyle}
           >
             <p style={statLabelStyle}>{stat.label}</p>
             <p style={{ ...statValueStyle, color: stat.color }}>{stat.value}</p>
@@ -371,7 +369,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35, ease: 'easeOut' }}
-        style={cardStyle}
+        className={cardClass} style={cardStyle}
       >
         <p
           style={{
@@ -492,7 +490,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.45, ease: 'easeOut' }}
-        style={cardStyle}
+        className={cardClass} style={cardStyle}
       >
         <p
           style={{
@@ -670,6 +668,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
 
       {/* ── Assumptions panel ── */}
       <motion.div
+        className={cardClass}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.65, ease: 'easeOut' }}

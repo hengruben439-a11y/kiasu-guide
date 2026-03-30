@@ -231,10 +231,7 @@ function ChartTip({ active, payload, label, chartView }: { active?: boolean; pay
 
 function GlassCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{
-      background: 'rgba(122,28,46,0.06)',
-      border: '1px solid rgba(196,168,130,0.15)',
-      borderRadius: 16, backdropFilter: 'blur(12px)',
+    <div className="glass-card" style={{
       padding: '24px 28px', ...style,
     }}>
       {children}

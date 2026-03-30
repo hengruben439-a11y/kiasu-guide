@@ -693,7 +693,7 @@ export default function InsuranceBenefits({
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="rounded-2xl border p-5"
+        className="rounded-2xl border p-5 glass-card"
         style={{ background: 'rgba(122,28,46,0.10)', borderColor: 'rgba(196,168,130,0.20)' }}
       >
         <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -1196,7 +1196,7 @@ export default function InsuranceBenefits({
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="rounded-2xl border p-6"
+          className="rounded-2xl border p-6 glass-card"
           style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.25)' }}
         >
           <p

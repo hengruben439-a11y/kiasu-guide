@@ -481,7 +481,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="rounded-2xl border p-5"
+        className="rounded-2xl border p-5 glass-card"
         style={{ background: surplus >= 0 ? 'rgba(22,163,74,0.07)' : 'rgba(239,68,68,0.07)', borderColor: surplus >= 0 ? 'rgba(22,163,74,0.25)' : 'rgba(239,68,68,0.25)' }}
       >
         <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 8px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -845,7 +845,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.25 }}
-        className="rounded-2xl border p-6"
+        className="rounded-2xl border p-6 glass-card"
         style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
       >
         <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -878,7 +878,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.32 }}
-        className="rounded-2xl border p-6"
+        className="rounded-2xl border p-6 glass-card"
         style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
       >
         <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -945,7 +945,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.35 }}
-          className="rounded-2xl border p-6"
+          className="rounded-2xl border p-6 glass-card"
           style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
         >
           <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -1043,7 +1043,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.38 }}
-        className="rounded-2xl border p-6"
+        className="rounded-2xl border p-6 glass-card"
         style={{ background: 'rgba(122,28,46,0.06)', borderColor: 'rgba(196,168,130,0.15)', backdropFilter: 'blur(12px)' }}
       >
         <p className="font-semibold text-sm mb-1" style={{ color: '#fdf8f2', fontFamily: "'Cabinet Grotesk', sans-serif" }}>
@@ -1081,7 +1081,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl border p-6"
+            className="rounded-2xl border p-6 glass-card"
             style={{ background: 'rgba(122,28,46,0.08)', borderColor: 'rgba(196,168,130,0.25)' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
