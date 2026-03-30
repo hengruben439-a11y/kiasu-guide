@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useCountUp } from '@/lib/hooks/use-count-up'
 import SliderInput from '@/components/ui/SliderInput'
 import AIInsightPanel from '@/components/ui/AIInsightPanel'
 import {
@@ -126,31 +127,7 @@ function project(
   return points
 }
 
-// ─── Counter hook ────────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 800) {
-  const [display, setDisplay] = useState(target)
-  const prev = useRef(target)
-
-  useEffect(() => {
-    const from = prev.current
-    const diff = target - from
-    if (diff === 0) return
-    const steps = 40
-    const stepMs = duration / steps
-    let i = 0
-    const timer = setInterval(() => {
-      i++
-      setDisplay(Math.round(from + diff * (i / steps)))
-      if (i >= steps) {
-        clearInterval(timer)
-        prev.current = target
-      }
-    }, stepMs)
-    return () => clearInterval(timer)
-  }, [target, duration])
-
-  return display
-}
+// useCountUp imported from @/lib/hooks/use-count-up
 
 // ─── Custom tooltip ──────────────────────────────────────────────────────────
 function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: number }) {
@@ -554,10 +531,10 @@ export default function CPFPlanner(props: Props) {
                 />
               )
             })()}
-            <Area type="monotone" dataKey="oa" name="OA" stroke="#c4a882" fill="url(#gOA)" strokeWidth={2} stackId="a" />
-            <Area type="monotone" dataKey="sa" name="SA" stroke="#8b5a6a" fill="url(#gSA)" strokeWidth={2} stackId="a" />
-            <Area type="monotone" dataKey="ma" name="MA" stroke="#a89070" fill="url(#gMA)" strokeWidth={2} stackId="a" />
-            <Area type="monotone" dataKey="ra" name="RA" stroke="#7a1c2e" fill="url(#gRA)" strokeWidth={2} stackId="a" />
+            <Area type="monotone" dataKey="oa" name="OA" stroke="#c4a882" fill="url(#gOA)" strokeWidth={2} stackId="a" isAnimationActive={true} animationDuration={1200} />
+            <Area type="monotone" dataKey="sa" name="SA" stroke="#8b5a6a" fill="url(#gSA)" strokeWidth={2} stackId="a" isAnimationActive={true} animationDuration={1200} />
+            <Area type="monotone" dataKey="ma" name="MA" stroke="#a89070" fill="url(#gMA)" strokeWidth={2} stackId="a" isAnimationActive={true} animationDuration={1200} />
+            <Area type="monotone" dataKey="ra" name="RA" stroke="#7a1c2e" fill="url(#gRA)" strokeWidth={2} stackId="a" isAnimationActive={true} animationDuration={1200} />
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>

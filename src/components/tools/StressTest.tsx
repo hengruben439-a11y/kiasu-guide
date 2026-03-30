@@ -788,10 +788,10 @@ export default function StressTest({
                       <ReferenceLine key={e.id} x={e.age} stroke={EVENT_TEMPLATES[e.type].color} strokeDasharray="4 3"
                         label={{ value: EVENT_TEMPLATES[e.type].icon, position: 'top', fontSize: 12 }} />
                     ))}
-                    <Area type="monotone" dataKey="baseline" name="Baseline" stroke="#6b7280" fill="url(#gBL)" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                    <Area type="monotone" dataKey="baseline" name="Baseline" stroke="#6b7280" fill="url(#gBL)" strokeWidth={1.5} strokeDasharray="5 3" dot={false} isAnimationActive={true} animationDuration={1200} />
                     {events.length > 0 && <>
-                      <Area type="monotone" dataKey="withoutInsurance" name="Without Insurance" stroke="#ef4444" fill="url(#gNI)" strokeWidth={1.5} strokeDasharray="4 3" dot={false} />
-                      <Area type="monotone" dataKey="withInsurance" name="With Insurance" stroke="#9b2040" fill="url(#gWI)" strokeWidth={2.5} dot={false} />
+                      <Area type="monotone" dataKey="withoutInsurance" name="Without Insurance" stroke="#ef4444" fill="url(#gNI)" strokeWidth={1.5} strokeDasharray="4 3" dot={false} isAnimationActive={true} animationDuration={1200} />
+                      <Area type="monotone" dataKey="withInsurance" name="With Insurance" stroke="#9b2040" fill="url(#gWI)" strokeWidth={2.5} dot={false} isAnimationActive={true} animationDuration={1200} />
                     </>}
                   </ComposedChart>
                 </ResponsiveContainer>

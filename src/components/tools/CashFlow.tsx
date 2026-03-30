@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useCountUp } from '@/lib/hooks/use-count-up'
 import {
   PieChart,
   Pie,
@@ -116,31 +117,7 @@ function defaultCategories(monthlyExpenses: number): Category[] {
   }))
 }
 
-// ─── Count-up hook ────────────────────────────────────────────────────────────
-
-function useCountUp(target: number, duration = 900): number {
-  const [value, setValue] = useState(0)
-  const frameRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null)
-  const startRef = useRef<number | null>(null)
-  const fromRef = useRef(0)
-
-  useEffect(() => {
-    fromRef.current = value
-    startRef.current = null
-    if (frameRef.current) cancelAnimationFrame(frameRef.current)
-    const step = (ts: number) => {
-      if (!startRef.current) startRef.current = ts
-      const p = Math.min((ts - startRef.current) / duration, 1)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setValue(Math.round(fromRef.current + (target - fromRef.current) * eased))
-      if (p < 1) frameRef.current = requestAnimationFrame(step)
-    }
-    frameRef.current = requestAnimationFrame(step)
-    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target])
-  return value
-}
+// useCountUp imported from @/lib/hooks/use-count-up
 
 // ─── Editable amount input ────────────────────────────────────────────────────
 
@@ -879,7 +856,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
         </p>
         <ResponsiveContainer width="100%" height={260}>
           <PieChart>
-            <Pie data={pieData} dataKey="amount" nameKey="label" cx="50%" cy="50%" outerRadius={95} innerRadius={48} paddingAngle={2} isAnimationActive>
+            <Pie data={pieData} dataKey="amount" nameKey="label" cx="50%" cy="50%" outerRadius={95} innerRadius={48} paddingAngle={2} isAnimationActive={true} animationDuration={1200}>
               {pieData.map((c) => <Cell key={c.key} fill={c.colour} />)}
             </Pie>
             <Tooltip
@@ -1091,7 +1068,7 @@ export default function CashFlow({ monthlyIncome, monthlyExpenses, userId }: Pro
               formatter={(v: any) => [formatSGD(Number(v)), 'Accumulated savings']}
               contentStyle={{ background: 'rgba(10,6,5,0.95)', border: '1px solid rgba(196,168,130,0.3)', borderRadius: 12, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 12, color: '#fdf8f2' }}
             />
-            <Area type="monotone" dataKey="savings" stroke="#9b2040" strokeWidth={2.5} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 5 }} />
+            <Area type="monotone" dataKey="savings" stroke="#9b2040" strokeWidth={2.5} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 5 }} isAnimationActive={true} animationDuration={1200} />
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>

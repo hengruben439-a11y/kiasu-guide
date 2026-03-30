@@ -263,6 +263,8 @@ export default function NetWorthTracker(props: Props) {
                   innerRadius={55}
                   outerRadius={90}
                   paddingAngle={3}
+                  isAnimationActive={true}
+                  animationDuration={1200}
                 >
                   {segments.map((seg, i) => (
                     <Cell key={seg.label} fill={seg.color} />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useCountUp } from '@/lib/hooks/use-count-up'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -51,33 +52,7 @@ function buildProjection(savings: number, pmt: number, annualRate: number, total
   })
 }
 
-// ── Count-up animation ────────────────────────────────────────────────────────
-
-function useCountUp(target: number, duration = 900): number {
-  const [value, setValue] = useState(0)
-  const frameRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null)
-  const startRef = useRef<number | null>(null)
-  const startValueRef = useRef(0)
-
-  useEffect(() => {
-    startValueRef.current = value
-    startRef.current = null
-    if (frameRef.current) cancelAnimationFrame(frameRef.current)
-    const step = (ts: number) => {
-      if (!startRef.current) startRef.current = ts
-      const elapsed = ts - startRef.current
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(startValueRef.current + (target - startValueRef.current) * eased))
-      if (progress < 1) frameRef.current = requestAnimationFrame(step)
-    }
-    frameRef.current = requestAnimationFrame(step)
-    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target])
-
-  return value
-}
+// useCountUp imported from @/lib/hooks/use-count-up
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -517,6 +492,8 @@ export default function CostOfWaiting({
                 strokeWidth={s.years === 0 ? 2.5 : 1.5}
                 strokeDasharray={s.years === 0 ? undefined : s.years === 2 ? '5 3' : '3 3'}
                 dot={false}
+                isAnimationActive={true}
+                animationDuration={1200}
               />
             ))}
           </AreaChart>

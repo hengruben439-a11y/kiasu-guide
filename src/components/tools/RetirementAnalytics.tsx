@@ -378,7 +378,7 @@ function ProcrastinationChart({
               <YAxis tickFormatter={(v) => `S$${Math.round(v / 1000)}K`} tick={{ fill: 'rgba(253,248,242,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} width={64} />
               <Tooltip content={<ProcrastTooltip />} cursor={{ fill: 'rgba(196,168,130,0.05)' }} />
               <ReferenceLine y={baseMonthlyNeeded} stroke="rgba(16,185,129,0.4)" strokeDasharray="5 3" label={{ value: 'Start now', fill: 'rgba(16,185,129,0.6)', fontSize: 10, position: 'insideTopRight' }} />
-              <Bar dataKey="monthlyNeeded" radius={[6, 6, 0, 0]}>
+              <Bar dataKey="monthlyNeeded" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1200}>
                 {data.map((entry) => {
                   const pct = data.length > 1 ? entry.delay / (data.length - 1) : 0
                   const r = Math.round(155 + pct * 84)
@@ -1384,23 +1384,23 @@ ${d.depletionAge ? `Savings deplete ~age ${d.depletionAge}.` : 'Your portfolio g
             {chartScenario === 'pessimistic' && (
               <Line yAxisId="left" type="monotone" dataKey="pessimistic" name="Pessimistic −2%" stroke="#6b7280" strokeWidth={2} dot={false} strokeDasharray="3 3" isAnimationActive={true} animationDuration={900} />
             )}
-            <Line yAxisId="left" type="monotone" dataKey="required" name="Required savings" stroke="#c4a882" strokeWidth={1.5} dot={false} strokeDasharray="6 3" connectNulls={false} />
+            <Line yAxisId="left" type="monotone" dataKey="required" name="Required savings" stroke="#c4a882" strokeWidth={1.5} dot={false} strokeDasharray="6 3" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             {/* Income lines — right axis, post-retirement only (G5: per-scenario dividend income) */}
             {chartScenario === 'base' && retirementMode === 'dividend' && (
-              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Dividend income" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Dividend income" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             )}
             {chartScenario === 'optimistic' && retirementMode === 'dividend' && (
-              <Line yAxisId="right" type="monotone" dataKey="optimisticIncome" name="Dividend income" stroke="#10b981" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+              <Line yAxisId="right" type="monotone" dataKey="optimisticIncome" name="Dividend income" stroke="#10b981" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             )}
             {chartScenario === 'pessimistic' && retirementMode === 'dividend' && (
-              <Line yAxisId="right" type="monotone" dataKey="pessimisticIncome" name="Dividend income" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+              <Line yAxisId="right" type="monotone" dataKey="pessimisticIncome" name="Dividend income" stroke="#6b7280" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             )}
             {retirementMode === 'drawdown' && (
-              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Drawdown" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+              <Line yAxisId="right" type="monotone" dataKey="portfolioIncome" name="Drawdown" stroke="#9b2040" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             )}
-            <Line yAxisId="right" type="monotone" dataKey="cpfIncome" name="CPF Life" stroke="#a78bfa" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+            <Line yAxisId="right" type="monotone" dataKey="cpfIncome" name="CPF Life" stroke="#a78bfa" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             {passiveStreams.length > 0 && (
-              <Line yAxisId="right" type="monotone" dataKey="otherPassiveIncome" name="Other passive" stroke="#0ea5e9" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} />
+              <Line yAxisId="right" type="monotone" dataKey="otherPassiveIncome" name="Other passive" stroke="#0ea5e9" strokeWidth={1.5} dot={false} strokeDasharray="4 2" connectNulls={false} isAnimationActive={true} animationDuration={1200} />
             )}
           </ComposedChart>
         </ResponsiveContainer>

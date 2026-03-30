@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useCountUp } from '@/lib/hooks/use-count-up'
 import {
   ComposedChart,
   Bar,
@@ -33,35 +34,7 @@ function formatSGD(v: number): string {
   return `S$${Math.round(v).toLocaleString('en-SG')}`
 }
 
-// ─── Count-up hook ────────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 1400): number {
-  const [value, setValue] = useState(0)
-  const rafRef = useRef<number | null>(null)
-  const startRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    startRef.current = null
-
-    function step(timestamp: number) {
-      if (startRef.current === null) startRef.current = timestamp
-      const elapsed = timestamp - startRef.current
-      const progress = Math.min(elapsed / duration, 1)
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(eased * target))
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(step)
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(step)
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
-    }
-  }, [target, duration])
-
-  return value
-}
+// useCountUp imported from @/lib/hooks/use-count-up
 
 // ─── Dynamic helpers ──────────────────────────────────────────────────────────
 function buildYearRows(coverage: number, durationYears: number) {

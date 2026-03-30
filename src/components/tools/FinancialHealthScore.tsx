@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { useCountUp } from '@/lib/hooks/use-count-up'
 import { createClient } from '@/lib/supabase/client'
 import AIInsightPanel from '@/components/ui/AIInsightPanel'
 
@@ -33,25 +34,7 @@ function formatSGD(v: number): string {
   return `S$${Math.round(v).toLocaleString('en-SG')}`
 }
 
-function useCountUp(target: number, duration = 1000) {
-  const [value, setValue] = useState(0)
-  const raf = useRef<number | null>(null)
-  const start = useRef<number | null>(null)
-
-  useEffect(() => {
-    start.current = null
-    const step = (timestamp: number) => {
-      if (start.current === null) start.current = timestamp
-      const progress = Math.min((timestamp - start.current) / duration, 1)
-      setValue(Math.round(progress * target))
-      if (progress < 1) raf.current = requestAnimationFrame(step)
-    }
-    raf.current = requestAnimationFrame(step)
-    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
-  }, [target, duration])
-
-  return value
-}
+// useCountUp imported from @/lib/hooks/use-count-up
 
 export default function FinancialHealthScore(props: Props) {
   const {
@@ -434,6 +417,7 @@ export default function FinancialHealthScore(props: Props) {
                 type="monotone" dataKey="score" name="Health Score"
                 stroke={threshold.color} strokeWidth={2.5} dot={{ fill: threshold.color, r: 4 }}
                 activeDot={{ r: 6 }}
+                isAnimationActive={true} animationDuration={1200}
               />
             </LineChart>
           </ResponsiveContainer>

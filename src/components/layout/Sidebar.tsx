@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { UserRole } from '@/types'
 
 interface SidebarProps {
@@ -130,7 +130,7 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
       fontWeight: active ? 600 : 400,
       color: active ? '#fdf8f2' : 'rgba(253,248,242,0.45)',
       background: active ? 'rgba(155,32,64,0.25)' : 'transparent',
-      borderLeft: active ? '2px solid #9b2040' : '2px solid transparent',
+      position: 'relative' as const,
       textDecoration: 'none',
       transition: 'all 0.15s',
       whiteSpace: 'nowrap',
@@ -299,21 +299,41 @@ export default function Sidebar({ role, fullName, email }: SidebarProps) {
                   </button>
 
                   {/* Phase items */}
-                  {isPhaseOpen && (
-                    <div style={{ paddingBottom: 4 }}>
-                      {phase.items.map((item) => {
-                        const active = isActive(item.href, (item as { exact?: boolean }).exact)
-                        return (
-                          <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
-                            <Link href={item.href} style={linkStyle(active)}>
-                              <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
-                              {item.label}
-                            </Link>
-                          </motion.div>
-                        )
-                      })}
-                    </div>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isPhaseOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <div style={{ paddingBottom: 4 }}>
+                          {phase.items.map((item) => {
+                            const active = isActive(item.href, (item as { exact?: boolean }).exact)
+                            return (
+                              <motion.div key={item.href} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+                                <Link href={item.href} style={linkStyle(active)}>
+                                  {active && (
+                                    <motion.div
+                                      layoutId="nav-active"
+                                      style={{
+                                        position: 'absolute', left: 0, top: 0, bottom: 0, width: 2,
+                                        background: '#9b2040', borderRadius: 1,
+                                      }}
+                                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                    />
+                                  )}
+                                  <span style={{ fontSize: 10, flexShrink: 0, opacity: 0.5 }}>{item.icon}</span>
+                                  {item.label}
+                                </Link>
+                              </motion.div>
+                            )
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )
             })
