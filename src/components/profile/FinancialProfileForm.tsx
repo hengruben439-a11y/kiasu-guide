@@ -824,10 +824,7 @@ export default function FinancialProfileForm({ userId, profile }: Props) {
               </div>
             </div>
             <div style={{ height: 1, background: 'rgba(196,168,130,0.12)', margin: '8px 0' }} />
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Liabilities</p>
-            <LiabilitiesTab userId={userId} />
-            <div style={{ height: 1, background: 'rgba(196,168,130,0.12)', margin: '8px 0' }} />
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Detailed Net Worth</p>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c4a882', margin: '0 0 -12px', fontFamily: "'Cabinet Grotesk', sans-serif" }}>Assets & Liabilities Breakdown</p>
             <NetWorthTab userId={userId} />
           </div>
         )}
