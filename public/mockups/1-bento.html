@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Bento Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #050505;
+    color: #ffffff;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 56px;
+    background: #0a0a0a;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 4px;
+    z-index: 100;
+    transition: width 0.3s cubic-bezier(0.25,0.1,0.25,1);
+    overflow: hidden;
+  }
+  .sidebar:hover { width: 220px; }
+
+  .sidebar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 24px;
+    white-space: nowrap;
+    width: 100%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s ease 0.1s;
+  }
+  .sidebar:hover .sidebar-brand { opacity: 1; }
+
+  .sidebar-icon-brand {
+    font-size: 22px;
+    margin-bottom: 24px;
+    transition: opacity 0.2s ease;
+  }
+  .sidebar:hover .sidebar-icon-brand { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
+  .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
+  .nav-item .icon { font-size: 18px; min-width: 24px; text-align: center; }
+  .nav-item .label { opacity: 0; transition: opacity 0.2s ease 0.1s; }
+  .sidebar:hover .nav-item .label { opacity: 1; }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 56px;
+    flex: 1;
+    padding: 32px 40px;
+    max-width: 1280px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+  }
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .page-header p {
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  /* ── Bento Grid ── */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(160px, auto);
+    gap: 16px;
+  }
+
+  .tile {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.25,0.1,0.25,1), box-shadow 0.3s ease;
+  }
+  .tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 60px rgba(16,185,129,0.04);
+  }
+
+  .tile-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 16px;
+  }
+
+  .tile-number {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .tile-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 8px;
+  }
+
+  /* Health Score — 2x2 */
+  .tile-health {
+    grid-column: span 2;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .health-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 20px;
+  }
+  .health-ring svg { width: 100%; height: 100%; }
+  .health-ring .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .health-ring .score-text .number {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .health-ring .score-text .of {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* Net Worth — 2x1 */
+  .tile-networth {
+    grid-column: span 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tile-networth .tile-number { font-size: 56px; }
+
+  /* Single tiles */
+  .tile-surplus .tile-number { font-size: 48px; color: #10b981; }
+  .tile-retirement .tile-number { font-size: 48px; color: #eab308; }
+  .tile-cpf .tile-number { font-size: 48px; color: #8b5cf6; }
+
+  /* Protection tile */
+  .tile-protection .score-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .tile-protection .score-bar-fill {
+    width: 68%;
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #22c55e);
+    border-radius: 3px;
+  }
+  .tile-protection .tile-number { font-size: 48px; }
+  .tile-protection .policies {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 4px;
+  }
+
+  /* Chart — full width */
+  .tile-chart {
+    grid-column: span 4;
+    padding: 28px 28px 20px;
+  }
+  .tile-chart svg { width: 100%; height: 120px; display: block; }
+
+  /* Tools grid */
+  .tools-section {
+    margin-top: 16px;
+  }
+  .tools-section h2 {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 16px;
+  }
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .tool-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 22px;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.25,0.1,0.25,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.1);
+  }
+  .tool-icon { font-size: 24px; margin-bottom: 12px; }
+  .tool-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+  .tool-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .tool-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(16,185,129,0.12);
+    color: #10b981;
+  }
+  .tool-badge.amber { background: rgba(234,179,8,0.12); color: #eab308; }
+  .tool-badge.blue { background: rgba(59,130,246,0.12); color: #3b82f6; }
+  .tool-badge.purple { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+  /* Sparkline */
+  .sparkline-wrap { flex-shrink: 0; width: 120px; height: 50px; }
+  .sparkline-wrap svg { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-icon-brand">🟢</div>
+  <div class="sidebar-brand">Kiasu Guide</div>
+
+  <a class="nav-item active">
+    <span class="icon">📊</span><span class="label">Dashboard</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">👤</span><span class="label">Profile</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">🛡️</span><span class="label">Insurance</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">⚡</span><span class="label">Stress Test</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">🎯</span><span class="label">Retirement</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">💰</span><span class="label">Cash Flow</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">🏥</span><span class="label">LTC Gap</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">🏦</span><span class="label">CPF Planning</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">📈</span><span class="label">Net Worth</span>
+  </a>
+  <a class="nav-item" style="margin-top:auto;">
+    <span class="icon">⚙️</span><span class="label">Settings</span>
+  </a>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+  <div class="page-header">
+    <h1>Good evening, Noah.</h1>
+    <p>Last updated 31 March 2026 &middot; 3 areas need attention</p>
+  </div>
+
+  <!-- Bento Grid -->
+  <div class="bento">
+
+    <!-- Health Score 2x2 -->
+    <div class="tile tile-health">
+      <div class="tile-label">Financial Health Score</div>
+      <div class="health-ring">
+        <svg viewBox="0 0 140 140">
+          <defs>
+            <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="50%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+          <circle cx="70" cy="70" r="60" fill="none" stroke="url(#gold-grad)" stroke-width="8"
+            stroke-dasharray="377" stroke-dashoffset="98"
+            stroke-linecap="round" transform="rotate(-90 70 70)"/>
+        </svg>
+        <div class="score-text">
+          <span class="number">74</span>
+          <span class="of">of 100</span>
+        </div>
+      </div>
+      <div class="tile-sub">Good — room to improve protection &amp; retirement</div>
+    </div>
+
+    <!-- Net Worth 2x1 -->
+    <div class="tile tile-networth">
+      <div>
+        <div class="tile-label">Net Worth</div>
+        <div class="tile-number">S$412K</div>
+        <div class="tile-sub">+S$18K from last quarter</div>
+      </div>
+      <div class="sparkline-wrap">
+        <svg viewBox="0 0 120 50">
+          <defs>
+            <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(16,185,129,0.3)"/>
+              <stop offset="100%" stop-color="rgba(16,185,129,0)"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,40 L20,35 L40,38 L60,28 L80,22 L100,18 L120,12" fill="none" stroke="#10b981" stroke-width="2"/>
+          <path d="M0,40 L20,35 L40,38 L60,28 L80,22 L100,18 L120,12 L120,50 L0,50 Z" fill="url(#spark-grad)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Monthly Surplus 1x1 -->
+    <div class="tile tile-surplus">
+      <div class="tile-label">Monthly Surplus</div>
+      <div class="tile-number">S$1,897</div>
+      <div class="tile-sub">24% savings rate</div>
+    </div>
+
+    <!-- Retirement 1x1 -->
+    <div class="tile tile-retirement">
+      <div class="tile-label">Retirement Progress</div>
+      <div class="tile-number">62%</div>
+      <div class="tile-sub">Gap: S$312K funded</div>
+    </div>
+
+    <!-- CPF 1x1 -->
+    <div class="tile tile-cpf">
+      <div class="tile-label">CPF Total</div>
+      <div class="tile-number">S$185K</div>
+      <div class="tile-sub">OA + SA + MA combined</div>
+    </div>
+
+    <!-- Protection 1x1 -->
+    <div class="tile tile-protection">
+      <div class="tile-label">Protection Score</div>
+      <div class="tile-number">68</div>
+      <div class="policies">5 active policies</div>
+      <div class="score-bar"><div class="score-bar-fill"></div></div>
+    </div>
+
+    <!-- Chart full width -->
+    <div class="tile tile-chart">
+      <div class="tile-label">Net Worth Projection (12 months)</div>
+      <svg viewBox="0 0 900 120" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(16,185,129,0.2)"/>
+            <stop offset="100%" stop-color="rgba(16,185,129,0)"/>
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        <line x1="0" y1="30" x2="900" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="60" x2="900" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="90" x2="900" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <!-- area -->
+        <path d="M0,100 C75,95 150,88 225,80 C300,72 375,65 450,55 C525,48 600,42 675,35 C750,28 825,22 900,15 L900,120 L0,120 Z" fill="url(#chart-grad)"/>
+        <!-- line -->
+        <path d="M0,100 C75,95 150,88 225,80 C300,72 375,65 450,55 C525,48 600,42 675,35 C750,28 825,22 900,15" fill="none" stroke="#10b981" stroke-width="2"/>
+        <!-- dot -->
+        <circle cx="900" cy="15" r="4" fill="#10b981"/>
+        <circle cx="900" cy="15" r="8" fill="rgba(16,185,129,0.2)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <div class="tools-section">
+    <h2>Advisory Tools</h2>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-icon">⚡</div>
+        <div class="tool-name">Stress Test</div>
+        <div class="tool-desc">Simulate income shocks and see how long your savings last.</div>
+        <span class="tool-badge amber">Needs Review</span>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🎯</div>
+        <div class="tool-name">Retirement Analytics</div>
+        <div class="tool-desc">Tri-lock solver for corpus, time, and monthly investment.</div>
+        <span class="tool-badge amber">62% Funded</span>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">💰</div>
+        <div class="tool-name">Cash Flow</div>
+        <div class="tool-desc">Track income, expenses, and surplus by category.</div>
+        <span class="tool-badge">Healthy</span>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🏥</div>
+        <div class="tool-name">LTC Gap</div>
+        <div class="tool-desc">CareShield Life analysis and long-term care cost modelling.</div>
+        <span class="tool-badge amber">Gap Found</span>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🏦</div>
+        <div class="tool-name">CPF Planning</div>
+        <div class="tool-desc">OA, SA, MA projections with top-up and withdrawal scenarios.</div>
+        <span class="tool-badge purple">S$185K</span>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">📈</div>
+        <div class="tool-name">Net Worth</div>
+        <div class="tool-desc">Assets vs liabilities with historical tracking.</div>
+        <span class="tool-badge blue">S$412K</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

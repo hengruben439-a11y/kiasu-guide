@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Horizon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top Nav ── */
+  .topnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 100;
+  }
+
+  .topnav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+  }
+
+  .topnav-pills {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .pill {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .pill:hover {
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .pill.active {
+    background: #ffffff;
+    color: #0a0a0a;
+    font-weight: 600;
+  }
+
+  .topnav-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .topnav-avatar:hover {
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  /* ── Main Content ── */
+  .main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 48px 80px;
+    margin-top: 56px;
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    margin-bottom: 48px;
+  }
+
+  .greeting h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .greeting p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+  }
+
+  /* ── Stat Cards Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 28px;
+    padding: 28px 24px;
+    transition: border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 400;
+  }
+
+  .stat-sub .green { color: #10b981; }
+  .stat-sub .amber { color: #f59e0b; }
+  .stat-sub .purple { color: #8b5cf6; }
+
+  /* ── Verdict Banner ── */
+  .verdict {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 32px 36px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .verdict-score {
+    font-size: 56px;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .verdict-body {
+    flex: 1;
+  }
+
+  .verdict-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 6px;
+  }
+
+  .verdict-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .verdict-bar-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .verdict-bar-fill {
+    height: 100%;
+    width: 74%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #10b981, #22c55e);
+    transition: width 1s ease;
+  }
+
+  /* ── Section Header ── */
+  .section-header {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 20px;
+  }
+
+  /* ── Tool Cards Grid ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 32px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background 0.25s ease;
+    position: relative;
+  }
+
+  .tool-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.045);
+  }
+
+  .tool-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .tool-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .tool-icon.red { background: rgba(239,68,68,0.12); }
+  .tool-icon.amber { background: rgba(245,158,11,0.12); }
+  .tool-icon.green { background: rgba(16,185,129,0.12); }
+  .tool-icon.purple { background: rgba(139,92,246,0.12); }
+  .tool-icon.blue { background: rgba(59,130,246,0.12); }
+  .tool-icon.teal { background: rgba(20,184,166,0.12); }
+
+  .tool-info h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .tool-info p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.45;
+  }
+
+  .tool-bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .tool-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .tool-badge.ready {
+    background: rgba(16,185,129,0.1);
+    color: #10b981;
+  }
+
+  .tool-badge.action {
+    background: rgba(245,158,11,0.1);
+    color: #f59e0b;
+  }
+
+  .tool-badge.attention {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .main { padding: 32px 20px 60px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .tools-grid { grid-template-columns: 1fr; }
+    .greeting h1 { font-size: 28px; }
+    .topnav-pills { display: none; }
+    .verdict { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">The Kiasu Guide</div>
+  <div class="topnav-pills">
+    <div class="pill active">Know</div>
+    <div class="pill">Find</div>
+    <div class="pill">Plot</div>
+    <div class="pill">Optimise</div>
+    <div class="pill">Summary</div>
+  </div>
+  <div class="topnav-avatar">N</div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Greeting -->
+  <div class="greeting">
+    <h1>Good evening, Noah.</h1>
+    <p>Your financial overview as of 31 March 2026</p>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Net Worth</div>
+      <div class="stat-value">S$412K</div>
+      <div class="stat-sub"><span class="green">+3.2%</span> this quarter</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Monthly Surplus</div>
+      <div class="stat-value">S$1,897</div>
+      <div class="stat-sub"><span class="green">24%</span> savings rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Retirement</div>
+      <div class="stat-value">62%</div>
+      <div class="stat-sub">Gap <span class="amber">S$312K</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">CPF Total</div>
+      <div class="stat-value">S$185K</div>
+      <div class="stat-sub"><span class="purple">OA + SA + MA</span></div>
+    </div>
+  </div>
+
+  <!-- Verdict Banner -->
+  <div class="verdict">
+    <div class="verdict-score">74</div>
+    <div class="verdict-body">
+      <div class="verdict-title">Building Momentum</div>
+      <div class="verdict-desc">Your financial health is solid but there are gaps in protection coverage and retirement funding. Addressing your S$312K retirement gap and improving insurance coverage will move you into the next tier.</div>
+      <div class="verdict-bar-track">
+        <div class="verdict-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="section-header">Your Tools</div>
+  <div class="tools-grid">
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon red">&#9889;</div>
+        <div class="tool-info">
+          <h3>Stress Test</h3>
+          <p>Simulate income shocks, disability, and critical illness. See how long your savings last under pressure.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge action">Needs review</span>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon amber">&#9678;</div>
+        <div class="tool-info">
+          <h3>Retirement Analytics</h3>
+          <p>Tri-lock solver for retirement age, monthly income, and required corpus. 62% funded.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge action">Gap S$312K</span>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon green">&#9733;</div>
+        <div class="tool-info">
+          <h3>Cash Flow</h3>
+          <p>Track income, expenses, and savings rate. You're saving 24% of income each month.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge ready">On track</span>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon blue">&#9829;</div>
+        <div class="tool-info">
+          <h3>LTC Gap</h3>
+          <p>Long-term care cost projection with CareShield Life integration. Assess your monthly shortfall.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge attention">Gap found</span>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon purple">&#9679;</div>
+        <div class="tool-info">
+          <h3>CPF Planning</h3>
+          <p>Project your OA, SA, and MA balances. Optimise contributions and withdrawals over time.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge ready">S$185K total</span>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-top">
+        <div class="tool-icon teal">&#9670;</div>
+        <div class="tool-info">
+          <h3>Net Worth</h3>
+          <p>Assets, liabilities, and total net worth tracking. 5 active insurance policies linked.</p>
+        </div>
+      </div>
+      <div class="tool-bottom">
+        <span class="tool-badge ready">S$412K</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Protection Summary -->
+  <div style="margin-top: 32px;">
+    <div class="section-header">Protection</div>
+    <div class="stat-card" style="display: flex; align-items: center; gap: 24px;">
+      <div>
+        <div class="stat-label">Protection Score</div>
+        <div class="stat-value">68</div>
+      </div>
+      <div style="flex: 1;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">5 active policies covering death, TPD, early CI, hospitalisation, and personal accident.</div>
+        <div class="verdict-bar-track">
+          <div class="verdict-bar-fill" style="width: 68%; background: linear-gradient(90deg, #f59e0b, #eab308);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

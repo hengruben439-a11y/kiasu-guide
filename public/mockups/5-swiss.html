@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 5 — Swiss</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0605;
+    --text: #fdf8f2;
+    --text-dim: rgba(253,248,242,0.4);
+    --text-muted: rgba(253,248,242,0.25);
+    --text-ghost: rgba(253,248,242,0.06);
+    --gold: #c4a882;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --purple: #a78bfa;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 160px;
+    height: 100vh;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 48px;
+    line-height: 1;
+  }
+
+  .sidebar-phases {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .phase-group {
+    padding: 16px 0;
+    border-bottom: 0.5px solid var(--text-ghost);
+  }
+
+  .phase-group:first-child { padding-top: 0; }
+  .phase-group:last-child { border-bottom: none; }
+
+  .phase-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .phase-label:hover { color: var(--text-dim); }
+  .phase-group.active .phase-label { color: var(--gold); }
+
+  .phase-items {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+    padding-left: 0;
+  }
+
+  .phase-group.active .phase-items { display: flex; }
+
+  .phase-item {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-dim);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+    line-height: 1.2;
+  }
+
+  .phase-item:hover { color: var(--text); }
+  .phase-item.active { font-weight: 700; color: var(--text); }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 160px;
+    padding: 60px 64px;
+    min-height: 100vh;
+    max-width: 1200px;
+  }
+
+  /* ── Header ── */
+  .header-greeting {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 32px;
+    line-height: 1.4;
+  }
+
+  .hairline {
+    height: 0.5px;
+    background: var(--text-ghost);
+    width: 100%;
+  }
+
+  /* ── Stats Grid ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 80px;
+    margin-top: 48px;
+  }
+
+  .stat-block {
+    padding: 0 0 36px 0;
+  }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .stat-number.huge { font-size: 80px; }
+  .stat-number.large { font-size: 64px; }
+  .stat-number.medium { font-size: 56px; }
+  .stat-number.smaller { font-size: 48px; }
+
+  .stat-fraction {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    font-weight: 400;
+  }
+
+  .stat-divider {
+    height: 0.5px;
+    background: var(--text-ghost);
+    margin-top: 36px;
+  }
+
+  .color-green { color: var(--green); }
+  .color-amber { color: var(--amber); }
+  .color-purple { color: var(--purple); }
+  .color-red { color: var(--red); }
+
+  /* ── Tools Section ── */
+  .tools-section {
+    margin-top: 64px;
+  }
+
+  .tools-heading {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+  }
+
+  .tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tool-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+    border-bottom: 0.5px solid var(--text-ghost);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .tool-row:first-child {
+    border-top: 0.5px solid var(--text-ghost);
+  }
+
+  .tool-row:hover .tool-name {
+    color: var(--gold);
+    text-decoration: underline;
+    text-decoration-color: rgba(196,168,130,0.3);
+    text-underline-offset: 4px;
+  }
+
+  .tool-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    transition: color 0.2s, text-decoration 0.2s;
+  }
+
+  .tool-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .tool-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-red { background: var(--red); }
+  .dot-muted { background: var(--text-muted); }
+
+  /* ── Timestamp ── */
+  .timestamp {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--text-ghost);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main {
+      margin-left: 0;
+      padding: 32px 24px;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .stat-number.huge { font-size: 56px; }
+    .stat-number.large { font-size: 48px; }
+    .stat-number.medium { font-size: 42px; }
+    .stat-number.smaller { font-size: 36px; }
+    .header-greeting { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+
+  <div class="sidebar-phases">
+    <div class="phase-group active">
+      <div class="phase-label">1 Know</div>
+      <div class="phase-items">
+        <a class="phase-item active" href="#">Dashboard</a>
+        <a class="phase-item" href="#">Financial Profile</a>
+        <a class="phase-item" href="#">CPF Overview</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-label">2 Find</div>
+      <div class="phase-items">
+        <a class="phase-item" href="#">Insurance Benefits</a>
+        <a class="phase-item" href="#">LTC Gap</a>
+        <a class="phase-item" href="#">Stress Test</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-label">3 Plot</div>
+      <div class="phase-items">
+        <a class="phase-item" href="#">Retirement</a>
+        <a class="phase-item" href="#">Cost of Waiting</a>
+        <a class="phase-item" href="#">CPF Planner</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-label">4 Optimise</div>
+      <div class="phase-items">
+        <a class="phase-item" href="#">Cash Flow</a>
+        <a class="phase-item" href="#">Net Worth</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-label">5 Summary</div>
+      <div class="phase-items">
+        <a class="phase-item" href="#">Session Summary</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Header -->
+  <h1 class="header-greeting">Good evening, Noah.</h1>
+  <p class="header-sub">Your financial overview as of 31 March 2026.</p>
+  <div class="hairline"></div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+
+    <!-- Left Column -->
+    <div>
+      <div class="stat-block">
+        <div class="stat-number huge">S$412,000</div>
+        <div class="stat-label">Net Worth</div>
+        <div class="stat-divider"></div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-number huge">74<span class="stat-fraction">/100</span></div>
+        <div class="stat-label">Health Score</div>
+        <div class="stat-divider"></div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-number medium color-green">S$1,897</div>
+        <div class="stat-label">Monthly Surplus</div>
+        <div class="stat-sub">24% savings rate</div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+      <div class="stat-block">
+        <div class="stat-number large color-amber">62%</div>
+        <div class="stat-label">Retirement Funded</div>
+        <div class="stat-sub">Gap: S$312K</div>
+        <div class="stat-divider"></div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-number smaller color-purple">S$185K</div>
+        <div class="stat-label">CPF Total</div>
+        <div class="stat-divider"></div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-number smaller">68<span class="stat-fraction">/100</span></div>
+        <div class="stat-label">Protection Score</div>
+        <div class="stat-sub">5 active policies</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tools -->
+  <div class="tools-section">
+    <div class="tools-heading">Tools</div>
+    <div class="tools-list">
+
+      <div class="tool-row">
+        <span class="tool-name">Stress Test</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-green"></span>
+          Completed
+        </span>
+      </div>
+
+      <div class="tool-row">
+        <span class="tool-name">Retirement Analytics</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-amber"></span>
+          Needs review
+        </span>
+      </div>
+
+      <div class="tool-row">
+        <span class="tool-name">Cash Flow</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-green"></span>
+          Completed
+        </span>
+      </div>
+
+      <div class="tool-row">
+        <span class="tool-name">LTC Gap</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-red"></span>
+          Action needed
+        </span>
+      </div>
+
+      <div class="tool-row">
+        <span class="tool-name">CPF Planning</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-muted"></span>
+          Not started
+        </span>
+      </div>
+
+      <div class="tool-row">
+        <span class="tool-name">Net Worth</span>
+        <span class="tool-status">
+          <span class="tool-dot dot-green"></span>
+          Completed
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Timestamp -->
+  <div class="timestamp">
+    Last updated 31 Mar 2026, 7:42 PM SGT
+  </div>
+
+</main>
+
+</body>
+</html>
