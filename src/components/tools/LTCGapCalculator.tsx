@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useCountUp } from '@/lib/hooks/use-count-up'
+// count-up removed — direct display avoids animation glitches on slider drag
 import {
   ComposedChart,
   Bar,
@@ -111,7 +111,6 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
 
   const absMonthlyGap = Math.abs(monthlyGap)
   const absTotalGap = Math.abs(totalGap)
-  const animatedTotalGap = useCountUp(absTotalGap, 1400)
   const isSurplus = totalGap < 0
   const isFullyCovered = totalGap === 0
   const gapReduction = DEFAULT_CARESHIELD_MONTHLY < userCoverage && AVG_LTC_MONTHLY > DEFAULT_CARESHIELD_MONTHLY
@@ -181,7 +180,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             marginBottom: '0.75rem',
           }}
         >
-          {isSurplus ? '+' : ''}S${animatedTotalGap.toLocaleString('en-SG')}
+          {isSurplus ? '+' : ''}S${Math.round(absTotalGap).toLocaleString('en-SG')}
           <span
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
