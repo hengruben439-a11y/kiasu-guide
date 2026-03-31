@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Layers</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #07060b;
+    color: #faf8ff;
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Animated Gradient Orbs ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb-purple {
+    width: 500px;
+    height: 500px;
+    background: rgba(124, 58, 237, 0.08);
+    top: 10%;
+    left: 55%;
+    animation: drift-purple 25s ease-in-out infinite;
+  }
+
+  .orb-pink {
+    width: 400px;
+    height: 400px;
+    background: rgba(236, 72, 153, 0.05);
+    top: 50%;
+    left: 15%;
+    animation: drift-pink 30s ease-in-out infinite;
+  }
+
+  .orb-gold {
+    width: 350px;
+    height: 350px;
+    background: rgba(196, 168, 130, 0.04);
+    top: 70%;
+    left: 65%;
+    animation: drift-gold 22s ease-in-out infinite;
+  }
+
+  @keyframes drift-purple {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-60px, 40px); }
+    50% { transform: translate(30px, -50px); }
+    75% { transform: translate(-40px, -20px); }
+  }
+
+  @keyframes drift-pink {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(50px, -30px); }
+    50% { transform: translate(-40px, 60px); }
+    75% { transform: translate(30px, 20px); }
+  }
+
+  @keyframes drift-gold {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-30px, -50px); }
+    50% { transform: translate(50px, 30px); }
+    75% { transform: translate(-20px, 40px); }
+  }
+
+  /* ── Floating Nav Panel ── */
+  .floating-nav {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 28px 20px;
+    z-index: 50;
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(250, 248, 255, 0.6);
+    margin-bottom: 28px;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-phase {
+    margin-bottom: 20px;
+  }
+
+  .nav-phase-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(250, 248, 255, 0.25);
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(250, 248, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover {
+    color: rgba(250, 248, 255, 0.7);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .nav-item.active {
+    color: #faf8ff;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .nav-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(250, 248, 255, 0.2);
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-dot {
+    background: #c4a882;
+    box-shadow: 0 0 6px rgba(196, 168, 130, 0.4);
+  }
+
+  .nav-item.done .nav-dot {
+    background: #10b981;
+  }
+
+  /* ── Avatar ── */
+  .nav-avatar {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-avatar-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(250, 248, 255, 0.5);
+  }
+
+  .nav-avatar-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(250, 248, 255, 0.5);
+  }
+
+  /* ── Main Content ── */
+  .main {
+    margin-left: 240px;
+    max-width: 900px;
+    padding: 48px 40px 80px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    margin-bottom: 40px;
+  }
+
+  .greeting h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #faf8ff;
+    margin-bottom: 6px;
+  }
+
+  .greeting p {
+    font-size: 13px;
+    color: rgba(250, 248, 255, 0.35);
+  }
+
+  /* ── Glass Panel ── */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 32px;
+  }
+
+  /* ── Hero Score Panel ── */
+  .hero-panel {
+    padding: 48px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-panel::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-score {
+    font-size: 96px;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, #8b5cf6 0%, #c4a882 50%, #d4b896 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(250, 248, 255, 0.35);
+    margin-bottom: 16px;
+  }
+
+  .hero-desc {
+    font-size: 14px;
+    color: rgba(250, 248, 255, 0.45);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Stat Cards Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 24px 20px;
+    position: relative;
+    transition: border-color 0.25s ease;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 20%;
+    right: 20%;
+    height: 20px;
+    border-radius: 50%;
+    filter: blur(16px);
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .stat-card:hover::after {
+    opacity: 0.8;
+  }
+
+  .stat-card.glow-green::after { background: rgba(16, 185, 129, 0.2); }
+  .stat-card.glow-amber::after { background: rgba(245, 158, 11, 0.2); }
+  .stat-card.glow-purple::after { background: rgba(139, 92, 246, 0.2); }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(250, 248, 255, 0.3);
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #faf8ff;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: rgba(250, 248, 255, 0.3);
+  }
+
+  .stat-sub .green { color: #10b981; }
+  .stat-sub .amber { color: #f59e0b; }
+  .stat-sub .purple { color: #8b5cf6; }
+
+  /* ── Section Header ── */
+  .section-header {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(250, 248, 255, 0.25);
+    margin-bottom: 20px;
+    margin-top: 16px;
+  }
+
+  /* ── Tool Cards Grid ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .tool-card {
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .tool-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .tool-card:hover::before {
+    opacity: 1;
+  }
+
+  .tool-card.tint-red::before { background: radial-gradient(ellipse at top left, rgba(239,68,68,0.04) 0%, transparent 60%); }
+  .tool-card.tint-amber::before { background: radial-gradient(ellipse at top left, rgba(245,158,11,0.04) 0%, transparent 60%); }
+  .tool-card.tint-green::before { background: radial-gradient(ellipse at top left, rgba(16,185,129,0.04) 0%, transparent 60%); }
+  .tool-card.tint-blue::before { background: radial-gradient(ellipse at top left, rgba(59,130,246,0.04) 0%, transparent 60%); }
+  .tool-card.tint-purple::before { background: radial-gradient(ellipse at top left, rgba(139,92,246,0.04) 0%, transparent 60%); }
+  .tool-card.tint-teal::before { background: radial-gradient(ellipse at top left, rgba(20,184,166,0.04) 0%, transparent 60%); }
+
+  .tool-icon {
+    font-size: 20px;
+    margin-bottom: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tool-icon.red { background: rgba(239,68,68,0.1); }
+  .tool-icon.amber { background: rgba(245,158,11,0.1); }
+  .tool-icon.green { background: rgba(16,185,129,0.1); }
+  .tool-icon.blue { background: rgba(59,130,246,0.1); }
+  .tool-icon.purple { background: rgba(139,92,246,0.1); }
+  .tool-icon.teal { background: rgba(20,184,166,0.1); }
+
+  .tool-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #faf8ff;
+    margin-bottom: 6px;
+  }
+
+  .tool-desc {
+    font-size: 12px;
+    color: rgba(250, 248, 255, 0.35);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .tool-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .tool-badge.ready { background: rgba(16,185,129,0.1); color: #10b981; }
+  .tool-badge.action { background: rgba(245,158,11,0.1); color: #f59e0b; }
+  .tool-badge.attention { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+  /* ── Protection Strip ── */
+  .protection-strip {
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .prot-score {
+    font-size: 40px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #f59e0b, #eab308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .prot-body { flex: 1; }
+
+  .prot-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #faf8ff;
+    margin-bottom: 4px;
+  }
+
+  .prot-desc {
+    font-size: 12px;
+    color: rgba(250, 248, 255, 0.35);
+    margin-bottom: 12px;
+  }
+
+  .prot-bar-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .prot-bar-fill {
+    height: 100%;
+    width: 68%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #f59e0b, #eab308);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .floating-nav { display: none; }
+    .main { margin-left: 0; padding: 32px 20px 60px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .tools-grid { grid-template-columns: 1fr; }
+    .hero-score { font-size: 64px; }
+    .hero-panel { padding: 36px 24px; }
+    .protection-strip { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated Orbs -->
+<div class="orb orb-purple"></div>
+<div class="orb orb-pink"></div>
+<div class="orb orb-gold"></div>
+
+<!-- Floating Nav Panel -->
+<nav class="floating-nav">
+  <div class="nav-brand">The Kiasu Guide</div>
+
+  <div class="nav-phase">
+    <div class="nav-phase-label">Know</div>
+    <div class="nav-item active"><div class="nav-dot"></div>Dashboard</div>
+    <div class="nav-item done"><div class="nav-dot"></div>Profile</div>
+    <div class="nav-item done"><div class="nav-dot"></div>CPF Overview</div>
+  </div>
+
+  <div class="nav-phase">
+    <div class="nav-phase-label">Find Gaps</div>
+    <div class="nav-item done"><div class="nav-dot"></div>Insurance</div>
+    <div class="nav-item"><div class="nav-dot"></div>LTC Gap</div>
+    <div class="nav-item"><div class="nav-dot"></div>Stress Test</div>
+  </div>
+
+  <div class="nav-phase">
+    <div class="nav-phase-label">Plot Path</div>
+    <div class="nav-item"><div class="nav-dot"></div>Retirement</div>
+    <div class="nav-item"><div class="nav-dot"></div>Cash Flow</div>
+  </div>
+
+  <div class="nav-phase">
+    <div class="nav-phase-label">Optimise</div>
+    <div class="nav-item"><div class="nav-dot"></div>Net Worth</div>
+  </div>
+
+  <div class="nav-avatar">
+    <div class="nav-avatar-circle">N</div>
+    <div class="nav-avatar-name">Noah</div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Greeting -->
+  <div class="greeting">
+    <h1>Good evening, Noah.</h1>
+    <p>31 March 2026</p>
+  </div>
+
+  <!-- Hero Score Panel -->
+  <div class="glass hero-panel">
+    <div class="hero-score">74</div>
+    <div class="hero-label">Financial Health Score</div>
+    <div class="hero-desc">Your finances are building momentum. Strong savings habits and growing CPF balances form a solid foundation. Focus on closing the protection and retirement gaps to reach the next level.</div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-row">
+    <div class="stat-card glow-green">
+      <div class="stat-label">Net Worth</div>
+      <div class="stat-value">S$412K</div>
+      <div class="stat-sub"><span class="green">+3.2%</span> this quarter</div>
+    </div>
+    <div class="stat-card glow-amber">
+      <div class="stat-label">Retirement</div>
+      <div class="stat-value">62%</div>
+      <div class="stat-sub">Gap <span class="amber">S$312K</span></div>
+    </div>
+    <div class="stat-card glow-green">
+      <div class="stat-label">Monthly Surplus</div>
+      <div class="stat-value">S$1,897</div>
+      <div class="stat-sub"><span class="green">24%</span> savings rate</div>
+    </div>
+    <div class="stat-card glow-purple">
+      <div class="stat-label">CPF Total</div>
+      <div class="stat-value">S$185K</div>
+      <div class="stat-sub"><span class="purple">OA + SA + MA</span></div>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <div class="section-header">Tools</div>
+  <div class="tools-grid">
+    <div class="tool-card tint-red">
+      <div class="tool-icon red">&#9889;</div>
+      <div class="tool-name">Stress Test</div>
+      <div class="tool-desc">Simulate income shocks and see how long your savings last under pressure.</div>
+      <span class="tool-badge action">Needs review</span>
+    </div>
+
+    <div class="tool-card tint-amber">
+      <div class="tool-icon amber">&#9678;</div>
+      <div class="tool-name">Retirement Analytics</div>
+      <div class="tool-desc">Tri-lock solver for retirement age, income, and corpus. 62% funded.</div>
+      <span class="tool-badge action">Gap S$312K</span>
+    </div>
+
+    <div class="tool-card tint-green">
+      <div class="tool-icon green">&#9733;</div>
+      <div class="tool-name">Cash Flow</div>
+      <div class="tool-desc">Track income, expenses, and savings rate. 24% savings rate this month.</div>
+      <span class="tool-badge ready">On track</span>
+    </div>
+
+    <div class="tool-card tint-blue">
+      <div class="tool-icon blue">&#9829;</div>
+      <div class="tool-name">LTC Gap</div>
+      <div class="tool-desc">Long-term care cost projection with CareShield Life integration.</div>
+      <span class="tool-badge attention">Gap found</span>
+    </div>
+
+    <div class="tool-card tint-purple">
+      <div class="tool-icon purple">&#9679;</div>
+      <div class="tool-name">CPF Planning</div>
+      <div class="tool-desc">Project OA, SA, and MA balances. Optimise contributions over time.</div>
+      <span class="tool-badge ready">S$185K total</span>
+    </div>
+
+    <div class="tool-card tint-teal">
+      <div class="tool-icon teal">&#9670;</div>
+      <div class="tool-name">Net Worth</div>
+      <div class="tool-desc">Assets, liabilities, and total net worth. 5 active policies linked.</div>
+      <span class="tool-badge ready">S$412K</span>
+    </div>
+  </div>
+
+  <!-- Protection Strip -->
+  <div class="section-header">Protection</div>
+  <div class="protection-strip">
+    <div class="prot-score">68</div>
+    <div class="prot-body">
+      <div class="prot-title">Protection Score</div>
+      <div class="prot-desc">5 active policies covering death, TPD, early CI, hospitalisation, and personal accident.</div>
+      <div class="prot-bar-track">
+        <div class="prot-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
