@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noir — The Kiasu Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #030303;
+    --card: #0a0908;
+    --sidebar: #050504;
+    --copper: #d4a574;
+    --copper-dim: rgba(212,165,116,0.35);
+    --copper-glow: rgba(212,165,116,0.25);
+    --text: #f0ebe4;
+    --text-sec: rgba(240,235,228,0.45);
+    --text-muted: rgba(240,235,228,0.20);
+    --success: #22c55e;
+    --warning: #eab308;
+    --danger: #ef4444;
+    --purple: #a78bfa;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 220px;
+    background: var(--sidebar);
+    padding: 32px 0;
+    overflow-y: auto;
+    z-index: 100;
+    border-right: none;
+  }
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 2px;
+    background: var(--copper);
+    box-shadow: 0 0 12px var(--copper-glow), 0 0 30px rgba(212,165,116,0.12);
+  }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--copper);
+    padding: 0 24px;
+    margin-bottom: 40px;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-phase {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 24px;
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+  .nav-phase:first-of-type { margin-top: 0; }
+
+  .nav-link {
+    display: block;
+    padding: 7px 24px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-sec);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--text); }
+  .nav-link.active { color: var(--copper); font-weight: 500; }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 220px;
+    padding: 40px 48px;
+    max-width: 1000px;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 40px;
+  }
+  .tab-btn {
+    padding: 8px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-sec);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--copper);
+    background: rgba(212,165,116,0.08);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--copper) 50%, transparent 100%);
+    opacity: 0.7;
+    box-shadow: 0 0 8px var(--copper-glow);
+  }
+
+  /* ── Stat Cards ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    padding: 22px 20px 18px;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .stat-value.amber { color: var(--warning); }
+  .stat-value.green { color: var(--success); }
+  .stat-value.copper { color: var(--copper); }
+
+  /* ── Tool Grid ── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 36px;
+  }
+  .tool-card {
+    padding: 22px 20px 18px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .tool-card:hover { transform: translateY(-2px); }
+  .tool-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .tool-desc {
+    font-size: 12px;
+    color: var(--text-sec);
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+  .tool-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .badge-done { background: rgba(34,197,94,0.12); color: var(--success); }
+  .badge-progress { background: rgba(234,179,8,0.12); color: var(--warning); }
+  .badge-new { background: rgba(167,139,250,0.12); color: var(--purple); }
+
+  /* ── Chart Wrapper ── */
+  .chart-wrap {
+    padding: 28px 24px 20px;
+    margin-bottom: 0;
+  }
+  .chart-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-sec);
+    margin-bottom: 20px;
+  }
+  .chart-svg { width: 100%; height: auto; display: block; }
+
+  /* ── Stress Test ── */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    font-size: 14px;
+    color: var(--text-sec);
+    margin-bottom: 28px;
+  }
+
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .preset-card {
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    text-align: center;
+  }
+  .preset-card:hover { transform: translateY(-2px); }
+  .preset-card.selected::before { opacity: 1; }
+  .preset-emoji { font-size: 24px; margin-bottom: 8px; }
+  .preset-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .preset-desc {
+    font-size: 11px;
+    color: var(--text-sec);
+    line-height: 1.4;
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding: 0 4px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-sec);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .stat-row .card { padding: 20px; }
+  .stat-row .stat-label { margin-bottom: 6px; }
+  .stat-row .stat-value { font-size: 24px; }
+
+  /* ── Retirement ── */
+  .hero-verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 32px;
+  }
+  .hero-verdict .copper { color: var(--copper); }
+  .hero-verdict .amber { color: var(--warning); }
+
+  .income-table {
+    margin-top: 32px;
+  }
+  .income-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(240,235,228,0.05);
+  }
+  .income-row:last-child { border-bottom: none; }
+  .income-row.total {
+    border-top: 1px solid rgba(212,165,116,0.2);
+    border-bottom: none;
+    margin-top: 2px;
+  }
+  .income-label { font-size: 14px; color: var(--text-sec); }
+  .income-label.total-label { color: var(--text); font-weight: 600; }
+  .income-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .income-value.copper { color: var(--copper); }
+
+  .slider-wrap {
+    margin-top: 28px;
+    padding: 24px 20px;
+  }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .slider-label span:first-child {
+    font-size: 13px;
+    color: var(--text-sec);
+  }
+  .slider-label span:last-child {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--copper);
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: rgba(240,235,228,0.08);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--copper);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--copper-glow);
+  }
+
+  /* ── Greeting ── */
+  .greeting {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 36px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="brand">The Kiasu Guide</div>
+
+  <div class="nav-phase">Know Your Position</div>
+  <a class="nav-link active" onclick="switchTab(0)">Dashboard</a>
+  <a class="nav-link">Financial Profile</a>
+  <a class="nav-link">CPF Overview</a>
+
+  <div class="nav-phase">Find the Gaps</div>
+  <a class="nav-link">Insurance Benefits</a>
+  <a class="nav-link">LTC Calculator</a>
+  <a class="nav-link" onclick="switchTab(1)">Stress Test</a>
+
+  <div class="nav-phase">Plot the Path</div>
+  <a class="nav-link" onclick="switchTab(2)">Retirement</a>
+  <a class="nav-link">Cost of Waiting</a>
+  <a class="nav-link">CPF Planner</a>
+
+  <div class="nav-phase">Understand Tools</div>
+  <a class="nav-link">Risk Profiler</a>
+  <a class="nav-link">Concepts Library</a>
+
+  <div class="nav-phase">Optimise</div>
+  <a class="nav-link">Cash Flow</a>
+  <a class="nav-link">Net Worth</a>
+</nav>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab(0)">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab(1)">Stress Test</button>
+    <button class="tab-btn" onclick="switchTab(2)">Retirement</button>
+  </div>
+
+  <!-- TAB 1: Dashboard -->
+  <div id="tab-0" class="tab-content active">
+    <div class="greeting">Good evening, Noah.</div>
+
+    <div class="stat-grid">
+      <div class="card stat-card">
+        <div class="stat-label">Health Score</div>
+        <div class="stat-value copper">74<span style="font-size:16px;color:var(--text-muted)">/100</span></div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Net Worth</div>
+        <div class="stat-value">S$412K</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Retirement</div>
+        <div class="stat-value amber">62%</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Monthly Surplus</div>
+        <div class="stat-value green">S$1,897</div>
+      </div>
+    </div>
+
+    <!-- Wealth Projection Chart -->
+    <div class="card chart-wrap">
+      <div class="chart-title">Wealth Projection</div>
+      <svg class="chart-svg" viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="copperFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a574" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#d4a574" stop-opacity="0.01"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid lines -->
+        <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(240,235,228,0.05)" stroke-width="1"/>
+        <line x1="60" y1="240" x2="860" y2="240" stroke="rgba(240,235,228,0.08)" stroke-width="1"/>
+        <line x1="60" y1="180" x2="860" y2="180" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="120" x2="860" y2="120" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="60" x2="860" y2="60" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <!-- Y-axis labels -->
+        <text x="50" y="244" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$0</text>
+        <text x="50" y="184" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$500K</text>
+        <text x="50" y="124" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$1M</text>
+        <text x="50" y="64" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$1.5M</text>
+        <!-- X-axis labels -->
+        <text x="100" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">30</text>
+        <text x="320" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">40</text>
+        <text x="540" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">50</text>
+        <text x="760" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">60</text>
+        <!-- Required line (dashed red) -->
+        <line x1="60" y1="55" x2="860" y2="55" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
+        <text x="865" y="59" fill="rgba(239,68,68,0.6)" font-family="DM Sans" font-size="9" text-anchor="start">Required</text>
+        <!-- Area fill -->
+        <path d="M60,230 C150,225 250,210 320,195 C400,176 480,150 540,118 C620,78 700,58 760,42 L760,240 L60,240 Z" fill="url(#copperFill)"/>
+        <!-- Copper line -->
+        <path d="M60,230 C150,225 250,210 320,195 C400,176 480,150 540,118 C620,78 700,58 760,42" fill="none" stroke="#d4a574" stroke-width="2" stroke-linecap="round"/>
+        <!-- Dot at end -->
+        <circle cx="760" cy="42" r="4" fill="#d4a574"/>
+        <circle cx="760" cy="42" r="7" fill="none" stroke="#d4a574" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+
+    <!-- Tool Cards -->
+    <div class="tool-grid">
+      <div class="card tool-card">
+        <div class="tool-name">Financial Profile</div>
+        <div class="tool-desc">Income, expenses, savings and assets overview</div>
+        <span class="tool-badge badge-done">Complete</span>
+      </div>
+      <div class="card tool-card">
+        <div class="tool-name">Insurance Benefits</div>
+        <div class="tool-desc">Policy vault with gap analysis and PDF scanner</div>
+        <span class="tool-badge badge-done">Complete</span>
+      </div>
+      <div class="card tool-card">
+        <div class="tool-name">Stress Test</div>
+        <div class="tool-desc">See how your finances hold under critical events</div>
+        <span class="tool-badge badge-progress">In Progress</span>
+      </div>
+      <div class="card tool-card">
+        <div class="tool-name">Retirement Planner</div>
+        <div class="tool-desc">Tri-lock solver for your retirement goal</div>
+        <span class="tool-badge badge-progress">In Progress</span>
+      </div>
+      <div class="card tool-card">
+        <div class="tool-name">CPF Overview</div>
+        <div class="tool-desc">OA, SA, MA balances and projections</div>
+        <span class="tool-badge badge-done">Complete</span>
+      </div>
+      <div class="card tool-card">
+        <div class="tool-name">Cash Flow</div>
+        <div class="tool-desc">Monthly income vs expenditure breakdown</div>
+        <span class="tool-badge badge-new">New</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Stress Test -->
+  <div id="tab-1" class="tab-content">
+    <div class="section-title">Financial Stress Test</div>
+    <div class="section-sub">Simulate how critical life events impact your financial runway.</div>
+
+    <div class="preset-grid">
+      <div class="card preset-card selected" onclick="selectPreset(this)">
+        <div class="preset-emoji">&#x1F5A4;</div>
+        <div class="preset-name">Death</div>
+        <div class="preset-desc">Total income loss for dependants</div>
+      </div>
+      <div class="card preset-card" onclick="selectPreset(this)">
+        <div class="preset-emoji">&#x1F9BD;</div>
+        <div class="preset-name">TPD</div>
+        <div class="preset-desc">Permanent disability, ongoing care costs</div>
+      </div>
+      <div class="card preset-card" onclick="selectPreset(this)">
+        <div class="preset-emoji">&#x1FA7A;</div>
+        <div class="preset-name">Early CI</div>
+        <div class="preset-desc">Critical illness at early stage</div>
+      </div>
+      <div class="card preset-card" onclick="selectPreset(this)">
+        <div class="preset-emoji">&#x1F3E5;</div>
+        <div class="preset-name">Advanced CI</div>
+        <div class="preset-desc">Late-stage critical illness event</div>
+      </div>
+    </div>
+
+    <!-- Dual-line Chart -->
+    <div class="card chart-wrap">
+      <div class="chart-title">Financial Runway Comparison</div>
+      <svg class="chart-svg" viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="copperFill2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a574" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#d4a574" stop-opacity="0.01"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <line x1="60" y1="20" x2="60" y2="250" stroke="rgba(240,235,228,0.05)" stroke-width="1"/>
+        <line x1="60" y1="250" x2="860" y2="250" stroke="rgba(240,235,228,0.08)" stroke-width="1"/>
+        <line x1="60" y1="190" x2="860" y2="190" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="130" x2="860" y2="130" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="70" x2="860" y2="70" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <!-- Y labels -->
+        <text x="50" y="254" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$0</text>
+        <text x="50" y="194" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$200K</text>
+        <text x="50" y="134" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$400K</text>
+        <text x="50" y="74" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$600K</text>
+        <!-- X labels -->
+        <text x="60" y="272" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">28</text>
+        <text x="222" y="272" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">35</text>
+        <text x="438" y="272" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">45</text>
+        <text x="654" y="272" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">55</text>
+        <text x="860" y="272" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">65</text>
+        <!-- Without Insurance (green dashed) — declines to 0 around age 43 -->
+        <path d="M60,130 C120,140 200,165 280,195 C360,225 420,242 480,250" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-dasharray="6,4" opacity="0.7"/>
+        <circle cx="480" cy="250" r="3.5" fill="#22c55e" opacity="0.7"/>
+        <!-- With Insurance (copper solid) — stays positive much longer -->
+        <path d="M60,70 C140,72 220,80 300,100 C400,128 500,165 580,200 C660,228 720,242 760,250" fill="none" stroke="#d4a574" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- Copper area -->
+        <path d="M60,70 C140,72 220,80 300,100 C400,128 500,165 580,200 C660,228 720,242 760,250 L760,250 L60,250 Z" fill="url(#copperFill2)"/>
+        <circle cx="760" cy="250" r="4" fill="#d4a574"/>
+        <circle cx="760" cy="250" r="7" fill="none" stroke="#d4a574" stroke-width="1" opacity="0.3"/>
+      </svg>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#22c55e;"></div>
+          Without Insurance
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#d4a574;"></div>
+          With Insurance
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Row -->
+    <div class="stat-row">
+      <div class="card">
+        <div class="stat-label">Runway Without Insurance</div>
+        <div class="stat-value amber">Age 43</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Insurance Saved</div>
+        <div class="stat-value copper">8 years</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Total Payout</div>
+        <div class="stat-value green">S$500K</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Retirement -->
+  <div id="tab-2" class="tab-content">
+    <div class="section-title">Retirement Analytics</div>
+
+    <div class="hero-verdict">
+      You need <span class="copper">S$1.87M</span> by age 65. You're projected to reach <span class="copper">S$1.16M</span>. You're <span class="amber">62% funded</span>.
+    </div>
+
+    <!-- Retirement Chart -->
+    <div class="card chart-wrap">
+      <div class="chart-title">Portfolio Projection vs Required</div>
+      <svg class="chart-svg" viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="retFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a574" stop-opacity="0.20"/>
+            <stop offset="100%" stop-color="#d4a574" stop-opacity="0.01"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(240,235,228,0.05)" stroke-width="1"/>
+        <line x1="60" y1="240" x2="860" y2="240" stroke="rgba(240,235,228,0.08)" stroke-width="1"/>
+        <line x1="60" y1="180" x2="860" y2="180" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="120" x2="860" y2="120" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <line x1="60" y1="60" x2="860" y2="60" stroke="rgba(240,235,228,0.04)" stroke-width="1"/>
+        <!-- Y labels -->
+        <text x="50" y="244" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$0</text>
+        <text x="50" y="184" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$600K</text>
+        <text x="50" y="124" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$1.2M</text>
+        <text x="50" y="64" text-anchor="end" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">S$1.8M</text>
+        <!-- X labels -->
+        <text x="60" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">28</text>
+        <text x="276" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">38</text>
+        <text x="492" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">48</text>
+        <text x="708" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">58</text>
+        <text x="860" y="260" text-anchor="middle" fill="rgba(240,235,228,0.2)" font-family="DM Sans" font-size="10">65</text>
+        <!-- Required line (dashed red) -->
+        <line x1="60" y1="55" x2="860" y2="55" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.5"/>
+        <text x="865" y="59" fill="rgba(239,68,68,0.5)" font-family="DM Sans" font-size="9" text-anchor="start">S$1.87M</text>
+        <!-- Projected area (copper) -->
+        <path d="M60,235 C160,230 260,218 360,195 C460,168 560,135 660,110 C720,96 780,88 860,82 L860,240 L60,240 Z" fill="url(#retFill)"/>
+        <!-- Projected line -->
+        <path d="M60,235 C160,230 260,218 360,195 C460,168 560,135 660,110 C720,96 780,88 860,82" fill="none" stroke="#d4a574" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- Gap indicator at age 65 -->
+        <line x1="860" y1="55" x2="860" y2="82" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
+        <text x="848" y="72" fill="rgba(234,179,8,0.7)" font-family="DM Sans" font-size="9" text-anchor="end">Gap</text>
+        <!-- End dot -->
+        <circle cx="860" cy="82" r="4" fill="#d4a574"/>
+        <circle cx="860" cy="82" r="7" fill="none" stroke="#d4a574" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+
+    <!-- Income Table -->
+    <div class="card income-table" style="margin-top:28px;">
+      <div style="padding:20px 20px 4px;">
+        <div class="chart-title" style="margin-bottom:0;">Estimated Monthly Income at Retirement</div>
+      </div>
+      <div class="income-row">
+        <span class="income-label">CPF Life</span>
+        <span class="income-value">S$1,200<span style="font-size:12px;color:var(--text-sec);font-family:'DM Sans'">/mo</span></span>
+      </div>
+      <div class="income-row">
+        <span class="income-label">Portfolio Dividends</span>
+        <span class="income-value">S$2,800<span style="font-size:12px;color:var(--text-sec);font-family:'DM Sans'">/mo</span></span>
+      </div>
+      <div class="income-row total">
+        <span class="income-label total-label">Total</span>
+        <span class="income-value copper">S$4,000<span style="font-size:12px;color:var(--copper);font-family:'DM Sans';opacity:0.7">/mo</span></span>
+      </div>
+    </div>
+
+    <!-- Slider -->
+    <div class="card slider-wrap" style="margin-top:20px;">
+      <div class="slider-label">
+        <span>Retirement Age</span>
+        <span id="slider-val">65</span>
+      </div>
+      <input type="range" min="55" max="70" value="65" oninput="document.getElementById('slider-val').textContent=this.value">
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(index) {
+  // Update tab buttons
+  var btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(function(b, i) {
+    b.classList.toggle('active', i === index);
+  });
+  // Update tab content
+  var tabs = document.querySelectorAll('.tab-content');
+  tabs.forEach(function(t, i) {
+    t.classList.toggle('active', i === index);
+  });
+  // Update sidebar active
+  var links = document.querySelectorAll('.nav-link');
+  links.forEach(function(l) { l.classList.remove('active'); });
+  if (index === 0) links[0].classList.add('active');
+  else if (index === 1) links[4].classList.add('active');
+  else if (index === 2) links[5].classList.add('active');
+}
+
+function selectPreset(el) {
+  document.querySelectorAll('.preset-card').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+</script>
+
+</body>
+</html>
