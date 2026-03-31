@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Warm Minimal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1816;
+    --cream: #f5efe6;
+    --cream-sec: rgba(245,239,230,0.45);
+    --cream-faint: rgba(245,239,230,0.06);
+    --card-bg: #211f1c;
+    --card-shadow: inset 0 0 0 1px rgba(245,239,230,0.06), inset 0 1px 2px rgba(0,0,0,0.2);
+    --terracotta: #c07850;
+    --sage: #7d9178;
+    --warning: #d4a056;
+    --danger: #c45a4a;
+    --serif: 'Fraunces', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Floating pill sidebar */
+  .sidebar {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow), 0 8px 32px rgba(0,0,0,0.3);
+    border-radius: 28px;
+    padding: 32px 24px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar .brand {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .sidebar .phase-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cream-sec);
+    margin-top: 12px;
+    margin-bottom: 2px;
+    padding-left: 12px;
+  }
+
+  .sidebar a {
+    display: block;
+    font-size: 13px;
+    color: var(--cream-sec);
+    text-decoration: none;
+    padding: 7px 12px;
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .sidebar a:hover { color: var(--cream); background: rgba(245,239,230,0.04); }
+
+  .sidebar a.active {
+    color: var(--terracotta);
+    background: rgba(192,120,80,0.08);
+    font-weight: 500;
+  }
+
+  /* Main */
+  .main {
+    margin-left: 240px;
+    padding: 48px 56px;
+    max-width: 1100px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 40px;
+  }
+
+  .tab-btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cream-sec);
+    background: transparent;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--cream); }
+
+  .tab-btn.active {
+    color: var(--cream);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border-radius: 28px;
+    border: none;
+    padding: 28px 30px;
+    transition: all 0.25s;
+  }
+
+  .card:hover {
+    box-shadow: var(--card-shadow), 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .card-label {
+    font-size: 12px;
+    color: var(--cream-sec);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .card-value {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+
+  .card-sub {
+    font-size: 13px;
+    color: var(--cream-sec);
+    margin-top: 6px;
+  }
+
+  /* Headings */
+  h1.greeting {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 34px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 36px;
+    line-height: 1.3;
+  }
+
+  h2.page-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 28px;
+  }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+
+  /* Chart container */
+  .chart-container {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border-radius: 28px;
+    padding: 32px 32px 24px;
+    margin-bottom: 32px;
+  }
+
+  .chart-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+
+  /* Tool grid */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: none;
+    border-radius: 24px;
+    padding: 24px 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .tool-card:hover {
+    box-shadow: var(--card-shadow), 0 6px 24px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+  }
+
+  .tool-card .tool-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .tool-card .tool-desc {
+    font-size: 12px;
+    color: var(--cream-sec);
+    line-height: 1.6;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cream-sec);
+    margin-bottom: 16px;
+  }
+
+  /* Insurance table */
+  .coverage-table {
+    width: 100%;
+    margin-bottom: 28px;
+  }
+
+  .coverage-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(245,239,230,0.05);
+  }
+
+  .coverage-row:last-child { border-bottom: none; }
+
+  .cov-type {
+    width: 160px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cream);
+  }
+
+  .cov-amount {
+    flex: 1;
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+
+  .cov-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    width: 120px;
+    justify-content: flex-end;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-dot.met { background: var(--sage); }
+  .status-dot.partial { background: var(--warning); }
+  .status-dot.gap { background: var(--danger); }
+
+  .cov-status.met { color: var(--sage); }
+  .cov-status.partial { color: var(--warning); }
+  .cov-status.gap { color: var(--danger); }
+
+  /* Protection score bar */
+  .score-bar-container {
+    margin-top: 12px;
+  }
+
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .score-bar-track {
+    height: 8px;
+    background: rgba(245,239,230,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+
+  /* LTC */
+  .big-number {
+    font-family: var(--serif);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--terracotta);
+    margin-bottom: 8px;
+  }
+
+  .big-number-label {
+    font-size: 14px;
+    color: var(--cream-sec);
+    margin-bottom: 32px;
+  }
+
+  /* Slider */
+  .slider-group {
+    margin-top: 28px;
+    margin-bottom: 8px;
+  }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--cream-sec);
+    margin-bottom: 8px;
+  }
+
+  .slider-label .slider-val {
+    font-family: var(--serif);
+    font-weight: 600;
+    color: var(--cream);
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(245,239,230,0.1);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--terracotta);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(192,120,80,0.4);
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating Pill Sidebar -->
+<nav class="sidebar">
+  <div class="brand">The Kiasu Guide</div>
+  <div class="phase-label">Know</div>
+  <a href="#" class="active">Dashboard</a>
+  <a href="#">Profile</a>
+  <a href="#">CPF</a>
+  <div class="phase-label">Gaps</div>
+  <a href="#">Insurance</a>
+  <a href="#">LTC Gap</a>
+  <a href="#">Stress Test</a>
+  <div class="phase-label">Path</div>
+  <a href="#">Retirement</a>
+  <a href="#">Cash Flow</a>
+  <div class="phase-label">Optimise</div>
+  <a href="#">Net Worth</a>
+</nav>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('insurance')">Insurance</button>
+    <button class="tab-btn" onclick="switchTab('ltc')">LTC Gap</button>
+  </div>
+
+  <!-- TAB 1: Dashboard -->
+  <div id="tab-dashboard" class="tab-content active">
+    <h1 class="greeting">Good evening, Wei Lin.</h1>
+
+    <div class="stat-grid">
+      <div class="card">
+        <div class="card-label">Net Worth</div>
+        <div class="card-value">S$284,600</div>
+        <div class="card-sub" style="color: var(--sage);">+S$31,200 this year</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Monthly Surplus</div>
+        <div class="card-value">S$2,340</div>
+        <div class="card-sub">28% savings rate</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Protection Score</div>
+        <div class="card-value" style="color: var(--warning);">62</div>
+        <div class="card-sub" style="color: var(--danger);">Gaps in ECI + LTC</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Retirement Progress</div>
+        <div class="card-value">43%</div>
+        <div class="card-sub">Target: age 62</div>
+      </div>
+    </div>
+
+    <!-- Wealth projection chart -->
+    <div class="chart-container">
+      <div class="chart-title">Wealth Projection</div>
+      <svg width="100%" height="240" viewBox="0 0 680 240" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="wealthFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5efe6" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#f5efe6" stop-opacity="0.01"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Grid -->
+        <line x1="40" y1="200" x2="660" y2="200" stroke="rgba(245,239,230,0.06)" stroke-width="1"/>
+        <line x1="40" y1="140" x2="660" y2="140" stroke="rgba(245,239,230,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="40" y1="80" x2="660" y2="80" stroke="rgba(245,239,230,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="40" y1="30" x2="660" y2="30" stroke="rgba(245,239,230,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+
+        <!-- Labels -->
+        <text x="34" y="204" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$0</text>
+        <text x="34" y="144" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$500k</text>
+        <text x="34" y="84" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$1M</text>
+        <text x="34" y="34" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$1.5M</text>
+
+        <text x="60" y="220" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">Now</text>
+        <text x="200" y="220" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">35</text>
+        <text x="340" y="220" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">42</text>
+        <text x="480" y="220" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">50</text>
+        <text x="640" y="220" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">62</text>
+
+        <!-- Target line -->
+        <line x1="40" y1="55" x2="660" y2="55" stroke="rgba(245,239,230,0.15)" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="664" y="52" fill="rgba(245,239,230,0.3)" font-family="DM Sans" font-size="8">Target: S$1.2M</text>
+
+        <!-- Area fill -->
+        <polygon points="60,185 140,178 200,168 260,155 340,138 420,115 480,90 540,65 600,44 640,32 640,200 60,200" fill="url(#wealthFill)"/>
+
+        <!-- Line -->
+        <polyline points="60,185 140,178 200,168 260,155 340,138 420,115 480,90 540,65 600,44 640,32" fill="none" stroke="#c07850" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Current dot -->
+        <circle cx="60" cy="185" r="4" fill="#c07850"/>
+        <circle cx="60" cy="185" r="7" fill="none" stroke="#c07850" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+
+    <div class="section-label">Financial Tools</div>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-name">Stress Test</div>
+        <div class="tool-desc">What if you lose your income tomorrow?</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Insurance Audit</div>
+        <div class="tool-desc">Upload policies and find gaps</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Retirement Planner</div>
+        <div class="tool-desc">How much, how long, what rate?</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Cash Flow</div>
+        <div class="tool-desc">Where your money actually goes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Insurance -->
+  <div id="tab-insurance" class="tab-content">
+    <h2 class="page-title">Protection Coverage</h2>
+
+    <div class="chart-container">
+      <div class="coverage-table">
+        <div class="coverage-row">
+          <div class="cov-type">Death</div>
+          <div class="cov-amount">S$450,000</div>
+          <div class="cov-status met"><span class="status-dot met"></span> Met</div>
+        </div>
+        <div class="coverage-row">
+          <div class="cov-type">TPD</div>
+          <div class="cov-amount">S$400,000</div>
+          <div class="cov-status met"><span class="status-dot met"></span> Met</div>
+        </div>
+        <div class="coverage-row">
+          <div class="cov-type">Early Critical Illness</div>
+          <div class="cov-amount">S$50,000</div>
+          <div class="cov-status gap"><span class="status-dot gap"></span> Gap: S$150k</div>
+        </div>
+        <div class="coverage-row">
+          <div class="cov-type">Advanced CI</div>
+          <div class="cov-amount">S$200,000</div>
+          <div class="cov-status partial"><span class="status-dot partial"></span> Partial</div>
+        </div>
+        <div class="coverage-row">
+          <div class="cov-type">Hospitalisation</div>
+          <div class="cov-amount">Private ward</div>
+          <div class="cov-status met"><span class="status-dot met"></span> Met</div>
+        </div>
+        <div class="coverage-row">
+          <div class="cov-type">Personal Accident</div>
+          <div class="cov-amount">S$100,000</div>
+          <div class="cov-status partial"><span class="status-dot partial"></span> Partial</div>
+        </div>
+      </div>
+
+      <!-- Protection Score Bar -->
+      <div class="score-bar-container">
+        <div class="score-bar-label">
+          <span style="color: var(--cream-sec);">Overall Protection Score</span>
+          <span style="font-family: var(--serif); font-weight: 600; color: var(--warning);">62 / 100</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width: 62%; background: linear-gradient(90deg, var(--sage), var(--warning));"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stacked bar -->
+    <div class="chart-container">
+      <div class="chart-title">Coverage vs Recommended</div>
+      <svg width="100%" height="220" viewBox="0 0 680 220" preserveAspectRatio="xMidYMid meet">
+        <!-- Grid -->
+        <line x1="120" y1="190" x2="660" y2="190" stroke="rgba(245,239,230,0.06)" stroke-width="1"/>
+
+        <!-- Death -->
+        <text x="110" y="38" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="11" text-anchor="end">Death</text>
+        <rect x="120" y="24" width="400" height="22" rx="4" fill="var(--sage)" opacity="0.7"/>
+        <rect x="120" y="24" width="400" height="22" rx="4" fill="none" stroke="rgba(245,239,230,0.1)" stroke-width="1" stroke-dasharray="0"/>
+        <text x="530" y="40" fill="rgba(245,239,230,0.4)" font-family="DM Sans" font-size="10">S$450k / S$450k</text>
+
+        <!-- TPD -->
+        <text x="110" y="72" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="11" text-anchor="end">TPD</text>
+        <rect x="120" y="58" width="356" height="22" rx="4" fill="var(--sage)" opacity="0.7"/>
+        <rect x="120" y="58" width="400" height="22" rx="4" fill="none" stroke="rgba(245,239,230,0.08)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="530" y="74" fill="rgba(245,239,230,0.4)" font-family="DM Sans" font-size="10">S$400k / S$450k</text>
+
+        <!-- ECI -->
+        <text x="110" y="106" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="11" text-anchor="end">ECI</text>
+        <rect x="120" y="92" width="100" height="22" rx="4" fill="var(--danger)" opacity="0.7"/>
+        <rect x="120" y="92" width="400" height="22" rx="4" fill="none" stroke="rgba(245,239,230,0.08)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="530" y="108" fill="rgba(245,239,230,0.4)" font-family="DM Sans" font-size="10">S$50k / S$200k</text>
+
+        <!-- ACI -->
+        <text x="110" y="140" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="11" text-anchor="end">ACI</text>
+        <rect x="120" y="126" width="200" height="22" rx="4" fill="var(--warning)" opacity="0.7"/>
+        <rect x="120" y="126" width="400" height="22" rx="4" fill="none" stroke="rgba(245,239,230,0.08)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="530" y="142" fill="rgba(245,239,230,0.4)" font-family="DM Sans" font-size="10">S$200k / S$400k</text>
+
+        <!-- PA -->
+        <text x="110" y="174" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="11" text-anchor="end">PA</text>
+        <rect x="120" y="160" width="200" height="22" rx="4" fill="var(--warning)" opacity="0.7"/>
+        <rect x="120" y="160" width="400" height="22" rx="4" fill="none" stroke="rgba(245,239,230,0.08)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="530" y="176" fill="rgba(245,239,230,0.4)" font-family="DM Sans" font-size="10">S$100k / S$200k</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- TAB 3: LTC Gap -->
+  <div id="tab-ltc" class="tab-content">
+    <h2 class="page-title">Long-Term Care Gap</h2>
+
+    <div class="chart-container">
+      <div class="big-number">S$1,814</div>
+      <div class="big-number-label">Monthly gap between LTC costs and CareShield coverage</div>
+
+      <div style="display: flex; gap: 24px; margin-bottom: 32px;">
+        <div>
+          <div class="card-label">Estimated Monthly LTC Cost</div>
+          <div style="font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--danger);">S$2,952</div>
+        </div>
+        <div>
+          <div class="card-label">CareShield Payout</div>
+          <div style="font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--sage);">S$662</div>
+        </div>
+        <div>
+          <div class="card-label">Supplementary Insurance</div>
+          <div style="font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--warning);">S$476</div>
+        </div>
+      </div>
+
+      <!-- LTC Gap Chart: cost vs coverage over years -->
+      <div class="chart-title">Inflation-Adjusted Gap Over Time</div>
+      <svg width="100%" height="280" viewBox="0 0 680 280" preserveAspectRatio="xMidYMid meet">
+        <!-- Grid -->
+        <line x1="50" y1="240" x2="660" y2="240" stroke="rgba(245,239,230,0.06)" stroke-width="1"/>
+        <line x1="50" y1="30" x2="50" y2="240" stroke="rgba(245,239,230,0.06)" stroke-width="1"/>
+
+        <!-- Y axis -->
+        <text x="44" y="244" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$0</text>
+        <text x="44" y="184" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$2k</text>
+        <text x="44" y="124" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$4k</text>
+        <text x="44" y="64" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="end">S$6k</text>
+
+        <!-- X axis: Year 1 through 15 -->
+        <text x="90" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">Yr 1</text>
+        <text x="170" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">3</text>
+        <text x="250" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">5</text>
+        <text x="330" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">7</text>
+        <text x="410" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">9</text>
+        <text x="490" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">11</text>
+        <text x="570" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">13</text>
+        <text x="640" y="258" fill="rgba(245,239,230,0.35)" font-family="DM Sans" font-size="9" text-anchor="middle">15</text>
+
+        <!-- LTC Cost bars (warm red, grow with inflation 4% p.a.) -->
+        <!-- Yr1: S$2,952 → height ~88 -->
+        <rect x="72" y="152" width="18" height="88" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr3: S$3,192 → height ~96 -->
+        <rect x="152" y="144" width="18" height="96" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr5: S$3,452 → height ~104 -->
+        <rect x="232" y="136" width="18" height="104" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr7: S$3,732 → height ~112 -->
+        <rect x="312" y="128" width="18" height="112" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr9: S$4,036 → height ~121 -->
+        <rect x="392" y="119" width="18" height="121" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr11: S$4,362 → height ~131 -->
+        <rect x="472" y="109" width="18" height="131" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr13: S$4,716 → height ~142 -->
+        <rect x="552" y="98" width="18" height="142" rx="3" fill="var(--danger)" opacity="0.65"/>
+        <!-- Yr15: S$5,098 → height ~153 -->
+        <rect x="622" y="87" width="18" height="153" rx="3" fill="var(--danger)" opacity="0.65"/>
+
+        <!-- Coverage bars (sage green, flat CareShield + supplementary = ~S$1,138) -->
+        <!-- Flat coverage ~S$1,138 → height ~34 -->
+        <rect x="94" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="174" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="254" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="334" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="414" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="494" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="574" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+        <rect x="644" y="206" width="18" height="34" rx="3" fill="var(--sage)" opacity="0.75"/>
+
+        <!-- Legend -->
+        <rect x="200" y="270" width="12" height="4" rx="2" fill="var(--danger)" opacity="0.65"/>
+        <text x="218" y="275" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="10">LTC Cost (4% inflation)</text>
+        <rect x="380" y="270" width="12" height="4" rx="2" fill="var(--sage)" opacity="0.75"/>
+        <text x="398" y="275" fill="rgba(245,239,230,0.5)" font-family="DM Sans" font-size="10">CareShield + Supplementary</text>
+      </svg>
+
+      <!-- Slider -->
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Care Duration</span>
+          <span class="slider-val" id="duration-val">15 years</span>
+        </div>
+        <input type="range" min="5" max="30" value="15" oninput="document.getElementById('duration-val').textContent = this.value + ' years'">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const tabs = { dashboard: 0, insurance: 1, ltc: 2 };
+  document.querySelectorAll('.tab-btn')[tabs[tab]].classList.add('active');
+}
+</script>
+
+</body>
+</html>

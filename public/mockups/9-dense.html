@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKG — Data Dense</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0d0d; color: #e8e8e8; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* Top Bar */
+.topbar { position: fixed; top: 0; left: 0; right: 0; height: 44px; background: #111111; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; }
+.topbar-brand { font-weight: 600; font-size: 14px; letter-spacing: 0.08em; color: #22c55e; }
+.topbar-nav { display: flex; gap: 4px; }
+.topbar-nav button { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: rgba(232,232,232,0.5); font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.topbar-nav button:hover { color: #e8e8e8; border-color: rgba(255,255,255,0.12); }
+.topbar-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(34,197,94,0.15); color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+
+/* Ticker */
+.ticker-wrap { margin-top: 44px; overflow: hidden; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04); height: 32px; display: flex; align-items: center; }
+.ticker { display: flex; white-space: nowrap; animation: tickerScroll 25s linear infinite; }
+.ticker span { font-size: 11px; font-weight: 500; color: rgba(232,232,232,0.5); padding: 0 24px; font-variant-numeric: tabular-nums; }
+.ticker .green { color: #22c55e; }
+.ticker .amber { color: #f59e0b; }
+.ticker .blue { color: #3b82f6; }
+@keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* Content */
+.content { padding: 20px 24px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 2px; margin-bottom: 20px; }
+.tab-btn { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: rgba(232,232,232,0.4); font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; padding: 6px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.tab-btn.active { background: rgba(34,197,94,0.1); color: #22c55e; border-color: rgba(34,197,94,0.2); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Cards */
+.card { background: #111111; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 16px; }
+.card-sm { padding: 12px; }
+.card-title { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(232,232,232,0.4); margin-bottom: 6px; }
+.card-value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.card-value.sm { font-size: 16px; }
+.card-sub { font-size: 11px; color: rgba(232,232,232,0.4); margin-top: 2px; }
+.green { color: #22c55e; }
+.red { color: #ef4444; }
+.amber { color: #f59e0b; }
+.blue { color: #3b82f6; }
+
+/* Bento Grid */
+.bento { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.bento .span-2 { grid-column: span 2; }
+.bento .span-4 { grid-column: span 4; }
+
+/* Stacked minis */
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.mini-card { background: #111111; border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 10px 12px; }
+.mini-card .label { font-size: 10px; color: rgba(232,232,232,0.4); text-transform: uppercase; letter-spacing: 0.06em; }
+.mini-card .val { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+/* Alerts */
+.alert-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-left: 2px solid; margin-bottom: 6px; background: rgba(255,255,255,0.015); border-radius: 0 4px 4px 0; font-size: 11px; }
+.alert-item.alert-red { border-color: #ef4444; }
+.alert-item.alert-amber { border-color: #f59e0b; }
+.alert-item.alert-green { border-color: #22c55e; }
+.alert-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.alert-red .alert-dot { background: #ef4444; }
+.alert-amber .alert-dot { background: #f59e0b; }
+.alert-green .alert-dot { background: #22c55e; }
+
+/* Table */
+.dense-table { width: 100%; border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; }
+.dense-table th { text-align: left; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(232,232,232,0.35); padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.dense-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: rgba(232,232,232,0.7); }
+.dense-table tr:hover td { background: rgba(255,255,255,0.02); }
+.status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+
+/* Tool grid */
+.tool-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.tool-card { background: #111111; border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 10px 12px; font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.15s; }
+.tool-card:hover { border-color: rgba(255,255,255,0.12); }
+.tool-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Retirement tab */
+.split { display: grid; grid-template-columns: 60% 40%; gap: 16px; margin-bottom: 16px; }
+.stat-row { display: flex; gap: 12px; }
+.stat-card { flex: 1; }
+
+/* Health tab */
+.radar-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+.dim-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.dim-label { width: 120px; font-size: 11px; color: rgba(232,232,232,0.6); }
+.dim-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.dim-bar { height: 100%; border-radius: 2px; }
+.dim-score { width: 40px; text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sparkline-wrap { display: flex; justify-content: center; margin-top: 24px; }
+
+svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-brand">TKG</div>
+  <div class="topbar-nav">
+    <button>Phase 1 &#9662;</button>
+    <button>Phase 2 &#9662;</button>
+    <button>Phase 3 &#9662;</button>
+    <button>Phase 4 &#9662;</button>
+    <button>Phase 5 &#9662;</button>
+  </div>
+  <div class="topbar-avatar">N</div>
+</div>
+
+<!-- Ticker -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>Health: <b class="green">74</b>/100</span>
+    <span>Net Worth: <b class="green">S$412K</b></span>
+    <span>Surplus: <b class="green">S$1,897/mo</b></span>
+    <span>Retirement: <b class="amber">62%</b></span>
+    <span>CPF: <b class="blue">S$185K</b></span>
+    <span>Protection: <b class="amber">68/100</b></span>
+    <span>&middot;</span>
+    <span>Health: <b class="green">74</b>/100</span>
+    <span>Net Worth: <b class="green">S$412K</b></span>
+    <span>Surplus: <b class="green">S$1,897/mo</b></span>
+    <span>Retirement: <b class="amber">62%</b></span>
+    <span>CPF: <b class="blue">S$185K</b></span>
+    <span>Protection: <b class="amber">68/100</b></span>
+    <span>&middot;</span>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('retirement')">Retirement</button>
+    <button class="tab-btn" onclick="switchTab('health')">Health Score</button>
+  </div>
+
+  <!-- TAB 1: Dashboard -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="bento">
+      <!-- Large chart card spanning 2 cols -->
+      <div class="card span-2">
+        <div class="card-title">Wealth Projection</div>
+        <svg viewBox="0 0 440 180" width="100%" height="180">
+          <defs>
+            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22c55e" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="40" y1="20" x2="420" y2="20" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="60" x2="420" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="100" x2="420" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="140" x2="420" y2="140" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <!-- Y labels -->
+          <text x="36" y="24" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">2M</text>
+          <text x="36" y="64" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">1.5M</text>
+          <text x="36" y="104" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">1M</text>
+          <text x="36" y="144" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">500K</text>
+          <!-- X labels -->
+          <text x="40" y="168" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">2026</text>
+          <text x="135" y="168" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">2031</text>
+          <text x="230" y="168" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">2036</text>
+          <text x="325" y="168" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">2041</text>
+          <text x="420" y="168" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">2046</text>
+          <!-- Area -->
+          <path d="M40,140 L135,120 L230,95 L325,60 L420,30 L420,155 L40,155Z" fill="url(#chartFill)"/>
+          <!-- Line -->
+          <polyline points="40,140 135,120 230,95 325,60 420,30" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- Target line -->
+          <line x1="40" y1="35" x2="420" y2="35" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="4,3"/>
+          <text x="422" y="38" fill="#ef4444" font-size="8" text-anchor="start">Target</text>
+          <!-- Dots -->
+          <circle cx="40" cy="140" r="2.5" fill="#22c55e"/>
+          <circle cx="135" cy="120" r="2.5" fill="#22c55e"/>
+          <circle cx="230" cy="95" r="2.5" fill="#22c55e"/>
+          <circle cx="325" cy="60" r="2.5" fill="#22c55e"/>
+          <circle cx="420" cy="30" r="2.5" fill="#22c55e"/>
+          <!-- Legend -->
+          <rect x="40" y="1" width="8" height="3" rx="1" fill="#22c55e"/>
+          <text x="52" y="5" fill="rgba(232,232,232,0.4)" font-size="8">Projected</text>
+          <rect x="100" y="1" width="8" height="3" rx="1" fill="#ef4444"/>
+          <text x="112" y="5" fill="rgba(232,232,232,0.4)" font-size="8">Required</text>
+        </svg>
+      </div>
+
+      <!-- Stacked mini cards -->
+      <div class="stack">
+        <div class="mini-card">
+          <div class="label">Net Worth</div>
+          <div class="val green">S$412,000</div>
+        </div>
+        <div class="mini-card">
+          <div class="label">Monthly Surplus</div>
+          <div class="val green">S$1,897</div>
+        </div>
+        <div class="mini-card">
+          <div class="label">Savings Rate</div>
+          <div class="val">23.4%</div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div>
+        <div class="card-title" style="margin-bottom:10px;">Alerts</div>
+        <div class="alert-item alert-red"><div class="alert-dot"></div>CI coverage gap: S$150K below recommended</div>
+        <div class="alert-item alert-amber"><div class="alert-dot"></div>Retirement readiness at 62% — below target</div>
+        <div class="alert-item alert-green"><div class="alert-dot"></div>Cash flow surplus healthy at S$1,897/mo</div>
+      </div>
+
+      <!-- Coverage Table spanning all 4 -->
+      <div class="card span-4 card-sm">
+        <div class="card-title">Coverage Summary</div>
+        <table class="dense-table">
+          <thead>
+            <tr><th>Type</th><th>Current</th><th>Recommended</th><th>Status</th><th style="text-align:right">Gap</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Death</td><td>S$400,000</td><td>S$500,000</td><td><span class="status-dot" style="background:#f59e0b"></span>Under</td><td style="text-align:right" class="amber">-S$100K</td></tr>
+            <tr><td>TPD</td><td>S$400,000</td><td>S$500,000</td><td><span class="status-dot" style="background:#f59e0b"></span>Under</td><td style="text-align:right" class="amber">-S$100K</td></tr>
+            <tr><td>Early CI</td><td>S$100,000</td><td>S$250,000</td><td><span class="status-dot" style="background:#ef4444"></span>Critical</td><td style="text-align:right" class="red">-S$150K</td></tr>
+            <tr><td>Advanced CI</td><td>S$200,000</td><td>S$250,000</td><td><span class="status-dot" style="background:#f59e0b"></span>Under</td><td style="text-align:right" class="amber">-S$50K</td></tr>
+            <tr><td>Hospitalisation</td><td>Private</td><td>Private</td><td><span class="status-dot" style="background:#22c55e"></span>OK</td><td style="text-align:right" class="green">Covered</td></tr>
+            <tr><td>Personal Accident</td><td>S$150,000</td><td>S$200,000</td><td><span class="status-dot" style="background:#f59e0b"></span>Under</td><td style="text-align:right" class="amber">-S$50K</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tool grid spanning all 4 -->
+      <div class="span-4">
+        <div class="tool-grid">
+          <div class="tool-card"><div class="tool-dot" style="background:#22c55e"></div>Profile</div>
+          <div class="tool-card"><div class="tool-dot" style="background:#22c55e"></div>CPF</div>
+          <div class="tool-card"><div class="tool-dot" style="background:#f59e0b"></div>Insurance</div>
+          <div class="tool-card"><div class="tool-dot" style="background:#ef4444"></div>Stress Test</div>
+          <div class="tool-card"><div class="tool-dot" style="background:#f59e0b"></div>Retirement</div>
+          <div class="tool-card"><div class="tool-dot" style="background:#22c55e"></div>Cash Flow</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Retirement -->
+  <div id="tab-retirement" class="tab-content">
+    <div class="split">
+      <div class="card">
+        <div class="card-title">Projected vs Required Corpus</div>
+        <svg viewBox="0 0 400 220" width="100%" height="220">
+          <!-- Grid -->
+          <line x1="45" y1="20" x2="380" y2="20" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="45" y1="60" x2="380" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="45" y1="100" x2="380" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="45" y1="140" x2="380" y2="140" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="45" y1="180" x2="380" y2="180" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <!-- Y labels -->
+          <text x="40" y="24" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">2.5M</text>
+          <text x="40" y="64" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">2.0M</text>
+          <text x="40" y="104" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">1.5M</text>
+          <text x="40" y="144" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">1.0M</text>
+          <text x="40" y="184" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="end">0.5M</text>
+          <!-- X labels -->
+          <text x="45" y="200" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">35</text>
+          <text x="129" y="200" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">40</text>
+          <text x="213" y="200" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">45</text>
+          <text x="296" y="200" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">50</text>
+          <text x="380" y="200" fill="rgba(232,232,232,0.3)" font-size="9" text-anchor="middle">55</text>
+          <!-- Required line (red dashed) -->
+          <polyline points="45,170 129,145 213,110 296,70 380,30" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,3"/>
+          <!-- Projected line (green) -->
+          <defs>
+            <linearGradient id="retFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22c55e" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M45,175 L129,155 L213,130 L296,100 L380,65 L380,190 L45,190Z" fill="url(#retFill)"/>
+          <polyline points="45,175 129,155 213,130 296,100 380,65" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="45" cy="175" r="2.5" fill="#22c55e"/>
+          <circle cx="129" cy="155" r="2.5" fill="#22c55e"/>
+          <circle cx="213" cy="130" r="2.5" fill="#22c55e"/>
+          <circle cx="296" cy="100" r="2.5" fill="#22c55e"/>
+          <circle cx="380" cy="65" r="2.5" fill="#22c55e"/>
+          <!-- Legend -->
+          <line x1="50" y1="212" x2="64" y2="212" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="68" y="215" fill="rgba(232,232,232,0.4)" font-size="8">Projected</text>
+          <line x1="130" y1="212" x2="144" y2="212" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,3"/>
+          <text x="148" y="215" fill="rgba(232,232,232,0.4)" font-size="8">Required</text>
+        </svg>
+      </div>
+      <div class="card card-sm" style="overflow-y:auto; max-height:260px;">
+        <div class="card-title">Year-by-Year Projection</div>
+        <table class="dense-table">
+          <thead><tr><th>Age</th><th>Portfolio</th><th>Income</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>S$180K</td><td>S$8,100</td><td class="amber">62%</td></tr>
+            <tr><td>37</td><td>S$245K</td><td>S$8,500</td><td class="amber">65%</td></tr>
+            <tr><td>39</td><td>S$318K</td><td>S$8,900</td><td class="amber">68%</td></tr>
+            <tr><td>41</td><td>S$402K</td><td>S$9,400</td><td class="amber">71%</td></tr>
+            <tr><td>43</td><td>S$498K</td><td>S$9,900</td><td class="amber">74%</td></tr>
+            <tr><td>45</td><td>S$610K</td><td>S$10,400</td><td class="amber">78%</td></tr>
+            <tr><td>47</td><td>S$738K</td><td>S$10,900</td><td class="green">82%</td></tr>
+            <tr><td>49</td><td>S$885K</td><td>S$11,500</td><td class="green">86%</td></tr>
+            <tr><td>51</td><td>S$1.05M</td><td>S$12,100</td><td class="green">90%</td></tr>
+            <tr><td>53</td><td>S$1.16M</td><td>S$12,700</td><td class="green">93%</td></tr>
+            <tr><td>55</td><td>S$1.38M</td><td>S$13,400</td><td class="green">97%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="card stat-card">
+        <div class="card-title">Required Corpus</div>
+        <div class="card-value sm red">S$1,870,000</div>
+        <div class="card-sub">At age 65, adjusted for inflation</div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-title">Projected Corpus</div>
+        <div class="card-value sm green">S$1,160,000</div>
+        <div class="card-sub">At current savings rate + 6% return</div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-title">Gap</div>
+        <div class="card-value sm amber">S$710,000</div>
+        <div class="card-sub">Additional savings or returns needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Health Score -->
+  <div id="tab-health" class="tab-content">
+    <div class="radar-wrap">
+      <svg viewBox="0 0 300 280" width="300" height="280">
+        <defs>
+          <linearGradient id="radarFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <!-- Pentagon grid rings -->
+        <!-- Scale lines at 25%, 50%, 75%, 100% -->
+        <!-- Axes: Protection(top), Retirement(top-right), Liquidity(bottom-right), Debt(bottom-left), Investment(top-left) -->
+        <!-- Center at 150,130, radius 100 -->
+        <!-- Pentagon points at 100%: top(150,30), tr(245,72.6), br(208.1,195.1), bl(91.9,195.1), tl(55,72.6) -->
+
+        <!-- 25% ring -->
+        <polygon points="150,105 173.75,94.35 164.53,113.78 135.48,113.78 126.25,94.35" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <!-- 50% ring -->
+        <polygon points="150,80 197.5,58.7 179.05,97.55 120.95,97.55 102.5,58.7" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <!-- 75% ring -->
+        <polygon points="150,55 221.25,41.95 193.58,130.83 106.43,130.83 78.75,41.95" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <!-- 100% ring -->
+        <polygon points="150,30 245,72.6 208.1,195.1 91.9,195.1 55,72.6" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+
+        <!-- Axes -->
+        <line x1="150" y1="130" x2="150" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="150" y1="130" x2="245" y2="72.6" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="150" y1="130" x2="208.1" y2="195.1" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="150" y1="130" x2="91.9" y2="195.1" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="150" y1="130" x2="55" y2="72.6" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+        <!-- Data polygon: Protection 68%, Retirement 62%, Liquidity 80%, Debt 100%, Investment 70% -->
+        <!-- Protection(top): 150, 130-68=62 => 150,62 -->
+        <!-- Retirement(tr): 150+62*(245-150)/100, 130+62*(72.6-130)/100 => 150+58.9, 130-35.59 => 208.9,94.41 — wait let me recalc -->
+        <!-- Direction vectors from center(150,130): -->
+        <!-- top: (0,-100), tr: (95,-57.4), br: (58.1,65.1), bl: (-58.1,65.1), tl: (-95,-57.4) -->
+        <!-- Protection 68%: 150+0*0.68, 130+(-100)*0.68 = 150,62 -->
+        <!-- Retirement 62%: 150+95*0.62, 130+(-57.4)*0.62 = 208.9,94.41 -->
+        <!-- Liquidity 80%: 150+58.1*0.80, 130+65.1*0.80 = 196.48,182.08 -->
+        <!-- Debt 100%: 150+(-58.1)*1.0, 130+65.1*1.0 = 91.9,195.1 -->
+        <!-- Investment 70%: 150+(-95)*0.70, 130+(-57.4)*0.70 = 83.5,89.82 -->
+        <polygon points="150,62 208.9,94.4 196.5,182.1 91.9,195.1 83.5,89.8" fill="url(#radarFill)" stroke="#22c55e" stroke-width="1.5"/>
+
+        <!-- Data dots -->
+        <circle cx="150" cy="62" r="3" fill="#22c55e"/>
+        <circle cx="208.9" cy="94.4" r="3" fill="#22c55e"/>
+        <circle cx="196.5" cy="182.1" r="3" fill="#22c55e"/>
+        <circle cx="91.9" cy="195.1" r="3" fill="#22c55e"/>
+        <circle cx="83.5" cy="89.8" r="3" fill="#22c55e"/>
+
+        <!-- Labels -->
+        <text x="150" y="18" fill="#e8e8e8" font-size="10" text-anchor="middle" font-weight="500">Protection</text>
+        <text x="258" y="72" fill="#e8e8e8" font-size="10" text-anchor="start" font-weight="500">Retirement</text>
+        <text x="218" y="208" fill="#e8e8e8" font-size="10" text-anchor="start" font-weight="500">Liquidity</text>
+        <text x="78" y="208" fill="#e8e8e8" font-size="10" text-anchor="end" font-weight="500">Debt</text>
+        <text x="42" y="72" fill="#e8e8e8" font-size="10" text-anchor="end" font-weight="500">Investment</text>
+
+        <!-- Center score -->
+        <text x="150" y="126" fill="#22c55e" font-size="28" text-anchor="middle" font-weight="600">74</text>
+        <text x="150" y="142" fill="rgba(232,232,232,0.4)" font-size="9" text-anchor="middle">/100</text>
+      </svg>
+    </div>
+
+    <!-- Dimension rows -->
+    <div style="max-width:500px; margin:0 auto;">
+      <div class="dim-row">
+        <div class="dim-label">Protection</div>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:68%; background:#f59e0b;"></div></div>
+        <div class="dim-score amber">68%</div>
+      </div>
+      <div class="dim-row">
+        <div class="dim-label">Retirement</div>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:62%; background:#f59e0b;"></div></div>
+        <div class="dim-score amber">62%</div>
+      </div>
+      <div class="dim-row">
+        <div class="dim-label">Liquidity</div>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:80%; background:#22c55e;"></div></div>
+        <div class="dim-score green">80%</div>
+      </div>
+      <div class="dim-row">
+        <div class="dim-label">Debt</div>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:100%; background:#22c55e;"></div></div>
+        <div class="dim-score green">100%</div>
+      </div>
+      <div class="dim-row">
+        <div class="dim-label">Investment</div>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:70%; background:#f59e0b;"></div></div>
+        <div class="dim-score amber">70%</div>
+      </div>
+    </div>
+
+    <!-- Sparkline -->
+    <div class="sparkline-wrap">
+      <div style="text-align:center;">
+        <div class="card-title" style="margin-bottom:8px;">Score History (Last 6 Sessions)</div>
+        <svg viewBox="0 0 240 60" width="240" height="60">
+          <polyline points="20,45 60,40 100,38 140,35 180,30 220,22" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="20" cy="45" r="2.5" fill="#22c55e"/>
+          <circle cx="60" cy="40" r="2.5" fill="#22c55e"/>
+          <circle cx="100" cy="38" r="2.5" fill="#22c55e"/>
+          <circle cx="140" cy="35" r="2.5" fill="#22c55e"/>
+          <circle cx="180" cy="30" r="2.5" fill="#22c55e"/>
+          <circle cx="220" cy="22" r="2.5" fill="#22c55e"/>
+          <!-- Labels -->
+          <text x="20" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S1</text>
+          <text x="60" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S2</text>
+          <text x="100" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S3</text>
+          <text x="140" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S4</text>
+          <text x="180" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S5</text>
+          <text x="220" y="56" fill="rgba(232,232,232,0.3)" font-size="8" text-anchor="middle">S6</text>
+          <!-- Score labels -->
+          <text x="20" y="41" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">62</text>
+          <text x="60" y="36" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">65</text>
+          <text x="100" y="34" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">66</text>
+          <text x="140" y="31" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">68</text>
+          <text x="180" y="26" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">71</text>
+          <text x="220" y="18" fill="rgba(232,232,232,0.4)" font-size="7" text-anchor="middle">74</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = ['dashboard', 'retirement', 'health'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+</script>
+</body>
+</html>
