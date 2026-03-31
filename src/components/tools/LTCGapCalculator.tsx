@@ -168,19 +168,19 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             marginBottom: '0.75rem',
           }}
         >
-          {isSurplus ? 'Total Coverage Surplus' : isFullyCovered ? 'Fully Covered' : 'Total Protection Gap'}
+          {monthlyGap < 0 ? 'Monthly Coverage Surplus' : monthlyGap === 0 ? 'Fully Covered' : 'Monthly Protection Gap'}
         </p>
         <div
           style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: '3.5rem',
             fontWeight: 700,
-            color: isSurplus ? '#16a34a' : isFullyCovered ? '#d97706' : '#9b2040',
+            color: monthlyGap < 0 ? '#16a34a' : monthlyGap === 0 ? '#d97706' : '#9b2040',
             lineHeight: 1,
             marginBottom: '0.75rem',
           }}
         >
-          {isSurplus ? '+' : ''}S${Math.round(absTotalGap).toLocaleString('en-SG')}
+          {monthlyGap < 0 ? '+' : ''}S${absMonthlyGap.toLocaleString('en-SG')}
           <span
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
@@ -190,7 +190,7 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
               marginLeft: '0.4rem',
             }}
           >
-            over {durationYears} years
+            /month
           </span>
         </div>
         <p
@@ -201,11 +201,11 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             margin: '0 0 4px',
           }}
         >
-          {monthlyGap > 0
-            ? `Monthly shortfall: S$${absMonthlyGap.toLocaleString('en-SG')}/mo — grows with 4% inflation each year.`
-            : monthlyGap < 0
-            ? `Monthly surplus of S$${absMonthlyGap.toLocaleString('en-SG')}/mo today, but LTC costs inflate at 4%/yr.`
-            : 'Coverage matches average LTC costs today, but costs inflate at 4%/yr.'
+          {totalGap > 0
+            ? `Over ${durationYears} years with 4% inflation, total shortfall: S$${Math.round(absTotalGap).toLocaleString('en-SG')}`
+            : totalGap < 0
+            ? `Over ${durationYears} years, your coverage exceeds total costs by S$${Math.round(absTotalGap).toLocaleString('en-SG')}`
+            : `Over ${durationYears} years, your coverage exactly matches inflated LTC costs.`
           }
         </p>
         <p
