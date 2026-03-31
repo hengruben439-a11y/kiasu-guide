@@ -168,19 +168,19 @@ export default function LTCGapCalculator({ initialLtcCoverage }: LTCProps = {}) 
             marginBottom: '0.75rem',
           }}
         >
-          {monthlyGap < 0 ? 'Monthly Coverage Surplus' : monthlyGap === 0 ? 'Fully Covered' : 'Monthly Protection Gap'}
+          {totalGap < 0 ? 'Monthly Coverage Surplus' : totalGap === 0 ? 'Fully Covered' : 'Monthly Protection Gap'}
         </p>
         <div
           style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: '3.5rem',
             fontWeight: 700,
-            color: monthlyGap < 0 ? '#16a34a' : monthlyGap === 0 ? '#d97706' : '#9b2040',
+            color: totalGap < 0 ? '#16a34a' : totalGap === 0 ? '#d97706' : '#9b2040',
             lineHeight: 1,
             marginBottom: '0.75rem',
           }}
         >
-          {monthlyGap < 0 ? '+' : ''}S${absMonthlyGap.toLocaleString('en-SG')}
+          S${absMonthlyGap.toLocaleString('en-SG')}
           <span
             style={{
               fontFamily: "'Cabinet Grotesk', sans-serif",
