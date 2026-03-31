@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup B — Aurora</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #07060b;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --accent: #a78bfa;
+    --accent-2: #c084fc;
+    --accent-warm: #f0abfc;
+    --gold: #e2c799;
+    --text: #faf8ff;
+    --text-dim: rgba(250,248,255,0.55);
+    --text-muted: rgba(250,248,255,0.28);
+    --success: #4ade80;
+    --danger: #f87171;
+    --radius: 24px;
+    --radius-sm: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Background gradient orbs */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    left: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(240,171,252,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  .sidebar {
+    width: 270px;
+    background: rgba(10,8,18,0.8);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-right: 1px solid var(--border);
+    padding: 32px 18px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+  }
+  .sidebar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .sidebar-sub {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+  .nav-group-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 24px 0 10px 14px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 14px; border-radius: 12px;
+    font-size: 13px; font-weight: 500; color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .nav-item:hover {
+    background: rgba(167,139,250,0.06);
+    color: var(--text);
+  }
+  .nav-item.active {
+    background: rgba(167,139,250,0.10);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px rgba(167,139,250,0.15);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px; width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-warm));
+    border-radius: 2px;
+  }
+  .nav-icon { font-size: 15px; opacity: 0.5; }
+
+  /* ── Main ─────────────────────────────────────────────── */
+  .main {
+    margin-left: 270px;
+    flex: 1;
+    padding: 44px 52px;
+    max-width: 1100px;
+  }
+
+  .page-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .page-subtitle {
+    font-size: 15px; color: var(--text-dim); margin-bottom: 40px; line-height: 1.6;
+  }
+
+  /* ── Glass cards ──────────────────────────────────────── */
+  .glass {
+    background: rgba(255,255,255,0.025);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .glass:hover {
+    border-color: var(--border-hover);
+    box-shadow:
+      0 0 0 1px rgba(167,139,250,0.08),
+      0 8px 32px rgba(0,0,0,0.3),
+      0 0 60px rgba(167,139,250,0.04);
+    transform: translateY(-2px);
+  }
+
+  /* ── Hero verdict ─────────────────────────────────────── */
+  .verdict {
+    padding: 36px 40px;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, rgba(240,171,252,0.04) 100%);
+    border: 1px solid rgba(167,139,250,0.12);
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(167,139,250,0.3), rgba(240,171,252,0.2), transparent);
+  }
+  .verdict-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+  .verdict-label {
+    font-size: 14px; font-weight: 600; color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .verdict-desc {
+    font-size: 18px; font-weight: 600; color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ── Stat row ─────────────────────────────────────────── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    padding: 24px 26px;
+  }
+  .stat-label {
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .stat-sub {
+    font-size: 11px; color: var(--text-dim); margin-top: 6px;
+  }
+
+  /* ── Data table ───────────────────────────────────────── */
+  .data-section { padding: 28px 32px; margin-bottom: 20px; }
+  .data-section .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .data-section .section-label.purple {
+    background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .data-section .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700; margin-bottom: 20px;
+  }
+
+  .data-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-row:last-child { border-bottom: none; }
+  .data-row-label {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; font-weight: 500;
+  }
+  .data-row-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .data-row-value {
+    font-size: 14px; font-weight: 700;
+    font-family: 'Playfair Display', serif;
+  }
+  .data-row-badge {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 3px 8px; border-radius: 6px;
+  }
+
+  /* ── Chart area ───────────────────────────────────────── */
+  .chart-area {
+    height: 200px; border-radius: 16px; margin-top: 20px;
+    background: linear-gradient(180deg, rgba(167,139,250,0.05) 0%, transparent 100%);
+    border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .chart-area svg { position: absolute; bottom: 20px; left: 30px; right: 30px; width: calc(100% - 60px); height: 130px; }
+
+  /* ── Tool grid ────────────────────────────────────────── */
+  .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .tool-card { padding: 28px; cursor: pointer; }
+  .tool-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.12);
+  }
+  .tool-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .tool-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .tool-badge {
+    display: inline-flex; margin-top: 14px; padding: 4px 10px;
+    border-radius: 8px; font-size: 10px; font-weight: 700;
+  }
+
+  .badge-purple { background: rgba(167,139,250,0.10); color: var(--accent); }
+  .badge-green { background: rgba(74,222,128,0.10); color: var(--success); }
+  .badge-red { background: rgba(248,113,113,0.10); color: var(--danger); }
+  .badge-gold { background: rgba(226,199,153,0.10); color: var(--gold); }
+
+  /* ── Divider ──────────────────────────────────────────── */
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">The Kiasu Guide</div>
+    <div class="sidebar-sub">Financial Advisory</div>
+
+    <div class="nav-group-label">Phase 1 &mdash; Know Your Position</div>
+    <div class="nav-item active"><span class="nav-icon">👤</span> Financial Profile</div>
+    <div class="nav-item"><span class="nav-icon">💪</span> BMI & Health</div>
+    <div class="nav-item"><span class="nav-icon">📊</span> Financial Overview</div>
+
+    <div class="nav-group-label">Phase 2 &mdash; Find the Gaps</div>
+    <div class="nav-item"><span class="nav-icon">🛡️</span> Insurance Coverage</div>
+    <div class="nav-item"><span class="nav-icon">🏥</span> LTC Gap Analysis</div>
+    <div class="nav-item"><span class="nav-icon">⚡</span> Stress Test</div>
+
+    <div class="nav-group-label">Phase 3 &mdash; Plot the Path</div>
+    <div class="nav-item"><span class="nav-icon">🏖️</span> Retirement Analytics</div>
+    <div class="nav-item"><span class="nav-icon">⏳</span> Cost of Waiting</div>
+    <div class="nav-item"><span class="nav-icon">🏛️</span> CPF Planning</div>
+
+    <div class="nav-group-label">Phase 4 &mdash; Optimise</div>
+    <div class="nav-item"><span class="nav-icon">💰</span> Cash Flow</div>
+    <div class="nav-item"><span class="nav-icon">📈</span> Net Worth</div>
+
+    <div class="nav-group-label">Phase 5 &mdash; Recommendation</div>
+    <div class="nav-item"><span class="nav-icon">📋</span> Session Summary</div>
+  </aside>
+
+  <main class="main">
+    <div class="page-eyebrow">Dashboard</div>
+    <h1 class="page-title">Good evening, Noah.</h1>
+    <p class="page-subtitle">Your client's financial health at a glance. Let's make progress.</p>
+
+    <!-- Hero verdict -->
+    <div class="verdict">
+      <div class="verdict-label">Financial Health Score</div>
+      <div class="verdict-score">74</div>
+      <div class="verdict-desc">
+        Building momentum. Retirement gap needs attention — 3 areas flagged for review.
+      </div>
+    </div>
+
+    <!-- Stat row -->
+    <div class="stat-row">
+      <div class="glass stat-card">
+        <div class="stat-label">Net Worth</div>
+        <div class="stat-value">S$412K</div>
+        <div class="stat-sub">Assets S$680K &minus; Liabilities S$268K</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-label">Monthly Surplus</div>
+        <div class="stat-value" style="color:var(--success)">S$1,897</div>
+        <div class="stat-sub">24% savings rate &mdash; Good</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-label">Retirement Ready</div>
+        <div class="stat-value" style="color:var(--gold)">62%</div>
+        <div class="stat-sub">Gap: S$312K by age 65</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-label">Protection Score</div>
+        <div class="stat-value" style="color:var(--accent)">68/100</div>
+        <div class="stat-sub">CI coverage below threshold</div>
+      </div>
+    </div>
+
+    <!-- Coverage breakdown -->
+    <div class="glass data-section">
+      <div class="section-label purple">Protection</div>
+      <div class="section-title">Coverage Breakdown</div>
+
+      <div class="data-row">
+        <div class="data-row-label"><div class="data-row-dot" style="background:var(--success)"></div> Death</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="data-row-value">S$500K</div>
+          <span class="data-row-badge" style="background:rgba(74,222,128,0.10);color:var(--success)">Met</span>
+        </div>
+      </div>
+      <div class="data-row">
+        <div class="data-row-label"><div class="data-row-dot" style="background:var(--success)"></div> TPD</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="data-row-value">S$500K</div>
+          <span class="data-row-badge" style="background:rgba(74,222,128,0.10);color:var(--success)">Met</span>
+        </div>
+      </div>
+      <div class="data-row">
+        <div class="data-row-label"><div class="data-row-dot" style="background:var(--gold)"></div> Critical Illness</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="data-row-value" style="color:var(--gold)">S$150K</div>
+          <span class="data-row-badge" style="background:rgba(226,199,153,0.10);color:var(--gold)">Partial</span>
+        </div>
+      </div>
+      <div class="data-row">
+        <div class="data-row-label"><div class="data-row-dot" style="background:var(--danger)"></div> Hospitalisation</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="data-row-value" style="color:var(--danger)">None</div>
+          <span class="data-row-badge" style="background:rgba(248,113,113,0.10);color:var(--danger)">Gap</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass data-section">
+      <div class="section-label purple">Wealth Journey</div>
+      <div class="section-title">Portfolio Projection</div>
+      <div class="chart-area">
+        <svg viewBox="0 0 700 130" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="auroraFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(167,139,250,0.20)"/>
+              <stop offset="100%" stop-color="rgba(167,139,250,0)"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,120 C80,115 180,100 280,75 C380,50 460,30 540,18 C620,8 680,4 700,3" stroke="url(#auroraStroke)" stroke-width="2.5" fill="none" stroke="var(--accent)"/>
+          <path d="M0,120 C80,115 180,100 280,75 C380,50 460,30 540,18 C620,8 680,4 700,3 L700,130 L0,130 Z" fill="url(#auroraFill)"/>
+          <line x1="0" y1="35" x2="700" y2="35" stroke="rgba(248,113,113,0.25)" stroke-dasharray="5 4"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Tool grid -->
+    <div class="section-label purple" style="margin-bottom:6px">Advisory Tools</div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px">Continue the session</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px">Pick up where you left off.</p>
+
+    <div class="tool-grid">
+      <div class="glass tool-card">
+        <div class="tool-icon">⚡</div>
+        <div class="tool-name">Stress Test</div>
+        <div class="tool-desc">Simulate life events. See your runway with and without insurance.</div>
+        <div class="tool-badge badge-red">Action needed</div>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon">🏖️</div>
+        <div class="tool-name">Retirement Analytics</div>
+        <div class="tool-desc">Trinity solver, wealth projection, income planning at retirement.</div>
+        <div class="tool-badge badge-gold">62% funded</div>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon">💰</div>
+        <div class="tool-name">Cash Flow</div>
+        <div class="tool-desc">Track spending, find leaks, optimise your savings rate.</div>
+        <div class="tool-badge badge-green">Healthy</div>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon">🏥</div>
+        <div class="tool-name">LTC Gap Analysis</div>
+        <div class="tool-desc">Long-term care costs vs your CareShield coverage.</div>
+        <div class="tool-badge badge-purple">Review</div>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon">🏛️</div>
+        <div class="tool-name">CPF Planning</div>
+        <div class="tool-desc">OA/SA/MA projections and BRS/FRS/ERS targets.</div>
+        <div class="tool-badge badge-green">On track</div>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon">📈</div>
+        <div class="tool-name">Net Worth</div>
+        <div class="tool-desc">Total assets minus liabilities at a glance.</div>
+        <div class="tool-badge badge-gold">S$412K</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
