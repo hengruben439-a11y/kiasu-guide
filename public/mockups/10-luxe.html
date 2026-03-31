@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKG — Gradient Luxe</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #08060a; color: #f5f0eb; font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+/* Sidebar */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 240px; background: linear-gradient(180deg, #1a0520 0%, #1a0a0a 100%); padding: 32px 20px; display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(255,255,255,0.04); }
+.sidebar-brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #d4a853, #f5f0eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px; }
+.sidebar-line { height: 1px; background: linear-gradient(90deg, #d4a853, #8b5cf6, transparent); margin-bottom: 32px; }
+.sidebar-phase { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(245,240,235,0.3); margin-top: 20px; margin-bottom: 8px; padding-left: 12px; }
+.sidebar-phase:first-of-type { margin-top: 0; }
+.sidebar-item { display: block; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: rgba(245,240,235,0.45); cursor: pointer; transition: all 0.2s; margin-bottom: 2px; text-decoration: none; }
+.sidebar-item:hover { color: rgba(245,240,235,0.7); background: rgba(255,255,255,0.03); }
+.sidebar-item.active { color: #f5f0eb; }
+.sidebar-item.active.gold { background: linear-gradient(135deg, rgba(212,168,83,0.2), rgba(212,168,83,0.05)); }
+.sidebar-item.active.purple { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(139,92,246,0.05)); }
+.sidebar-item.active.green { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05)); }
+.sidebar-item.active.amber { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05)); }
+
+/* Main */
+.main { margin-left: 240px; padding: 44px 52px; max-width: 1240px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 36px; }
+.tab-btn { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: rgba(245,240,235,0.35); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: all 0.25s; }
+.tab-btn:hover { color: rgba(245,240,235,0.6); border-color: rgba(255,255,255,0.1); }
+.tab-btn.active { background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(212,168,83,0.05)); color: #d4a853; border-color: rgba(212,168,83,0.2); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Cards with gradient wash */
+.card { border-radius: 16px; padding: 28px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.04); }
+.card::before { content: ''; position: absolute; inset: 0; opacity: 0.1; pointer-events: none; border-radius: 16px; }
+.card-gold::before { background: radial-gradient(ellipse at bottom left, #d4a853 0%, transparent 70%); }
+.card-purple::before { background: radial-gradient(ellipse at bottom left, #8b5cf6 0%, transparent 70%); }
+.card-green::before { background: radial-gradient(ellipse at bottom left, #22c55e 0%, transparent 70%); }
+.card-amber::before { background: radial-gradient(ellipse at bottom left, #f59e0b 0%, transparent 70%); }
+.card-red::before { background: radial-gradient(ellipse at bottom left, #ef4444 0%, transparent 70%); }
+.card-blue::before { background: radial-gradient(ellipse at bottom left, #3b82f6 0%, transparent 70%); }
+
+.card-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(245,240,235,0.35); margin-bottom: 8px; position: relative; }
+.card-number { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; position: relative; font-variant-numeric: tabular-nums; }
+.card-number.big { font-size: 56px; line-height: 1.1; }
+.card-sub { font-size: 12px; color: rgba(245,240,235,0.35); margin-top: 4px; position: relative; }
+
+/* Stat grid */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+
+/* Chart card */
+.chart-card { border-radius: 16px; padding: 28px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 36px; position: relative; overflow: hidden; }
+.chart-card::before { content: ''; position: absolute; inset: 0; opacity: 0.06; background: radial-gradient(ellipse at bottom left, #d4a853, transparent 70%); pointer-events: none; }
+
+/* Tool grid */
+.tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tool-card { border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.04); position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.25s; }
+.tool-card:hover { border-color: rgba(255,255,255,0.08); }
+.tool-card::before { content: ''; position: absolute; inset: 0; opacity: 0.08; pointer-events: none; border-radius: 12px; }
+.tool-name { font-size: 14px; font-weight: 600; position: relative; margin-bottom: 4px; }
+.tool-status { font-size: 11px; color: rgba(245,240,235,0.35); position: relative; }
+
+/* Net Worth tab */
+.big-number-wrap { text-align: center; margin-bottom: 40px; }
+.pie-section { display: flex; align-items: center; gap: 48px; justify-content: center; margin-bottom: 40px; }
+.legend { display: flex; flex-direction: column; gap: 12px; }
+.legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend-val { color: rgba(245,240,235,0.5); margin-left: auto; padding-left: 16px; font-variant-numeric: tabular-nums; }
+.breakdown-table { width: 100%; max-width: 600px; margin: 0 auto; border-collapse: collapse; font-size: 13px; }
+.breakdown-table th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(245,240,235,0.3); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.breakdown-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: rgba(245,240,235,0.65); }
+.breakdown-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Stress test tab */
+.scenario-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+.scenario-card { border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.04); position: relative; overflow: hidden; cursor: pointer; text-align: center; transition: border-color 0.25s; }
+.scenario-card:hover { border-color: rgba(255,255,255,0.1); }
+.scenario-card::before { content: ''; position: absolute; inset: 0; opacity: 0.1; pointer-events: none; border-radius: 12px; }
+.scenario-label { font-size: 12px; font-weight: 600; position: relative; margin-bottom: 4px; }
+.scenario-sub { font-size: 11px; color: rgba(245,240,235,0.35); position: relative; }
+
+.highlight-card { border-radius: 16px; padding: 28px; border: 1px solid rgba(255,255,255,0.04); position: relative; overflow: hidden; text-align: center; margin-top: 32px; }
+.highlight-card::before { content: ''; position: absolute; inset: 0; opacity: 0.12; background: radial-gradient(ellipse at center, #d4a853, transparent 70%); pointer-events: none; }
+.highlight-number { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #d4a853; position: relative; }
+.highlight-text { font-size: 15px; color: rgba(245,240,235,0.55); position: relative; margin-top: 4px; }
+
+svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+  <div class="sidebar-line"></div>
+
+  <div class="sidebar-phase">Phase 1 — Know</div>
+  <a class="sidebar-item active gold">Financial Profile</a>
+  <a class="sidebar-item">CPF Overview</a>
+  <a class="sidebar-item">Health Context</a>
+
+  <div class="sidebar-phase">Phase 2 — Gaps</div>
+  <a class="sidebar-item">Insurance Benefits</a>
+  <a class="sidebar-item">LTC Calculator</a>
+  <a class="sidebar-item">Stress Test</a>
+
+  <div class="sidebar-phase">Phase 3 — Path</div>
+  <a class="sidebar-item">Retirement Planning</a>
+  <a class="sidebar-item">Cost of Waiting</a>
+  <a class="sidebar-item">CPF Planner</a>
+
+  <div class="sidebar-phase">Phase 4 — Tools</div>
+  <a class="sidebar-item">Risk Profiler</a>
+  <a class="sidebar-item">Concepts Library</a>
+
+  <div class="sidebar-phase">Phase 5 — Optimise</div>
+  <a class="sidebar-item">Cash Flow</a>
+  <a class="sidebar-item">Net Worth</a>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('networth')">Net Worth</button>
+    <button class="tab-btn" onclick="switchTab('stress')">Stress Test</button>
+  </div>
+
+  <!-- TAB 1: Dashboard -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="stat-grid">
+      <div class="card card-gold">
+        <div class="card-label">Net Worth</div>
+        <div class="card-number">S$412K</div>
+        <div class="card-sub">+S$18K this quarter</div>
+      </div>
+      <div class="card card-amber">
+        <div class="card-label">Retirement Readiness</div>
+        <div class="card-number" style="color:#f59e0b;">62%</div>
+        <div class="card-sub">Gap: S$710K</div>
+      </div>
+      <div class="card card-purple">
+        <div class="card-label">CPF Total</div>
+        <div class="card-number" style="color:#8b5cf6;">S$185K</div>
+        <div class="card-sub">OA: S$82K | SA: S$68K | MA: S$35K</div>
+      </div>
+      <div class="card card-green">
+        <div class="card-label">Protection Score</div>
+        <div class="card-number" style="color:#22c55e;">68</div>
+        <div class="card-sub">CI gap: S$150K</div>
+      </div>
+    </div>
+
+    <!-- Portfolio Projection Chart -->
+    <div class="chart-card">
+      <div class="card-label" style="margin-bottom:16px;">Portfolio Projection</div>
+      <svg viewBox="0 0 800 280" width="100%" height="280">
+        <defs>
+          <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a853" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <line x1="60" y1="30" x2="760" y2="30" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="80" x2="760" y2="80" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="130" x2="760" y2="130" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="180" x2="760" y2="180" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="230" x2="760" y2="230" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <!-- Y labels -->
+        <text x="52" y="34" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$2.5M</text>
+        <text x="52" y="84" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$2.0M</text>
+        <text x="52" y="134" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$1.5M</text>
+        <text x="52" y="184" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$1.0M</text>
+        <text x="52" y="234" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$0.5M</text>
+        <!-- X labels -->
+        <text x="60" y="256" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">2026</text>
+        <text x="235" y="256" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">2031</text>
+        <text x="410" y="256" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">2036</text>
+        <text x="585" y="256" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">2041</text>
+        <text x="760" y="256" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">2046</text>
+        <!-- Area fill -->
+        <path d="M60,225 L235,195 L410,155 L585,100 L760,50 L760,240 L60,240Z" fill="url(#goldArea)"/>
+        <!-- Projected line (gold) -->
+        <polyline points="60,225 235,195 410,155 585,100 760,50" fill="none" stroke="#d4a853" stroke-width="2" stroke-linejoin="round"/>
+        <!-- Required line (red dashed) -->
+        <polyline points="60,220 235,180 410,130 585,75 760,30" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="6,4"/>
+        <!-- Dots -->
+        <circle cx="60" cy="225" r="4" fill="#d4a853"/>
+        <circle cx="235" cy="195" r="4" fill="#d4a853"/>
+        <circle cx="410" cy="155" r="4" fill="#d4a853"/>
+        <circle cx="585" cy="100" r="4" fill="#d4a853"/>
+        <circle cx="760" cy="50" r="4" fill="#d4a853"/>
+        <!-- Legend -->
+        <line x1="60" y1="270" x2="80" y2="270" stroke="#d4a853" stroke-width="2"/>
+        <text x="84" y="273" fill="rgba(245,240,235,0.4)" font-size="10">Projected Portfolio</text>
+        <line x1="220" y1="270" x2="240" y2="270" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="6,4"/>
+        <text x="244" y="273" fill="rgba(245,240,235,0.4)" font-size="10">Required Corpus</text>
+      </svg>
+    </div>
+
+    <!-- Tool cards -->
+    <div class="tool-grid">
+      <div class="tool-card card-green"><div class="tool-card::before"></div><div class="tool-name">Insurance Benefits</div><div class="tool-status">4 policies loaded</div></div>
+      <div class="tool-card card-red"><div class="tool-name">Stress Test</div><div class="tool-status">Last run: 2 weeks ago</div></div>
+      <div class="tool-card card-amber"><div class="tool-name">Retirement</div><div class="tool-status">62% readiness</div></div>
+      <div class="tool-card card-purple"><div class="tool-name">CPF Planner</div><div class="tool-status">Projections current</div></div>
+      <div class="tool-card card-gold"><div class="tool-name">Cash Flow</div><div class="tool-status">Surplus: S$1,897</div></div>
+      <div class="tool-card card-blue"><div class="tool-name">Net Worth</div><div class="tool-status">S$412K total</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Net Worth -->
+  <div id="tab-networth" class="tab-content">
+    <div class="big-number-wrap">
+      <div class="card-label" style="text-align:center;">Total Net Worth</div>
+      <div class="card-number big" style="color:#d4a853;">S$412,000</div>
+      <div class="card-sub" style="text-align:center; margin-top:8px;">+4.6% from last quarter</div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="pie-section">
+      <svg viewBox="0 0 220 220" width="220" height="220">
+        <defs>
+          <linearGradient id="pieGold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#d4a853"/>
+            <stop offset="100%" stop-color="#b8922e"/>
+          </linearGradient>
+          <linearGradient id="piePurple" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#8b5cf6"/>
+            <stop offset="100%" stop-color="#6d3fd4"/>
+          </linearGradient>
+          <linearGradient id="pieGreen" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#22c55e"/>
+            <stop offset="100%" stop-color="#16a34a"/>
+          </linearGradient>
+          <linearGradient id="pieBlue" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#2563eb"/>
+          </linearGradient>
+        </defs>
+        <!-- Pie segments using stroke-dasharray on circles (r=80, C=502.65) -->
+        <!-- Liquid Savings: 22% = 110.58 -->
+        <!-- Portfolio: 33% = 165.87 -->
+        <!-- Property: 20% = 100.53 -->
+        <!-- CPF: 25% = 125.66 -->
+        <!-- Liquid: 22% -->
+        <circle cx="110" cy="110" r="80" fill="none" stroke="url(#pieGold)" stroke-width="36"
+          stroke-dasharray="110.58 392.07" stroke-dashoffset="0" transform="rotate(-90 110 110)"/>
+        <!-- Portfolio: 33% -->
+        <circle cx="110" cy="110" r="80" fill="none" stroke="url(#pieGreen)" stroke-width="36"
+          stroke-dasharray="165.87 336.78" stroke-dashoffset="-110.58" transform="rotate(-90 110 110)"/>
+        <!-- Property: 20% -->
+        <circle cx="110" cy="110" r="80" fill="none" stroke="url(#pieBlue)" stroke-width="36"
+          stroke-dasharray="100.53 402.12" stroke-dashoffset="-276.45" transform="rotate(-90 110 110)"/>
+        <!-- CPF: 25% -->
+        <circle cx="110" cy="110" r="80" fill="none" stroke="url(#piePurple)" stroke-width="36"
+          stroke-dasharray="125.66 377" stroke-dashoffset="-376.98" transform="rotate(-90 110 110)"/>
+        <!-- Center -->
+        <circle cx="110" cy="110" r="58" fill="#08060a"/>
+        <text x="110" y="106" fill="#f5f0eb" font-size="18" font-weight="600" text-anchor="middle" font-family="Playfair Display, serif">S$412K</text>
+        <text x="110" y="122" fill="rgba(245,240,235,0.35)" font-size="9" text-anchor="middle">Total</text>
+      </svg>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#d4a853;"></div>Liquid Savings<span class="legend-val">S$90K</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>Portfolio<span class="legend-val">S$137K</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div>Property Equity<span class="legend-val">S$82K</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div>CPF<span class="legend-val">S$103K</span></div>
+      </div>
+    </div>
+
+    <!-- Breakdown Table -->
+    <table class="breakdown-table">
+      <thead><tr><th>Assets</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Cash & Savings</td><td>S$90,000</td></tr>
+        <tr><td>Investment Portfolio</td><td>S$137,000</td></tr>
+        <tr><td>Property Equity</td><td>S$82,000</td></tr>
+        <tr><td>CPF (OA + SA + MA)</td><td>S$185,000</td></tr>
+        <tr><td style="font-weight:600;">Total Assets</td><td style="font-weight:600;">S$494,000</td></tr>
+      </tbody>
+      <thead><tr><th style="padding-top:20px;">Liabilities</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Home Loan Outstanding</td><td>S$68,000</td></tr>
+        <tr><td>Car Loan</td><td>S$14,000</td></tr>
+        <tr><td style="font-weight:600;">Total Liabilities</td><td style="font-weight:600;">S$82,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TAB 3: Stress Test -->
+  <div id="tab-stress" class="tab-content">
+    <div class="scenario-grid">
+      <div class="scenario-card card-red" style="border-color: rgba(239,68,68,0.2);">
+        <div class="scenario-label" style="color:#ef4444;">Death</div>
+        <div class="scenario-sub">100% income loss</div>
+      </div>
+      <div class="scenario-card card-amber" style="border-color: rgba(245,158,11,0.2);">
+        <div class="scenario-label" style="color:#f59e0b;">TPD</div>
+        <div class="scenario-sub">100% income loss</div>
+      </div>
+      <div class="scenario-card card-purple">
+        <div class="scenario-label" style="color:#8b5cf6;">Early CI</div>
+        <div class="scenario-sub">50% income loss</div>
+      </div>
+      <div class="scenario-card card-blue">
+        <div class="scenario-label" style="color:#3b82f6;">Advanced CI</div>
+        <div class="scenario-sub">100% income loss</div>
+      </div>
+    </div>
+
+    <!-- Dual line chart -->
+    <div class="chart-card">
+      <div class="card-label" style="margin-bottom:16px;">Savings Runway — Early CI Scenario</div>
+      <svg viewBox="0 0 800 300" width="100%" height="300">
+        <defs>
+          <linearGradient id="upliftFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a853" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#d4a853" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <line x1="60" y1="30" x2="760" y2="30" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="80" x2="760" y2="80" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="130" x2="760" y2="130" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="180" x2="760" y2="180" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="60" y1="230" x2="760" y2="230" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <!-- Y labels -->
+        <text x="52" y="34" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$500K</text>
+        <text x="52" y="84" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$400K</text>
+        <text x="52" y="134" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$300K</text>
+        <text x="52" y="184" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$200K</text>
+        <text x="52" y="234" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="end">S$100K</text>
+        <!-- X labels (ages) -->
+        <text x="60" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">35</text>
+        <text x="200" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">40</text>
+        <text x="340" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">45</text>
+        <text x="480" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">50</text>
+        <text x="620" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">55</text>
+        <text x="760" y="260" fill="rgba(245,240,235,0.25)" font-size="10" text-anchor="middle">60</text>
+
+        <!-- Area between the two lines (insurance uplift) -->
+        <path d="M60,80 L200,110 L340,150 L480,195 L548,240 L548,240 L480,165 L340,110 L200,70 L60,40 Z" fill="url(#upliftFill)"/>
+
+        <!-- With Insurance line (gold) -->
+        <polyline points="60,40 200,70 340,110 480,165 620,210 760,240" fill="none" stroke="#d4a853" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Without Insurance line (grey dashed) -->
+        <polyline points="60,80 200,110 340,150 480,195 548,240" fill="none" stroke="rgba(245,240,235,0.2)" stroke-width="1.5" stroke-dasharray="6,4" stroke-linejoin="round"/>
+
+        <!-- Dots on gold line -->
+        <circle cx="60" cy="40" r="4" fill="#d4a853"/>
+        <circle cx="200" cy="70" r="4" fill="#d4a853"/>
+        <circle cx="340" cy="110" r="4" fill="#d4a853"/>
+        <circle cx="480" cy="165" r="4" fill="#d4a853"/>
+        <circle cx="620" cy="210" r="4" fill="#d4a853"/>
+        <circle cx="760" cy="240" r="4" fill="#d4a853"/>
+
+        <!-- Depletion markers -->
+        <circle cx="548" cy="240" r="5" fill="none" stroke="rgba(245,240,235,0.3)" stroke-width="1"/>
+        <text x="548" y="253" fill="rgba(245,240,235,0.3)" font-size="9" text-anchor="middle">Age 52</text>
+        <text x="760" y="253" fill="rgba(212,168,83,0.5)" font-size="9" text-anchor="middle">Age 60</text>
+
+        <!-- Legend -->
+        <line x1="60" y1="282" x2="80" y2="282" stroke="#d4a853" stroke-width="2"/>
+        <text x="84" y="285" fill="rgba(245,240,235,0.4)" font-size="10">With Insurance</text>
+        <line x1="230" y1="282" x2="250" y2="282" stroke="rgba(245,240,235,0.2)" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="254" y="285" fill="rgba(245,240,235,0.4)" font-size="10">Without Insurance</text>
+      </svg>
+    </div>
+
+    <!-- Highlight card -->
+    <div class="highlight-card">
+      <div class="highlight-number">8 years</div>
+      <div class="highlight-text">Your insurance policies extended your financial runway by 8 years in this scenario.</div>
+      <div style="margin-top:12px; font-size:12px; color:rgba(245,240,235,0.3); position:relative;">Without insurance: depleted at age 52 &nbsp;&middot;&nbsp; With insurance: sustained to age 60</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = ['dashboard', 'networth', 'stress'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+</script>
+</body>
+</html>
