@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 15 — App Hybrid (Dark Shell + White Cards)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --shell: #0e0e0d;
+    --sidebar: #111110;
+    --sidebar-hover: rgba(255,255,255,0.04);
+    --sidebar-text: rgba(255,255,255,0.55);
+    --sidebar-text-bright: rgba(255,255,255,0.90);
+    --card: #faf8f5;
+    --card-alt: #f5f2ee;
+    --card-text: #1a1918;
+    --card-secondary: rgba(26,25,24,0.50);
+    --card-muted: rgba(26,25,24,0.30);
+    --card-border: rgba(26,25,24,0.08);
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+    --accent: #e8734a;
+    --accent-light: rgba(232,115,74,0.10);
+    --accent-med: rgba(232,115,74,0.18);
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --purple: #7c3aed;
+    --radius: 20px;
+    --radius-inner: 12px;
+    --radius-btn: 8px;
+  }
+
+  body {
+    background: var(--shell);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+
+  .sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px;
+    margin-bottom: 28px;
+  }
+  .sidebar-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #d4603a);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: #fff;
+    flex-shrink: 0;
+  }
+  .sidebar-name {
+    font-weight: 600; font-size: 13px;
+    color: var(--sidebar-text-bright);
+    line-height: 1.2;
+  }
+  .sidebar-role {
+    font-size: 10px; color: var(--sidebar-text);
+    margin-top: 1px;
+  }
+  .sidebar-bell {
+    margin-left: auto;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer;
+    position: relative;
+  }
+  .sidebar-bell::after {
+    content: '';
+    position: absolute; top: 5px; right: 5px;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .nav-phase {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin: 20px 0 6px 12px;
+  }
+  .nav-phase:first-of-type { margin-top: 0; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .nav-item:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-bright);
+  }
+  .nav-item.active {
+    background: rgba(232,115,74,0.08);
+    color: #fff;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 18px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+  .nav-icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; opacity: 0.7;
+  }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .nav-dot.done { background: var(--success); }
+  .nav-dot.partial { background: var(--warning); }
+  .nav-dot.empty { background: rgba(255,255,255,0.10); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 8px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .sidebar-footer-item {
+    font-size: 12px;
+    color: var(--sidebar-text);
+    padding: 6px 8px;
+    cursor: pointer;
+  }
+  .sidebar-footer-item:hover { color: var(--sidebar-text-bright); }
+
+  /* ── Main ──────────────────────────────────────── */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 28px 32px 48px;
+    min-height: 100vh;
+  }
+
+  /* ── Tab Bar ───────────────────────────────────── */
+  .tab-bar {
+    display: inline-flex;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 24px;
+  }
+  .tab {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .tab:hover { color: rgba(255,255,255,0.70); }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Greeting ──────────────────────────────────── */
+  .greeting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .greeting-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .greeting-text p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.40);
+    margin-top: 4px;
+  }
+
+  .health-ring {
+    width: 64px; height: 64px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .health-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .health-ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 5; }
+  .health-ring-fill { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 176; stroke-dashoffset: 46; transition: stroke-dashoffset 0.8s ease; }
+  .health-ring-val {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; font-size: 20px; color: #fff;
+  }
+  .health-ring-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* ── White Cards ────────────────────────────────── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 22px;
+    color: var(--card-text);
+  }
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--card-muted);
+    margin-bottom: 8px;
+  }
+  .card-hero {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--card-text);
+  }
+  .card-hero.green { color: var(--success); }
+  .card-hero.amber { color: var(--warning); }
+  .card-hero.purple { color: var(--purple); }
+  .card-hero.coral { color: var(--accent); }
+  .card-sub {
+    font-size: 13px;
+    color: var(--card-secondary);
+    margin-top: 6px;
+  }
+
+  /* ── Bento Grid ────────────────────────────────── */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+
+  /* ── Chart Card ─────────────────────────────────── */
+  .chart-area {
+    width: 100%;
+    height: 180px;
+    margin-top: 12px;
+    position: relative;
+  }
+  .chart-area svg { width: 100%; height: 100%; }
+
+  /* ── Badge ──────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.green { background: rgba(22,163,74,0.10); color: var(--success); }
+  .badge.amber { background: rgba(217,119,6,0.10); color: var(--warning); }
+  .badge.red { background: rgba(220,38,38,0.10); color: var(--danger); }
+  .badge.purple { background: rgba(124,58,237,0.10); color: var(--purple); }
+  .badge.coral { background: var(--accent-light); color: var(--accent); }
+
+  /* ── Progress Bar ──────────────────────────────── */
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(26,25,24,0.08);
+    border-radius: 3px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── Mini Bars ─────────────────────────────────── */
+  .mini-bars { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .mini-bar-row { display: flex; align-items: center; gap: 8px; }
+  .mini-bar-label { font-size: 11px; font-weight: 600; color: var(--card-secondary); width: 28px; }
+  .mini-bar-track { flex: 1; height: 5px; background: rgba(26,25,24,0.06); border-radius: 3px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 3px; }
+  .mini-bar-val { font-size: 11px; font-weight: 600; color: var(--card-text); width: 48px; text-align: right; }
+
+  /* ── Alerts ─────────────────────────────────────── */
+  .alert-card { padding: 0; overflow: hidden; }
+  .alert-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--card-border);
+    position: relative;
+  }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-row::before {
+    content: '';
+    position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 0 3px 3px 0;
+  }
+  .alert-row.red::before { background: var(--danger); }
+  .alert-row.amber::before { background: var(--warning); }
+  .alert-row.purple::before { background: var(--purple); }
+  .alert-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .alert-row.red .alert-icon { background: rgba(220,38,38,0.08); }
+  .alert-row.amber .alert-icon { background: rgba(217,119,6,0.08); }
+  .alert-row.purple .alert-icon { background: rgba(124,58,237,0.08); }
+  .alert-title { font-size: 13px; font-weight: 600; color: var(--card-text); }
+  .alert-desc { font-size: 11px; color: var(--card-secondary); margin-top: 1px; }
+  .alert-action {
+    margin-left: auto; font-size: 11px; font-weight: 600;
+    color: var(--accent); cursor: pointer; white-space: nowrap;
+  }
+
+  /* ── Tool Strip ─────────────────────────────────── */
+  .tool-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .tool-chip {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: var(--radius-inner);
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tool-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .tool-chip-icon { font-size: 20px; margin-bottom: 6px; }
+  .tool-chip-name { font-size: 11px; font-weight: 600; color: var(--card-text); }
+  .tool-chip-status {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin: 6px auto 0;
+  }
+
+  /* ── Tab Panels ─────────────────────────────────── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Stress Test ────────────────────────────────── */
+  .scenario-tabs {
+    display: inline-flex;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 20px;
+  }
+  .scenario-tab {
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.40);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .scenario-tab.active { background: var(--accent); color: #fff; }
+
+  .stress-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .input-group { margin-bottom: 14px; }
+  .input-label { font-size: 11px; font-weight: 600; color: var(--card-secondary); margin-bottom: 5px; }
+  .input-field {
+    width: 100%;
+    padding: 9px 12px;
+    background: #fff;
+    border: 1px solid rgba(26,25,24,0.12);
+    border-radius: var(--radius-btn);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--card-text);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 12px; font-weight: 500; color: var(--card-text); }
+  .toggle-sub { font-size: 10px; color: var(--card-secondary); margin-top: 1px; }
+  .toggle-switch {
+    width: 36px; height: 20px;
+    background: rgba(26,25,24,0.15);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle-switch.on::after { transform: translateX(16px); }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+  }
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--card-text);
+  }
+  .stat-val.coral { color: var(--accent); }
+  .stat-val.green { color: var(--success); }
+  .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--card-muted); margin-top: 4px; }
+
+  /* ── Retirement ─────────────────────────────────── */
+  .retire-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .slider-group { margin-bottom: 16px; }
+  .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .slider-label { font-size: 12px; font-weight: 600; color: var(--card-text); }
+  .slider-val { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .slider-track {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(26,25,24,0.10);
+    border-radius: 3px;
+    outline: none;
+  }
+  .slider-track::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(232,115,74,0.30);
+  }
+
+  .income-bar-card { padding: 18px 22px; }
+  .income-stacked {
+    display: flex; height: 28px; border-radius: 6px; overflow: hidden; margin-top: 10px;
+  }
+  .income-seg { transition: width 0.4s ease; }
+  .income-legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .income-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--card-secondary); }
+  .income-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .verdict-card {
+    background: rgba(232,115,74,0.04);
+    border: 1px solid rgba(232,115,74,0.12);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+  }
+  .verdict-card p {
+    font-size: 14px;
+    color: var(--card-text);
+    line-height: 1.6;
+  }
+  .verdict-card strong { color: var(--accent); font-weight: 700; }
+
+  /* ── Status Dots ─────────────────────────────────── */
+  .status-dots { display: flex; gap: 5px; margin-top: 10px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── Dot Separator ──────────────────────────────── */
+  .dot-sep { color: var(--card-muted); margin: 0 2px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar">N</div>
+      <div>
+        <div class="sidebar-name">Noah Tan</div>
+        <div class="sidebar-role">Adviser</div>
+      </div>
+      <div class="sidebar-bell">🔔</div>
+    </div>
+
+    <div class="nav-phase">Phase 1 — Know Your Position</div>
+    <div class="nav-item active">
+      <span class="nav-icon">📊</span> Dashboard
+      <span class="nav-dot done"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">👤</span> Financial Profile
+      <span class="nav-dot done"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🏛️</span> CPF Overview
+      <span class="nav-dot partial"></span>
+    </div>
+
+    <div class="nav-phase">Phase 2 — Find the Gaps</div>
+    <div class="nav-item">
+      <span class="nav-icon">🛡️</span> Insurance Benefits
+      <span class="nav-dot done"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🏥</span> LTC Gap Calculator
+      <span class="nav-dot empty"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚡</span> Stress Test
+      <span class="nav-dot partial"></span>
+    </div>
+
+    <div class="nav-phase">Phase 3 — Plot the Path</div>
+    <div class="nav-item">
+      <span class="nav-icon">🎯</span> Retirement Plan
+      <span class="nav-dot partial"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⏳</span> Cost of Waiting
+      <span class="nav-dot empty"></span>
+    </div>
+
+    <div class="nav-phase">Phase 4 — Optimise</div>
+    <div class="nav-item">
+      <span class="nav-icon">💰</span> Cash Flow
+      <span class="nav-dot done"></span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📈</span> Net Worth
+      <span class="nav-dot empty"></span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-item">⚙️ Settings</div>
+      <div class="sidebar-footer-item">🚪 Log out</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ══════════════════════════════ -->
+  <main class="main">
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+      <div class="tab" onclick="switchTab('stress')">Stress Test</div>
+      <div class="tab" onclick="switchTab('retire')">Retirement</div>
+    </div>
+
+    <!-- ═══ TAB 1 — DASHBOARD ═══════════════════════ -->
+    <div class="tab-panel active" id="panel-dashboard">
+
+      <!-- Greeting (on dark bg) -->
+      <div class="greeting-row">
+        <div class="greeting-text">
+          <h1>Good evening, Noah</h1>
+          <p>Client: Sarah Lim · Last session 3 days ago</p>
+        </div>
+        <div style="text-align:center">
+          <div class="health-ring">
+            <svg viewBox="0 0 64 64">
+              <circle class="health-ring-bg" cx="32" cy="32" r="28"/>
+              <circle class="health-ring-fill" cx="32" cy="32" r="28"/>
+            </svg>
+            <div class="health-ring-val">74</div>
+          </div>
+          <div class="health-ring-label">Health Score</div>
+        </div>
+      </div>
+
+      <!-- White Card Bento Grid -->
+      <div class="bento">
+
+        <!-- Card 1: Portfolio Projection (spans 2 cols) -->
+        <div class="card span-2">
+          <div class="card-label">Portfolio Projection</div>
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+            <span style="font-size:14px;font-weight:600;color:var(--card-text)">S$1.2M target by age 65</span>
+            <span class="badge green">On track at 8% p.a.</span>
+          </div>
+          <div class="chart-area">
+            <svg viewBox="0 0 600 170" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="42" x2="600" y2="42" stroke="rgba(26,25,24,0.06)" stroke-width="1"/>
+              <line x1="0" y1="85" x2="600" y2="85" stroke="rgba(26,25,24,0.06)" stroke-width="1"/>
+              <line x1="0" y1="127" x2="600" y2="127" stroke="rgba(26,25,24,0.06)" stroke-width="1"/>
+              <!-- Axis labels -->
+              <text x="0" y="12" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$1.2M</text>
+              <text x="0" y="55" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$800K</text>
+              <text x="0" y="97" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$400K</text>
+              <text x="0" y="140" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$0</text>
+              <!-- X axis -->
+              <text x="60" y="166" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">2026</text>
+              <text x="200" y="166" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">2032</text>
+              <text x="350" y="166" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">2038</text>
+              <text x="500" y="166" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">2044</text>
+              <text x="565" y="166" font-size="9" fill="rgba(26,25,24,0.30)" font-family="DM Sans">2048</text>
+              <!-- Projected fill -->
+              <path d="M60,140 C120,135 200,120 280,100 C350,82 420,55 500,30 L580,15 L580,150 L60,150 Z" fill="rgba(232,115,74,0.07)"/>
+              <!-- Projected line -->
+              <path d="M60,140 C120,135 200,120 280,100 C350,82 420,55 500,30 L580,15" fill="none" stroke="#1a1918" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Required line (dashed) -->
+              <line x1="60" y1="20" x2="580" y2="20" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+              <text x="520" y="16" font-size="9" fill="var(--danger)" font-family="DM Sans" font-weight="600">Required</text>
+              <!-- Current dot -->
+              <circle cx="60" cy="140" r="4" fill="var(--accent)" stroke="#fff" stroke-width="2"/>
+              <text x="68" y="137" font-size="9" fill="var(--accent)" font-family="DM Sans" font-weight="600">S$412K</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card 2: Net Worth -->
+        <div class="card">
+          <div class="card-label">Net Worth</div>
+          <div class="card-hero" style="font-size:30px">S$412K</div>
+          <div style="margin-top:8px">
+            <span class="badge green">+S$18K ↑</span>
+            <span style="font-size:11px;color:var(--card-muted);margin-left:4px">this quarter</span>
+          </div>
+          <div style="margin-top:14px;font-size:12px;color:var(--card-secondary)">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span>Assets</span><span style="font-weight:600;color:var(--card-text)">S$628K</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span>Liabilities</span><span style="font-weight:600;color:var(--danger)">S$216K</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Monthly Surplus -->
+        <div class="card">
+          <div class="card-label">Monthly Surplus</div>
+          <div class="card-hero green" style="font-size:28px">S$1,897</div>
+          <div class="card-sub">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <div class="toggle-switch on" style="width:30px;height:16px"></div>
+              <span style="font-size:11px">Auto-invest active</span>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <span class="badge green">24% savings rate</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Retirement -->
+        <div class="card">
+          <div class="card-label">Retirement Readiness</div>
+          <div class="card-hero amber" style="font-size:30px">62%</div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:62%;background:var(--warning)"></div>
+          </div>
+          <div class="card-sub" style="margin-top:8px">Gap: <strong style="color:var(--card-text)">S$312K</strong></div>
+          <div style="font-size:11px;color:var(--card-muted);margin-top:2px">Target age 65 · 22 years</div>
+        </div>
+
+        <!-- Card 5: CPF -->
+        <div class="card">
+          <div class="card-label">CPF Total</div>
+          <div class="card-hero purple" style="font-size:28px">S$185K</div>
+          <div class="mini-bars">
+            <div class="mini-bar-row">
+              <span class="mini-bar-label">OA</span>
+              <div class="mini-bar-track"><div class="mini-bar-fill" style="width:55%;background:var(--purple)"></div></div>
+              <span class="mini-bar-val">S$92K</span>
+            </div>
+            <div class="mini-bar-row">
+              <span class="mini-bar-label">SA</span>
+              <div class="mini-bar-track"><div class="mini-bar-fill" style="width:40%;background:rgba(124,58,237,0.60)"></div></div>
+              <span class="mini-bar-val">S$68K</span>
+            </div>
+            <div class="mini-bar-row">
+              <span class="mini-bar-label">MA</span>
+              <div class="mini-bar-track"><div class="mini-bar-fill" style="width:15%;background:rgba(124,58,237,0.35)"></div></div>
+              <span class="mini-bar-val">S$25K</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Protection Score -->
+        <div class="card">
+          <div class="card-label">Protection Score</div>
+          <div class="card-hero" style="font-size:28px">68<span style="font-size:16px;color:var(--card-muted)">/100</span></div>
+          <div class="status-dots">
+            <div class="status-dot" style="background:var(--success)" title="Death"></div>
+            <div class="status-dot" style="background:var(--success)" title="TPD"></div>
+            <div class="status-dot" style="background:var(--warning)" title="ECI"></div>
+            <div class="status-dot" style="background:var(--danger)" title="Hosp"></div>
+            <div class="status-dot" style="background:var(--success)" title="PA"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;font-size:10px;color:var(--card-muted)">
+            <span>Death ✓</span><span>TPD ✓</span><span style="color:var(--warning)">ECI !</span><span style="color:var(--danger)">Hosp ✗</span><span>PA ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts Card -->
+      <div class="card alert-card" style="margin-bottom:16px">
+        <div class="alert-row red">
+          <div class="alert-icon">🛡️</div>
+          <div>
+            <div class="alert-title">Hospitalisation gap detected</div>
+            <div class="alert-desc">No Integrated Shield Plan — high out-of-pocket risk</div>
+          </div>
+          <div class="alert-action">Review →</div>
+        </div>
+        <div class="alert-row amber">
+          <div class="alert-icon">⏰</div>
+          <div>
+            <div class="alert-title">Early CI coverage below benchmark</div>
+            <div class="alert-desc">Current: S$75K · Recommended: S$192K (2× income)</div>
+          </div>
+          <div class="alert-action">View gap →</div>
+        </div>
+        <div class="alert-row purple">
+          <div class="alert-icon">🏛️</div>
+          <div>
+            <div class="alert-title">CPF SA top-up opportunity</div>
+            <div class="alert-desc">S$8K headroom for tax relief before Dec 2026</div>
+          </div>
+          <div class="alert-action">Calculate →</div>
+        </div>
+      </div>
+
+      <!-- Tool Strip -->
+      <div class="tool-strip">
+        <div class="tool-chip">
+          <div class="tool-chip-icon">📄</div>
+          <div class="tool-chip-name">PDF Scanner</div>
+          <div class="tool-chip-status" style="background:var(--success)"></div>
+        </div>
+        <div class="tool-chip">
+          <div class="tool-chip-icon">⚡</div>
+          <div class="tool-chip-name">Stress Test</div>
+          <div class="tool-chip-status" style="background:var(--warning)"></div>
+        </div>
+        <div class="tool-chip">
+          <div class="tool-chip-icon">🎯</div>
+          <div class="tool-chip-name">Retirement</div>
+          <div class="tool-chip-status" style="background:var(--warning)"></div>
+        </div>
+        <div class="tool-chip">
+          <div class="tool-chip-icon">💰</div>
+          <div class="tool-chip-name">Cash Flow</div>
+          <div class="tool-chip-status" style="background:var(--success)"></div>
+        </div>
+        <div class="tool-chip">
+          <div class="tool-chip-icon">🏥</div>
+          <div class="tool-chip-name">LTC Gap</div>
+          <div class="tool-chip-status" style="background:rgba(26,25,24,0.15)"></div>
+        </div>
+        <div class="tool-chip">
+          <div class="tool-chip-icon">📋</div>
+          <div class="tool-chip-name">Summary</div>
+          <div class="tool-chip-status" style="background:rgba(26,25,24,0.15)"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TAB 2 — STRESS TEST ═════════════════════ -->
+    <div class="tab-panel" id="panel-stress">
+
+      <div class="greeting-row" style="margin-bottom:16px">
+        <div class="greeting-text">
+          <h1 style="font-size:22px">Financial Stress Test</h1>
+          <p>What happens if life throws a curveball?</p>
+        </div>
+      </div>
+
+      <!-- Scenario Tabs -->
+      <div class="scenario-tabs">
+        <div class="scenario-tab">Death</div>
+        <div class="scenario-tab">TPD</div>
+        <div class="scenario-tab active">ECI</div>
+        <div class="scenario-tab">ACI</div>
+      </div>
+
+      <div class="stress-grid">
+
+        <!-- Left: Scenario Config -->
+        <div class="card">
+          <div style="font-size:14px;font-weight:700;color:var(--card-text);margin-bottom:4px">Early Critical Illness</div>
+          <div style="font-size:12px;color:var(--card-secondary);margin-bottom:16px">
+            Models a major illness at your current age — income drops, medical costs rise, but you survive and recover.
+          </div>
+
+          <div class="input-group">
+            <div class="input-label">Income reduction during recovery</div>
+            <div class="input-field" style="cursor:default">50% for 12 months</div>
+          </div>
+          <div class="input-group">
+            <div class="input-label">Lump sum medical cost</div>
+            <div class="input-field" style="cursor:default">S$50,000</div>
+          </div>
+          <div class="input-group">
+            <div class="input-label">Monthly expense increase</div>
+            <div class="input-field" style="cursor:default">S$800/month for 24 months</div>
+          </div>
+
+          <div style="margin-top:8px">
+            <div style="font-size:11px;font-weight:600;color:var(--card-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">Insurance Coverage</div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">AIA CI Protect</div>
+                <div class="toggle-sub">S$100K lump sum</div>
+              </div>
+              <div class="toggle-switch on"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">NTUC ECI Rider</div>
+                <div class="toggle-sub">S$75K early stage</div>
+              </div>
+              <div class="toggle-switch on"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Include CPF Balances</div>
+                <div class="toggle-sub">OA + SA as emergency buffer</div>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Chart -->
+        <div class="card">
+          <div class="card-label">Savings Runway</div>
+          <div style="font-size:13px;color:var(--card-secondary);margin-bottom:4px">
+            Without insurance, savings deplete at age <strong style="color:var(--danger)">47</strong>.
+            With insurance, you're covered to age <strong style="color:var(--success)">61</strong>.
+          </div>
+          <div class="chart-area" style="height:200px">
+            <svg viewBox="0 0 500 190" preserveAspectRatio="none">
+              <!-- Grid -->
+              <line x1="40" y1="20" x2="480" y2="20" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="40" y1="60" x2="480" y2="60" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="40" y1="100" x2="480" y2="100" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="40" y1="140" x2="480" y2="140" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <!-- Y labels -->
+              <text x="2" y="24" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$500K</text>
+              <text x="2" y="64" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$375K</text>
+              <text x="2" y="104" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$250K</text>
+              <text x="2" y="144" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$125K</text>
+              <!-- X labels -->
+              <text x="40" y="180" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">Age 35</text>
+              <text x="150" y="180" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">40</text>
+              <text x="260" y="180" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">47</text>
+              <text x="370" y="180" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">55</text>
+              <text x="450" y="180" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">61</text>
+              <!-- Without insurance (dashed, grey) -->
+              <path d="M50,30 C100,35 150,50 200,80 C230,100 250,130 265,160 L265,165" fill="none" stroke="rgba(26,25,24,0.25)" stroke-width="2" stroke-dasharray="5,4"/>
+              <!-- Coral uplift area -->
+              <path d="M50,30 C100,35 150,50 200,80 C230,100 250,130 265,160 L265,165 L450,165 L450,160 C430,110 400,70 350,45 C300,28 250,22 200,25 C150,30 100,32 50,30 Z" fill="rgba(232,115,74,0.10)"/>
+              <!-- With insurance (solid coral) -->
+              <path d="M50,28 C100,22 180,20 250,25 C320,32 380,55 420,90 C440,110 448,140 450,160" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Depletion dots -->
+              <circle cx="265" cy="163" r="4" fill="var(--danger)" stroke="#fff" stroke-width="2"/>
+              <circle cx="450" cy="160" r="4" fill="var(--success)" stroke="#fff" stroke-width="2"/>
+              <!-- Labels -->
+              <text x="230" y="155" font-size="8" fill="var(--danger)" font-family="DM Sans" font-weight="600">Age 47</text>
+              <text x="452" y="155" font-size="8" fill="var(--success)" font-family="DM Sans" font-weight="600">Age 61</text>
+            </svg>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:6px;font-size:11px">
+            <span style="color:var(--card-muted)">— — Without insurance</span>
+            <span style="color:var(--accent)">━━ With insurance</span>
+            <span style="color:var(--accent);opacity:0.5">░ Years saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Strip -->
+      <div class="stat-strip">
+        <div class="stat-box">
+          <div class="stat-val" style="color:var(--danger)">47</div>
+          <div class="stat-label">Runway (No Ins.)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val green">61</div>
+          <div class="stat-label">With Insurance</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val coral">14 yrs</div>
+          <div class="stat-label">Years Saved</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val coral">S$175K</div>
+          <div class="stat-label">Total Payout</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TAB 3 — RETIREMENT ══════════════════════ -->
+    <div class="tab-panel" id="panel-retire">
+
+      <div class="greeting-row" style="margin-bottom:16px">
+        <div class="greeting-text">
+          <h1 style="font-size:22px">Retirement Planning</h1>
+          <p>You need <strong style="color:#fff">S$1.2M</strong> by age 65. You're projected to reach <strong style="color:var(--accent)">S$744K</strong>. You're <strong style="color:var(--warning)">62%</strong> of the way there.</p>
+        </div>
+      </div>
+
+      <div class="retire-grid">
+
+        <!-- Left: Chart -->
+        <div class="card">
+          <div class="card-label">Projected Retirement Corpus</div>
+          <div class="chart-area" style="height:220px">
+            <svg viewBox="0 0 520 210" preserveAspectRatio="none">
+              <!-- Grid -->
+              <line x1="45" y1="20" x2="500" y2="20" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="45" y1="60" x2="500" y2="60" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="45" y1="100" x2="500" y2="100" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="45" y1="140" x2="500" y2="140" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <line x1="45" y1="180" x2="500" y2="180" stroke="rgba(26,25,24,0.05)" stroke-width="1"/>
+              <!-- Y labels -->
+              <text x="0" y="24" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$1.4M</text>
+              <text x="0" y="64" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$1.0M</text>
+              <text x="0" y="104" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$700K</text>
+              <text x="0" y="144" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$350K</text>
+              <text x="0" y="184" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">S$0</text>
+              <!-- X labels -->
+              <text x="50" y="200" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">Age 35</text>
+              <text x="160" y="200" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">42</text>
+              <text x="280" y="200" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">50</text>
+              <text x="390" y="200" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">58</text>
+              <text x="475" y="200" font-size="8" fill="rgba(26,25,24,0.30)" font-family="DM Sans">65</text>
+              <!-- CPF base layer -->
+              <path d="M55,180 L55,155 C120,150 200,140 300,125 C380,115 440,105 500,95 L500,180 Z" fill="rgba(124,58,237,0.12)"/>
+              <!-- Projected savings layer -->
+              <path d="M55,155 C120,145 200,125 300,95 C380,72 440,52 500,40 L500,95 C440,105 380,115 300,125 C200,140 120,150 55,155 Z" fill="rgba(232,115,74,0.12)"/>
+              <!-- Gap area -->
+              <path d="M55,155 C120,145 200,125 300,95 C380,72 440,52 500,40 L500,25" fill="none" stroke="transparent"/>
+              <rect x="480" y="25" width="20" height="15" fill="rgba(217,119,6,0.12)" rx="2"/>
+              <text x="483" y="35" font-size="7" fill="var(--warning)" font-family="DM Sans" font-weight="600">Gap</text>
+              <!-- Required line -->
+              <line x1="50" y1="25" x2="500" y2="25" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+              <text x="50" y="22" font-size="8" fill="var(--danger)" font-family="DM Sans" font-weight="600">S$1.2M Required</text>
+              <!-- Projected line -->
+              <path d="M55,155 C120,145 200,125 300,95 C380,72 440,52 500,40" fill="none" stroke="#1a1918" stroke-width="2" stroke-linecap="round"/>
+              <!-- CPF line -->
+              <path d="M55,155 C120,150 200,140 300,125 C380,115 440,105 500,95" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+              <!-- Current dot -->
+              <circle cx="55" cy="155" r="4" fill="var(--accent)" stroke="#fff" stroke-width="2"/>
+              <!-- Projected endpoint -->
+              <circle cx="500" cy="40" r="4" fill="#1a1918" stroke="#fff" stroke-width="2"/>
+              <text x="460" y="37" font-size="8" fill="var(--card-text)" font-family="DM Sans" font-weight="600">S$744K</text>
+            </svg>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:8px;font-size:11px">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(124,58,237,0.40);display:inline-block"></span><span style="color:var(--card-muted)">CPF Life</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:rgba(232,115,74,0.40);display:inline-block"></span><span style="color:var(--card-muted)">Savings + Invest.</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:var(--danger);display:inline-block;opacity:0.6"></span><span style="color:var(--card-muted)">Required</span></span>
+          </div>
+        </div>
+
+        <!-- Right: Settings -->
+        <div class="card">
+          <div style="font-size:14px;font-weight:700;color:var(--card-text);margin-bottom:16px">Retirement Settings</div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Retirement Age</span>
+              <span class="slider-val">65</span>
+            </div>
+            <input type="range" class="slider-track" min="55" max="70" value="65">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Monthly Income Needed</span>
+              <span class="slider-val">S$4,500</span>
+            </div>
+            <input type="range" class="slider-track" min="2000" max="10000" value="4500">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Monthly Investment</span>
+              <span class="slider-val">S$1,200</span>
+            </div>
+            <input type="range" class="slider-track" min="0" max="5000" value="1200">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Expected Return</span>
+              <span class="slider-val">8% p.a.</span>
+            </div>
+            <input type="range" class="slider-track" min="2" max="12" value="8">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Inflation Rate</span>
+              <span class="slider-val">3% p.a.</span>
+            </div>
+            <input type="range" class="slider-track" min="1" max="6" value="3">
+          </div>
+        </div>
+      </div>
+
+      <!-- Income Bar -->
+      <div class="card income-bar-card" style="margin-bottom:16px">
+        <div class="card-label">Retirement Income Sources (Monthly)</div>
+        <div class="income-stacked">
+          <div class="income-seg" style="width:35%;background:var(--purple)"></div>
+          <div class="income-seg" style="width:28%;background:var(--accent)"></div>
+          <div class="income-seg" style="width:18%;background:rgba(232,115,74,0.45)"></div>
+          <div class="income-seg" style="width:19%;background:rgba(26,25,24,0.10)"></div>
+        </div>
+        <div class="income-legend">
+          <div class="income-legend-item">
+            <span class="income-dot" style="background:var(--purple)"></span>
+            CPF Life · S$1,580
+          </div>
+          <div class="income-legend-item">
+            <span class="income-dot" style="background:var(--accent)"></span>
+            Investment Dividends · S$1,260
+          </div>
+          <div class="income-legend-item">
+            <span class="income-dot" style="background:rgba(232,115,74,0.45)"></span>
+            Drawdown · S$810
+          </div>
+          <div class="income-legend-item">
+            <span class="income-dot" style="background:rgba(26,25,24,0.15)"></span>
+            Shortfall · S$850
+          </div>
+        </div>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict-card">
+        <p>
+          At your current savings rate of <strong>S$1,200/month</strong> and an expected return of <strong>8% p.a.</strong>,
+          you'll accumulate <strong>S$744K</strong> by age 65 — leaving a gap of <strong>S$456K</strong>.
+          Increasing your monthly investment by <strong>S$480</strong> would close this gap entirely.
+          Alternatively, working to age <strong>67</strong> at your current rate would also reach your target.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+  const tabs = document.querySelectorAll('.tab');
+  const map = { dashboard: 0, stress: 1, retire: 2 };
+  tabs[map[name]].classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+
+  // Update sidebar active state
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => n.classList.remove('active'));
+  const sidebarMap = { dashboard: 0, stress: 5, retire: 6 };
+  if (navItems[sidebarMap[name]]) navItems[sidebarMap[name]].classList.add('active');
+}
+
+// Toggle switches
+document.querySelectorAll('.toggle-switch').forEach(sw => {
+  sw.addEventListener('click', () => sw.classList.toggle('on'));
+});
+</script>
+
+</body>
+</html>

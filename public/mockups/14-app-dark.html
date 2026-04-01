@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Financial Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #111110;
+    --card-dark: #1a1918;
+    --card-raised: #222120;
+    --card-glass: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.07);
+    --accent: #e8734a;
+    --accent-bg: rgba(232,115,74,0.10);
+    --accent-border: rgba(232,115,74,0.20);
+    --text: #f0ece8;
+    --text-dim: rgba(240,236,232,0.55);
+    --text-muted: rgba(240,236,232,0.28);
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --purple: #a78bfa;
+    --sidebar-bg: #141413;
+    --radius-card: 20px;
+    --radius-inner: 14px;
+    --radius-btn: 10px;
+    --radius-pill: 24px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+  }
+
+  html { font-size: 14px; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .user-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .bell-btn {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.15s;
+  }
+  .bell-btn:hover { background: var(--card-glass); }
+  .bell-dot {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--danger);
+    border: 1.5px solid var(--sidebar-bg);
+  }
+
+  .sidebar-brand {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+
+  .phase-group { margin-bottom: 4px; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .phase-header:hover { color: var(--text-dim); }
+
+  .phase-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .phase-dot.complete { background: var(--success); }
+  .phase-dot.progress { background: var(--accent); }
+  .phase-dot.empty { border: 1.5px solid var(--text-muted); }
+
+  .phase-links {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+  }
+  .phase-group.open .phase-links {
+    max-height: 400px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px 7px 38px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+  }
+  .nav-link:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+  .nav-link.active {
+    color: var(--text);
+    border-left-color: var(--accent);
+    background: rgba(232,115,74,0.06);
+  }
+
+  .nav-link-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+
+  .session-info {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .btn-new-session {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-btn);
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-new-session:hover { opacity: 0.9; }
+  .btn-new-session:active { transform: scale(0.97); }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 32px 48px;
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    display: inline-flex;
+    background: var(--card-dark);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+
+  .tab-pill {
+    padding: 8px 20px;
+    border-radius: 10px;
+    border: none;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .tab-pill:hover { color: var(--text); }
+  .tab-pill.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── DASHBOARD TAB ── */
+  .greeting-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 20px;
+  }
+
+  .greeting h1 {
+    font-family: var(--font);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .greeting-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .greeting-sub .flag { color: var(--warning); font-weight: 600; }
+
+  .health-gauge {
+    flex-shrink: 0;
+    position: relative;
+    width: 100px;
+    height: 100px;
+  }
+  .health-gauge-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .health-gauge-score {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+  .health-gauge-text {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── BENTO GRID ── */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--card-dark);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-raised {
+    background: var(--card-raised);
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge-accent {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+  .badge-danger {
+    background: rgba(248,113,113,0.15);
+    color: var(--danger);
+  }
+  .badge-purple {
+    background: rgba(167,139,250,0.15);
+    color: var(--purple);
+  }
+  .badge-success {
+    background: rgba(52,211,153,0.12);
+    color: var(--success);
+  }
+
+  .hero-number {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .hero-number.lg { font-size: 32px; }
+  .hero-number.md { font-size: 28px; }
+  .hero-number.sm { font-size: 22px; }
+
+  .dim-text {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .muted-text {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .card-span-2 { grid-column: span 2; }
+
+  /* pill badge inline */
+  .pill-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--card-raised);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  /* Chart header */
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .chart-footer {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* sparkline */
+  .sparkline-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+  }
+
+  /* Alerts */
+  .alert-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 0;
+  }
+  .alert-row + .alert-row {
+    border-top: 1px solid var(--border);
+  }
+  .alert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .alert-text {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .toggle input { display: none; }
+  .toggle-track {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    transition: background 0.2s;
+  }
+  .toggle input:checked + .toggle-track {
+    background: var(--accent);
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+  .toggle input:checked ~ .toggle-thumb {
+    transform: translateX(16px);
+  }
+  .toggle-label {
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+
+  /* micro bars */
+  .micro-bar-group { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .micro-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .micro-bar-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    width: 22px;
+  }
+  .micro-bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .micro-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .micro-bar-val {
+    font-size: 10px;
+    color: var(--text-dim);
+    width: 40px;
+    text-align: right;
+  }
+
+  /* progress mini */
+  .progress-mini {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  /* policy dots */
+  .policy-dots {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .policy-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Quick tools */
+  .quick-tools-section { margin-bottom: 24px; }
+  .quick-tools-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .quick-tools-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .quick-tools-strip::-webkit-scrollbar { display: none; }
+  .quick-tool {
+    min-width: 100px;
+    max-width: 100px;
+    scroll-snap-align: start;
+    background: var(--card-dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-inner);
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .quick-tool:hover {
+    border-color: rgba(255,255,255,0.12);
+    background: var(--card-raised);
+  }
+  .quick-tool-icon { font-size: 20px; margin-bottom: 6px; }
+  .quick-tool-name { font-size: 10.5px; color: var(--text-dim); font-weight: 500; }
+  .quick-tool-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin: 6px auto 0;
+  }
+
+  /* Recent activity */
+  .activity-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .activity-card {
+    background: var(--card-dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+  .activity-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+  }
+  .activity-row + .activity-row {
+    border-top: 1px solid var(--border);
+  }
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .activity-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .activity-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  /* ── STRESS TEST TAB ── */
+  .scenario-bar {
+    display: inline-flex;
+    background: var(--card-dark);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .scenario-pill {
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: none;
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .scenario-pill:hover { color: var(--text); }
+  .scenario-pill.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .scenario-panel {
+    background: var(--card-dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .scenario-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .scenario-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .input-group input,
+  .input-group select {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-btn);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-group input:focus,
+  .input-group select:focus {
+    border-color: rgba(232,115,74,0.4);
+  }
+
+  .insurance-applied {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .insurance-applied-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .insurance-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .insurance-row + .insurance-row {
+    border-top: 1px solid var(--border);
+  }
+  .insurance-info {
+    flex: 1;
+  }
+  .insurance-name {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .insurance-detail {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .results-strip {
+    display: flex;
+    background: var(--card-dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .result-cell {
+    flex: 1;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .result-cell + .result-cell {
+    border-left: 1px solid var(--border);
+  }
+  .result-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .result-value {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .result-value.accent { color: var(--accent); }
+  .result-value.success { color: var(--success); }
+
+  /* ── RETIREMENT TAB ── */
+  .retirement-split {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .slider-group {
+    margin-bottom: 14px;
+  }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .slider-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+  .slider-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--card-dark);
+    box-shadow: 0 0 0 2px rgba(232,115,74,0.25);
+    transition: box-shadow 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 4px rgba(232,115,74,0.2);
+  }
+
+  /* stacked bar */
+  .stacked-bar-container { margin-top: 10px; }
+  .stacked-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+  }
+  .stacked-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    transition: width 0.3s;
+  }
+  .stacked-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .stacked-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+  .stacked-total {
+    text-align: right;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* verdict strip */
+  .verdict-strip {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-inner);
+    padding: 18px 24px;
+    line-height: 1.65;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  .verdict-strip strong {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* SVG shared */
+  .chart-svg {
+    width: 100%;
+    display: block;
+  }
+
+  /* Tooltip / crosshair */
+  .chart-tooltip {
+    position: absolute;
+    background: var(--card-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text);
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    z-index: 10;
+    display: none;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+</style>
+</head>
+<body>
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-user">
+      <div class="avatar">N</div>
+      <div class="user-meta">
+        <div class="user-name">Noah</div>
+        <div class="user-role">Financial Adviser</div>
+      </div>
+      <button class="bell-btn" title="Notifications">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="bell-dot"></span>
+      </button>
+    </div>
+    <div class="sidebar-brand">The Kiasu Guide</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="phase-group open">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot complete"></span>
+        Phase 1 &mdash; Know Position
+      </div>
+      <div class="phase-links">
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--success)"></span>Financial Profile</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--success)"></span>CPF Overview</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--success)"></span>BMI &amp; Health</a>
+      </div>
+    </div>
+
+    <div class="phase-group open">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot progress"></span>
+        Phase 2 &mdash; Find Gaps
+      </div>
+      <div class="phase-links">
+        <a class="nav-link active" href="#"><span class="nav-link-dot" style="background:var(--success)"></span>Insurance Benefits</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--accent)"></span>LTC Gap Calculator</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--accent)"></span>Stress Test</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot progress"></span>
+        Phase 3 &mdash; Plot Path
+      </div>
+      <div class="phase-links">
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="background:var(--accent)"></span>Retirement Planning</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Cost of Waiting</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>CPF Planner</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot empty"></span>
+        Phase 4 &mdash; Understand Tools
+      </div>
+      <div class="phase-links">
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Risk Appetite</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Investment Cost</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot empty"></span>
+        Phase 5 &mdash; Optimise
+      </div>
+      <div class="phase-links">
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Cash Flow</a>
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Net Worth</a>
+      </div>
+    </div>
+
+    <div class="phase-group">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="phase-dot empty"></span>
+        Phase 6 &mdash; Recommend
+      </div>
+      <div class="phase-links">
+        <a class="nav-link" href="#"><span class="nav-link-dot" style="border:1.5px solid var(--text-muted)"></span>Session Summary</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="session-info">Session #4 &middot; 2h ago</div>
+    <button class="btn-new-session">New Session</button>
+  </div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="main">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-pill active" onclick="switchTab('dashboard', this)">Dashboard</button>
+    <button class="tab-pill" onclick="switchTab('stress', this)">Stress Test</button>
+    <button class="tab-pill" onclick="switchTab('retirement', this)">Retirement</button>
+  </div>
+
+  <!-- ═══════ TAB 1: DASHBOARD ═══════ -->
+  <div id="tab-dashboard" class="tab-content active">
+
+    <!-- Greeting + Score -->
+    <div class="greeting-row">
+      <div class="greeting">
+        <h1>Good evening, Noah</h1>
+        <div class="greeting-sub">Last session 2 hours ago &middot; <span class="flag">4 areas flagged</span></div>
+      </div>
+      <div class="health-gauge">
+        <svg viewBox="0 0 100 100" class="chart-svg">
+          <!-- Background ring -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
+          <!-- Protection 30% = 108deg -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#e8734a" stroke-width="7"
+            stroke-dasharray="79.2 264" stroke-dashoffset="66"
+            stroke-linecap="round" transform="rotate(-90 50 50)" opacity="0.9"/>
+          <!-- Retirement 25% = 90deg -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#fbbf24" stroke-width="7"
+            stroke-dasharray="66 264" stroke-dashoffset="-13.2"
+            stroke-linecap="round" transform="rotate(-90 50 50)" opacity="0.85"/>
+          <!-- Liquidity 20% = 72deg -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#34d399" stroke-width="7"
+            stroke-dasharray="52.8 264" stroke-dashoffset="-79.2"
+            stroke-linecap="round" transform="rotate(-90 50 50)" opacity="0.85"/>
+          <!-- Debt 15% = 54deg -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#3b82f6" stroke-width="7"
+            stroke-dasharray="39.6 264" stroke-dashoffset="-132"
+            stroke-linecap="round" transform="rotate(-90 50 50)" opacity="0.8"/>
+          <!-- Investment 10% = 36deg -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#a78bfa" stroke-width="7"
+            stroke-dasharray="26.4 264" stroke-dashoffset="-171.6"
+            stroke-linecap="round" transform="rotate(-90 50 50)" opacity="0.8"/>
+        </svg>
+        <div class="health-gauge-label">
+          <div class="health-gauge-score">74</div>
+          <div class="health-gauge-text">Health Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="bento">
+
+      <!-- Portfolio Projection (spans 2 cols) -->
+      <div class="card card-span-2">
+        <div class="chart-header">
+          <span class="card-label" style="margin-bottom:0">Portfolio Projection</span>
+          <span class="pill-sm">S$412K current</span>
+        </div>
+        <svg viewBox="0 0 480 180" class="chart-svg" style="margin-top:4px">
+          <!-- Grid -->
+          <line x1="40" y1="10" x2="40" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="150" x2="470" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="115" x2="470" y2="115" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="80" x2="470" y2="80" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="45" x2="470" y2="45" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="10" x2="470" y2="10" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <!-- Y-axis labels -->
+          <text x="36" y="153" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$0</text>
+          <text x="36" y="118" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$500K</text>
+          <text x="36" y="83" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$1M</text>
+          <text x="36" y="48" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$1.5M</text>
+          <text x="36" y="13" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$2M</text>
+          <!-- X-axis labels -->
+          <text x="70" y="166" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">30</text>
+          <text x="178" y="166" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">40</text>
+          <text x="285" y="166" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">50</text>
+          <text x="393" y="166" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">60</text>
+          <text x="450" y="166" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">65</text>
+          <!-- Required line -->
+          <line x1="40" y1="24" x2="470" y2="24" stroke="#f87171" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+          <text x="472" y="22" fill="#f87171" font-size="7.5" font-family="DM Sans" opacity="0.7">Required S$1.87M</text>
+          <!-- Area fill -->
+          <path d="M70,140 Q130,132 178,118 Q230,100 285,80 Q340,60 393,52 Q420,48 450,46 L450,150 L70,150 Z"
+                fill="url(#projGrad)" opacity="0.12"/>
+          <!-- Line -->
+          <path d="M70,140 Q130,132 178,118 Q230,100 285,80 Q340,60 393,52 Q420,48 450,46"
+                fill="none" stroke="#e8734a" stroke-width="2" stroke-linecap="round"/>
+          <!-- Dot at current -->
+          <circle cx="70" cy="140" r="3" fill="#e8734a"/>
+          <circle cx="450" cy="46" r="3" fill="#e8734a"/>
+          <defs>
+            <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8734a" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#e8734a" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="chart-footer">
+          Projected: <strong style="color:var(--accent)">S$1.16M</strong> &middot; Gap: <strong style="color:var(--danger)">S$710K</strong>
+        </div>
+      </div>
+
+      <!-- Net Worth -->
+      <div class="card">
+        <div class="card-label">Net Worth</div>
+        <div class="hero-number lg" style="color:var(--text)">S$412K</div>
+        <div class="sparkline-row">
+          <svg width="50" height="16" viewBox="0 0 50 16">
+            <polyline points="0,14 8,11 16,12 24,9 32,7 40,5 50,3" fill="none" stroke="#e8734a" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span style="font-size:11px;color:var(--success);font-weight:500">&uarr; S$18K this quarter</span>
+        </div>
+        <div class="muted-text" style="margin-top:8px">Assets S$680K &middot; Liabilities S$268K</div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card">
+        <div class="card-label">Alerts <span class="badge badge-danger" style="margin-left:4px">3</span></div>
+        <div class="alert-row">
+          <span class="alert-dot" style="background:var(--danger)"></span>
+          <span class="alert-text">CI coverage below 3x income</span>
+        </div>
+        <div class="alert-row">
+          <span class="alert-dot" style="background:var(--warning)"></span>
+          <span class="alert-text">Retirement 62% funded</span>
+        </div>
+        <div class="alert-row">
+          <span class="alert-dot" style="background:var(--success)"></span>
+          <span class="alert-text">Cash flow healthy &mdash; 24%</span>
+        </div>
+      </div>
+
+      <!-- Surplus -->
+      <div class="card">
+        <div class="card-label">Monthly Surplus</div>
+        <div class="hero-number md" style="color:var(--success)">S$1,897</div>
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <span class="toggle-label">Auto-invest surplus</span>
+        </div>
+        <div class="dim-text" style="margin-top:8px">24% savings rate</div>
+      </div>
+
+      <!-- Retirement -->
+      <div class="card">
+        <div class="card-label">Retirement</div>
+        <div class="hero-number md" style="color:var(--warning)">62%</div>
+        <div class="progress-mini">
+          <div class="progress-mini-fill" style="width:62%;background:var(--accent)"></div>
+        </div>
+        <div class="dim-text">Gap: S$312K by age 65</div>
+      </div>
+
+      <!-- CPF -->
+      <div class="card">
+        <div class="card-label">CPF <span class="badge badge-purple" style="margin-left:4px">OA+SA+MA</span></div>
+        <div class="hero-number md" style="color:var(--purple)">S$185K</div>
+        <div class="micro-bar-group">
+          <div class="micro-bar-row">
+            <span class="micro-bar-label">OA</span>
+            <div class="micro-bar-track"><div class="micro-bar-fill" style="width:43%;background:var(--purple)"></div></div>
+            <span class="micro-bar-val">S$80K</span>
+          </div>
+          <div class="micro-bar-row">
+            <span class="micro-bar-label">SA</span>
+            <div class="micro-bar-track"><div class="micro-bar-fill" style="width:35%;background:rgba(167,139,250,0.7)"></div></div>
+            <span class="micro-bar-val">S$65K</span>
+          </div>
+          <div class="micro-bar-row">
+            <span class="micro-bar-label">MA</span>
+            <div class="micro-bar-track"><div class="micro-bar-fill" style="width:22%;background:rgba(167,139,250,0.5)"></div></div>
+            <span class="micro-bar-val">S$40K</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Protection -->
+      <div class="card">
+        <div class="card-label">Protection</div>
+        <div class="hero-number md" style="color:var(--accent)">68<span style="font-family:var(--font);font-size:14px;font-weight:500;color:var(--text-dim)">/100</span></div>
+        <div class="dim-text" style="margin-top:4px">5 policies active</div>
+        <div class="policy-dots">
+          <span class="policy-dot" style="background:var(--success)"></span>
+          <span class="policy-dot" style="background:var(--success)"></span>
+          <span class="policy-dot" style="background:var(--success)"></span>
+          <span class="policy-dot" style="background:var(--warning)"></span>
+          <span class="policy-dot" style="background:var(--danger)"></span>
+        </div>
+      </div>
+
+    </div><!-- /bento -->
+
+    <!-- Quick Tools -->
+    <div class="quick-tools-section">
+      <h3>Quick Tools</h3>
+      <div class="quick-tools-strip">
+        <div class="quick-tool">
+          <div class="quick-tool-icon">🛡️</div>
+          <div class="quick-tool-name">Insurance</div>
+          <div class="quick-tool-dot" style="background:var(--success)"></div>
+        </div>
+        <div class="quick-tool">
+          <div class="quick-tool-icon">⚡</div>
+          <div class="quick-tool-name">Stress Test</div>
+          <div class="quick-tool-dot" style="background:var(--accent)"></div>
+        </div>
+        <div class="quick-tool">
+          <div class="quick-tool-icon">🏖️</div>
+          <div class="quick-tool-name">Retirement</div>
+          <div class="quick-tool-dot" style="background:var(--warning)"></div>
+        </div>
+        <div class="quick-tool">
+          <div class="quick-tool-icon">💰</div>
+          <div class="quick-tool-name">Cash Flow</div>
+          <div class="quick-tool-dot" style="background:var(--success)"></div>
+        </div>
+        <div class="quick-tool">
+          <div class="quick-tool-icon">📊</div>
+          <div class="quick-tool-name">Net Worth</div>
+          <div class="quick-tool-dot" style="border:1.5px solid var(--text-muted)"></div>
+        </div>
+        <div class="quick-tool">
+          <div class="quick-tool-icon">🧮</div>
+          <div class="quick-tool-name">CPF Planner</div>
+          <div class="quick-tool-dot" style="border:1.5px solid var(--text-muted)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+      <h3>Recent Activity</h3>
+      <div class="activity-card">
+        <div class="activity-row">
+          <span class="activity-dot" style="background:var(--accent)"></span>
+          <span class="activity-text">Updated insurance policies</span>
+          <span class="activity-time">2h ago</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-dot" style="background:var(--purple)"></span>
+          <span class="activity-text">Adjusted retirement age to 65</span>
+          <span class="activity-time">2h ago</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-dot" style="background:var(--success)"></span>
+          <span class="activity-text">Cash flow analysis completed</span>
+          <span class="activity-time">Yesterday</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-dot" style="background:var(--text-muted)"></span>
+          <span class="activity-text">Session started with Noah</span>
+          <span class="activity-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-dashboard -->
+
+  <!-- ═══════ TAB 2: STRESS TEST ═══════ -->
+  <div id="tab-stress" class="tab-content">
+
+    <div class="scenario-bar">
+      <button class="scenario-pill" onclick="switchScenario(this)">&#x1F480; Death</button>
+      <button class="scenario-pill" onclick="switchScenario(this)">&#x1F9BD; TPD</button>
+      <button class="scenario-pill active" onclick="switchScenario(this)">&#x1F9EC; ECI</button>
+      <button class="scenario-pill" onclick="switchScenario(this)">&#x1F3E5; ACI</button>
+    </div>
+
+    <div class="scenario-panel">
+      <div class="scenario-title">Early Critical Illness</div>
+      <div class="scenario-sub">Typically 3 years recovery &middot; Partial to full income loss during treatment</div>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Age at Event</label>
+          <input type="number" value="38">
+        </div>
+        <div class="input-group">
+          <label>Duration</label>
+          <input type="text" value="3 yrs">
+        </div>
+        <div class="input-group">
+          <label>Income Loss</label>
+          <input type="text" value="100%">
+        </div>
+        <div class="input-group">
+          <label>Recovery Rate</label>
+          <input type="text" value="80%">
+        </div>
+      </div>
+
+      <div class="insurance-applied">
+        <div class="insurance-applied-label">Insurance Applied</div>
+        <div class="insurance-row">
+          <div class="insurance-info">
+            <div class="insurance-name">AIA ECI Shield</div>
+            <div class="insurance-detail">S$200,000 lump sum payout</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="insurance-row">
+          <div class="insurance-info">
+            <div class="insurance-name">NTUC Monthly Benefit</div>
+            <div class="insurance-detail">S$2,000/mo for 36 months</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stress Test Chart -->
+    <div class="card" style="margin-bottom:16px;position:relative">
+      <div class="chart-header">
+        <span class="card-label" style="margin-bottom:0">Savings Runway</span>
+        <div style="display:flex;gap:16px">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)">
+            <span style="width:16px;height:2px;background:rgba(255,255,255,0.3);display:inline-block;border-top:1px dashed rgba(255,255,255,0.3)"></span>
+            Without Insurance
+          </span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--accent)">
+            <span style="width:16px;height:2px;background:var(--accent);display:inline-block"></span>
+            With Insurance
+          </span>
+        </div>
+      </div>
+      <svg viewBox="0 0 520 200" class="chart-svg">
+        <!-- Grid -->
+        <line x1="45" y1="10" x2="45" y2="170" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="45" y1="170" x2="500" y2="170" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+        <line x1="45" y1="130" x2="500" y2="130" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="45" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="45" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <line x1="45" y1="10" x2="500" y2="10" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+        <!-- Y labels -->
+        <text x="40" y="173" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$0</text>
+        <text x="40" y="133" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$125K</text>
+        <text x="40" y="93" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$250K</text>
+        <text x="40" y="53" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$375K</text>
+        <text x="40" y="13" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">S$500K</text>
+        <!-- X labels -->
+        <text x="70" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">28</text>
+        <text x="135" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">33</text>
+        <text x="200" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">38</text>
+        <text x="265" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">43</text>
+        <text x="330" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">48</text>
+        <text x="395" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">53</text>
+        <text x="460" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">58</text>
+        <text x="500" y="186" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="8" font-family="DM Sans">65</text>
+
+        <!-- Event line at age 38 -->
+        <line x1="200" y1="10" x2="200" y2="170" stroke="rgba(240,236,232,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="200" y="7" text-anchor="middle" fill="rgba(240,236,232,0.35)" font-size="8" font-family="DM Sans">ECI event</text>
+
+        <!-- Without insurance line (dashed, grey) -->
+        <path d="M70,18 L135,16 L200,18 Q220,30 240,60 Q270,110 300,140 Q320,158 340,170"
+              fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="4,3" stroke-linecap="round"/>
+
+        <!-- Insurance uplift area -->
+        <path d="M200,18 Q220,30 240,60 Q270,110 300,140 Q320,158 340,170 L460,170 Q445,165 430,155 Q400,130 370,100 Q330,60 300,50 Q270,44 240,50 Q220,28 200,18 Z"
+              fill="#e8734a" opacity="0.06"/>
+
+        <!-- With insurance line (solid, coral) -->
+        <path d="M70,18 L135,16 L200,18 Q220,28 240,50 Q270,44 300,50 Q330,60 370,100 Q400,130 430,155 Q445,165 460,170"
+              fill="none" stroke="#e8734a" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Dots -->
+        <circle cx="70" cy="18" r="3" fill="#e8734a"/>
+        <circle cx="340" cy="170" r="3" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="460" cy="170" r="3" fill="#e8734a"/>
+      </svg>
+    </div>
+
+    <!-- Results Strip -->
+    <div class="results-strip">
+      <div class="result-cell">
+        <div class="result-label">Runway Without</div>
+        <div class="result-value">Age 52</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-label">With Insurance</div>
+        <div class="result-value accent">Age 63</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-label">Years Saved</div>
+        <div class="result-value success">11</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-label">Total Payout</div>
+        <div class="result-value">S$200K</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-stress -->
+
+  <!-- ═══════ TAB 3: RETIREMENT ═══════ -->
+  <div id="tab-retirement" class="tab-content">
+
+    <div class="retirement-split">
+
+      <!-- Left: Chart -->
+      <div class="card" style="position:relative" id="retirementChartCard">
+        <div class="card-label">Wealth Projection</div>
+        <svg viewBox="0 0 400 230" class="chart-svg" id="retirementChart">
+          <!-- Grid -->
+          <line x1="40" y1="10" x2="40" y2="190" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="190" x2="390" y2="190" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          <line x1="40" y1="145" x2="390" y2="145" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="100" x2="390" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="55" x2="390" y2="55" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <line x1="40" y1="10" x2="390" y2="10" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+          <!-- Y labels -->
+          <text x="36" y="193" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">S$0</text>
+          <text x="36" y="148" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">S$500K</text>
+          <text x="36" y="103" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">S$1M</text>
+          <text x="36" y="58" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">S$1.5M</text>
+          <text x="36" y="13" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">S$2M</text>
+          <!-- X labels -->
+          <text x="60" y="206" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">30</text>
+          <text x="143" y="206" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">38</text>
+          <text x="226" y="206" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">46</text>
+          <text x="310" y="206" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">54</text>
+          <text x="380" y="206" text-anchor="middle" fill="rgba(240,236,232,0.25)" font-size="7.5" font-family="DM Sans">65</text>
+
+          <!-- Required line -->
+          <line x1="40" y1="22" x2="390" y2="22" stroke="#f87171" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+          <text x="392" y="20" fill="#f87171" font-size="7" font-family="DM Sans" opacity="0.65">S$1.87M</text>
+
+          <!-- Area fill -->
+          <path d="M60,180 Q100,175 143,162 Q190,142 226,118 Q270,88 310,65 Q340,52 380,40 L380,190 L60,190 Z"
+                fill="url(#retGrad)" opacity="0.15"/>
+          <!-- Line -->
+          <path d="M60,180 Q100,175 143,162 Q190,142 226,118 Q270,88 310,65 Q340,52 380,40"
+                fill="none" stroke="#e8734a" stroke-width="2" stroke-linecap="round"/>
+          <!-- Dots -->
+          <circle cx="60" cy="180" r="3" fill="#e8734a"/>
+          <circle cx="380" cy="40" r="3.5" fill="#e8734a" stroke="var(--card-dark)" stroke-width="2"/>
+
+          <!-- Hover crosshair (static demo at age ~50) -->
+          <line x1="265" y1="10" x2="265" y2="190" stroke="rgba(240,236,232,0.12)" stroke-width="1" stroke-dasharray="2,2"/>
+          <circle cx="265" cy="98" r="4" fill="none" stroke="#e8734a" stroke-width="1.5"/>
+          <circle cx="265" cy="98" r="1.5" fill="#e8734a"/>
+
+          <defs>
+            <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8734a" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#e8734a" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <!-- Tooltip -->
+        <div style="position:absolute;top:68px;left:220px;background:var(--card-raised);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:10.5px;box-shadow:0 4px 20px rgba(0,0,0,0.4);pointer-events:none;z-index:5">
+          <div style="font-weight:600;color:var(--text);margin-bottom:2px">Age 50</div>
+          <div style="color:var(--text-dim)">Projected: <span style="color:var(--accent);font-weight:600">S$680K</span></div>
+          <div style="color:var(--text-dim)">Required: <span style="color:var(--danger);font-weight:600">S$1.42M</span></div>
+        </div>
+      </div>
+
+      <!-- Right: Controls -->
+      <div class="card">
+        <div class="card-label">Retirement Settings</div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Retirement Age</span>
+            <span class="slider-value">65</span>
+          </div>
+          <input type="range" min="55" max="70" value="65">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Monthly Investment</span>
+            <span class="slider-value">S$1,000</span>
+          </div>
+          <input type="range" min="0" max="5000" value="1000">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Expected Return</span>
+            <span class="slider-value">6.0%</span>
+          </div>
+          <input type="range" min="0" max="12" value="6" step="0.5">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Dividend Yield</span>
+            <span class="slider-value">4.0%</span>
+          </div>
+          <input type="range" min="0" max="8" value="4" step="0.5">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Income Breakdown -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-label">Estimated Monthly Income at Retirement</div>
+      <div class="stacked-bar-container">
+        <div class="stacked-bar">
+          <div class="stacked-segment" style="width:26.7%;background:var(--accent)">S$1,200</div>
+          <div class="stacked-segment" style="width:62.2%;background:rgba(232,115,74,0.55)">S$2,800</div>
+          <div class="stacked-segment" style="width:11.1%;background:var(--purple)">S$500</div>
+        </div>
+        <div class="stacked-legend">
+          <span class="stacked-legend-item"><span class="legend-dot" style="background:var(--accent)"></span>CPF Life S$1,200</span>
+          <span class="stacked-legend-item"><span class="legend-dot" style="background:rgba(232,115,74,0.55)"></span>Dividends S$2,800</span>
+          <span class="stacked-legend-item"><span class="legend-dot" style="background:var(--purple)"></span>SRS/Passive S$500</span>
+        </div>
+        <div class="stacked-total">Total: S$4,500/mo</div>
+      </div>
+    </div>
+
+    <!-- Verdict -->
+    <div class="verdict-strip">
+      You need <strong>S$1.87M</strong> by age <strong>65</strong>. You're projected to reach <strong>S$1.16M</strong>. <strong>62%</strong> funded &mdash; <strong style="color:var(--danger)">S$710K</strong> gap remains.
+    </div>
+
+  </div><!-- /tab-retirement -->
+
+</div><!-- /main -->
+
+<script>
+  // Tab switching
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Scenario pill switching
+  function switchScenario(btn) {
+    document.querySelectorAll('.scenario-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
