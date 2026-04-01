@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #09090b;
+  --card: #0a0a0a;
+  --card-hover: #111113;
+  --muted: #18181b;
+  --border: #27272a;
+  --text: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #3b82f6;
+  --destructive: #ef4444;
+  --warning: #f59e0b;
+  --success: #22c55e;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 0 16px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.sidebar-brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-brand-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.cmd-pill {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 400;
+}
+
+.nav-group {
+  margin-bottom: 20px;
+}
+
+.nav-group-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--card-hover);
+}
+
+.nav-link.active {
+  color: var(--text);
+}
+
+.nav-link.active::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-footer-email {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sidebar-footer-logout {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.sidebar-footer-logout:hover {
+  color: var(--text-secondary);
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.breadcrumb-sep {
+  margin: 0 6px;
+  color: var(--text-muted);
+}
+
+.topbar-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+  transition: color 0.1s;
+}
+
+.tab:hover {
+  color: var(--text-secondary);
+}
+
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* Content */
+.content {
+  padding: 24px;
+  flex: 1;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.card-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.card-body {
+  padding: 0 16px 16px;
+}
+
+.badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--muted);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Stats strip */
+.stats-strip {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Two columns */
+.two-col {
+  display: flex;
+  gap: 20px;
+}
+
+.col-left {
+  flex: 0 0 58%;
+  min-width: 0;
+}
+
+.col-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Table */
+.table-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.table-row:nth-child(even) {
+  background: var(--muted);
+}
+
+.table-row-type {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.table-row-value {
+  width: 100px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.table-row-status {
+  width: 60px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-green { background: var(--success); }
+.dot-yellow { background: var(--warning); }
+.dot-red { background: var(--destructive); }
+
+/* Activity */
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-text {
+  color: var(--text-secondary);
+}
+
+.activity-time {
+  color: var(--text-muted);
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+/* Chart */
+.chart-area {
+  width: 100%;
+  height: 200px;
+  margin: 8px 0;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.legend-dash {
+  width: 8px;
+  height: 0;
+  border-top: 1px dashed var(--destructive);
+}
+
+/* Stress Test */
+.segment-control {
+  display: flex;
+  background: var(--muted);
+  border-radius: 6px;
+  padding: 2px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.segment-btn {
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+
+.segment-btn:hover {
+  color: var(--text);
+}
+
+.segment-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.form-field input, .form-field select {
+  width: 100%;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.1s;
+}
+
+.form-field input:focus {
+  border-color: var(--accent);
+}
+
+.insurance-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 0;
+}
+
+.insurance-row input[type="checkbox"] {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.insurance-row input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.insurance-row input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.insurance-detail {
+  color: var(--text-muted);
+  margin-left: auto;
+  font-size: 11px;
+}
+
+/* Results strip */
+.results-strip {
+  display: flex;
+}
+
+.results-strip .stat-item {
+  padding: 12px 16px;
+}
+
+/* Retirement */
+.retirement-layout {
+  display: flex;
+  gap: 20px;
+}
+
+.retirement-left {
+  flex: 0 0 55%;
+  min-width: 0;
+}
+
+.retirement-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-with-btns {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-with-btns input {
+  flex: 1;
+  border-radius: 4px 0 0 4px;
+  min-width: 0;
+}
+
+.input-btn {
+  width: 28px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 0.1s;
+}
+
+.input-btn:hover {
+  background: #3f3f46;
+}
+
+.input-btn:first-of-type {
+  border-left: none;
+}
+
+.input-btn:last-of-type {
+  border-radius: 0 4px 4px 0;
+}
+
+.income-table {
+  width: 100%;
+  font-size: 12px;
+}
+
+.income-table td {
+  padding: 8px 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.income-table tr:nth-child(even) td {
+  background: var(--muted);
+}
+
+.income-table .col-source {
+  color: var(--text-secondary);
+}
+
+.income-table .col-num {
+  text-align: right;
+  color: var(--text);
+}
+
+.income-table .row-total td {
+  font-weight: 600;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+
+.verdict {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 16px 0 0;
+}
+
+.verdict .v-green { color: var(--success); font-weight: 500; font-variant-numeric: tabular-nums; }
+.verdict .v-red { color: var(--destructive); font-weight: 500; font-variant-numeric: tabular-nums; }
+.verdict .v-sep { margin: 0 8px; color: var(--text-muted); }
+
+/* View visibility */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">
+        The Kiasu Guide
+        <span class="cmd-pill">&#8984;K</span>
+      </div>
+      <div class="sidebar-brand-sub">Financial Advisory</div>
+    </div>
+
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-label">Phase 1 &mdash; Know</div>
+        <a class="nav-link active" data-view="dashboard">Dashboard</a>
+        <a class="nav-link">Financial Profile</a>
+        <a class="nav-link">CPF Overview</a>
+        <a class="nav-link">BMI &amp; Health</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Phase 2 &mdash; Gaps</div>
+        <a class="nav-link">Insurance Benefits</a>
+        <a class="nav-link">LTC Gap Calculator</a>
+        <a class="nav-link" data-view="stress">Stress Test</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Phase 3 &mdash; Path</div>
+        <a class="nav-link" data-view="retirement">Retirement Planning</a>
+        <a class="nav-link">Cost of Waiting</a>
+        <a class="nav-link">CPF Planner</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Phase 4 &mdash; Tools</div>
+        <a class="nav-link">Risk Profiler</a>
+        <a class="nav-link">Concepts Library</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Phase 5 &mdash; Optimise</div>
+        <a class="nav-link">Cash Flow</a>
+        <a class="nav-link">Net Worth</a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-email">noah@kiasu.guide</div>
+      <a class="sidebar-footer-logout">Log out</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+      <div class="topbar-meta">Last updated 3 min ago</div>
+    </div>
+
+    <div class="tabs">
+      <a class="tab active" data-view="dashboard">Dashboard</a>
+      <a class="tab" data-view="stress">Stress Test</a>
+      <a class="tab" data-view="retirement">Retirement</a>
+    </div>
+
+    <!-- Dashboard View -->
+    <div class="content view active" id="view-dashboard">
+      <div class="stats-strip">
+        <div class="stat-item">
+          <div class="stat-label">Health Score</div>
+          <div class="stat-value">74<span style="font-size:12px;color:var(--text-muted);font-weight:400">/100</span></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value">S$412,000</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Monthly Surplus</div>
+          <div class="stat-value" style="color:var(--success)">S$1,897</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Retirement</div>
+          <div class="stat-value" style="color:var(--warning)">62%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">CPF</div>
+          <div class="stat-value">S$185,000</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Protection</div>
+          <div class="stat-value">68<span style="font-size:12px;color:var(--text-muted);font-weight:400">/100</span></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="col-left">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Portfolio Projection</span>
+              <span class="badge">27 yrs to retirement</span>
+            </div>
+            <div class="card-body">
+              <svg class="chart-area" viewBox="0 0 600 200" preserveAspectRatio="none">
+                <!-- Grid -->
+                <line x1="40" y1="10" x2="600" y2="10" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="57" x2="600" y2="57" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="104" x2="600" y2="104" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="151" x2="600" y2="151" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="190" x2="600" y2="190" stroke="#18181b" stroke-width="1"/>
+                <!-- Y labels -->
+                <text x="36" y="14" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$2.0M</text>
+                <text x="36" y="61" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$1.5M</text>
+                <text x="36" y="108" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$1.0M</text>
+                <text x="36" y="155" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$500K</text>
+                <text x="36" y="194" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$0</text>
+                <!-- X labels -->
+                <text x="40" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">30</text>
+                <text x="120" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">35</text>
+                <text x="200" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">40</text>
+                <text x="280" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">45</text>
+                <text x="360" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">50</text>
+                <text x="440" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">55</text>
+                <text x="520" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">60</text>
+                <text x="590" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">65</text>
+                <!-- Required line -->
+                <line x1="40" y1="40" x2="600" y2="40" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 3"/>
+                <!-- Fill under projection -->
+                <path d="M40,180 Q120,175 200,165 Q280,150 360,125 Q440,90 520,55 L600,30 L600,190 L40,190 Z" fill="#22c55e" fill-opacity="0.06"/>
+                <!-- Projection line -->
+                <path d="M40,180 Q120,175 200,165 Q280,150 360,125 Q440,90 520,55 L600,30" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span> Projected</span>
+                <span class="legend-item"><span class="legend-dash"></span> Required: S$1.87M</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Coverage Summary</span>
+              <span class="badge">5 policies</span>
+            </div>
+            <div>
+              <div class="table-row">
+                <span class="table-row-type">Death</span>
+                <span class="table-row-value">S$500,000</span>
+                <span class="table-row-status"><span class="dot dot-green"></span> Met</span>
+              </div>
+              <div class="table-row">
+                <span class="table-row-type">TPD</span>
+                <span class="table-row-value">S$500,000</span>
+                <span class="table-row-status"><span class="dot dot-green"></span> Met</span>
+              </div>
+              <div class="table-row">
+                <span class="table-row-type">Early CI</span>
+                <span class="table-row-value">S$150,000</span>
+                <span class="table-row-status"><span class="dot dot-yellow"></span> Low</span>
+              </div>
+              <div class="table-row">
+                <span class="table-row-type">Advanced CI</span>
+                <span class="table-row-value">&mdash;</span>
+                <span class="table-row-status"><span class="dot dot-red"></span> Gap</span>
+              </div>
+              <div class="table-row">
+                <span class="table-row-type">Hospitalisation</span>
+                <span class="table-row-value" style="font-size:11px">AIA Gold</span>
+                <span class="table-row-status"><span class="dot dot-green"></span> Met</span>
+              </div>
+              <div class="table-row">
+                <span class="table-row-type">Personal Acc</span>
+                <span class="table-row-value">S$100,000</span>
+                <span class="table-row-status"><span class="dot dot-green"></span> Met</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Activity</span>
+            </div>
+            <div>
+              <div class="activity-item">
+                <span class="activity-text">Updated AIA HealthShield Gold policy</span>
+                <span class="activity-time">3h ago</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-text">Adjusted retirement target to age 65</span>
+                <span class="activity-time">3h ago</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-text">Cash flow analysis completed</span>
+                <span class="activity-time">Yesterday</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-text">Added Prudential PRUShield plan</span>
+                <span class="activity-time">2 days ago</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-text">Session started</span>
+                <span class="activity-time">14 Mar 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stress Test View -->
+    <div class="content view" id="view-stress">
+      <div class="segment-control">
+        <button class="segment-btn">Death</button>
+        <button class="segment-btn">TPD</button>
+        <button class="segment-btn active">Early CI</button>
+        <button class="segment-btn">Advanced CI</button>
+      </div>
+
+      <div class="two-col">
+        <div class="col-left">
+          <div class="card" style="margin-bottom:20px">
+            <div class="card-header">
+              <span class="card-title">Scenario Configuration</span>
+            </div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Age at event</label>
+                  <input type="text" value="38">
+                </div>
+                <div class="form-field">
+                  <label>Duration</label>
+                  <input type="text" value="3 years">
+                </div>
+                <div class="form-field">
+                  <label>Income loss</label>
+                  <input type="text" value="100%">
+                </div>
+                <div class="form-field">
+                  <label>Recovery</label>
+                  <input type="text" value="80%">
+                </div>
+              </div>
+
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Insurance applied</div>
+              <div class="insurance-row">
+                <input type="checkbox" checked>
+                <span>AIA Early CI Shield</span>
+                <span class="insurance-detail">S$200,000 lump sum</span>
+              </div>
+              <div class="insurance-row">
+                <input type="checkbox" checked>
+                <span>NTUC Income Monthly</span>
+                <span class="insurance-detail">S$2,000/mo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Savings Projection</span>
+            </div>
+            <div class="card-body">
+              <svg class="chart-area" viewBox="0 0 600 220" preserveAspectRatio="none" style="height:220px">
+                <!-- Grid -->
+                <line x1="40" y1="20" x2="600" y2="20" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="70" x2="600" y2="70" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="120" x2="600" y2="120" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="170" x2="600" y2="170" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="200" x2="600" y2="200" stroke="#18181b" stroke-width="1"/>
+                <!-- Y labels -->
+                <text x="36" y="24" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$400K</text>
+                <text x="36" y="74" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$300K</text>
+                <text x="36" y="124" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$200K</text>
+                <text x="36" y="174" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$100K</text>
+                <text x="36" y="204" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$0</text>
+                <!-- X labels -->
+                <text x="40" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">35</text>
+                <text x="130" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">38</text>
+                <text x="220" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">41</text>
+                <text x="310" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">47</text>
+                <text x="400" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">53</text>
+                <text x="490" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">58</text>
+                <text x="580" y="215" fill="#71717a" font-size="9" font-family="Inter, monospace">65</text>
+                <!-- Event marker -->
+                <line x1="130" y1="15" x2="130" y2="200" stroke="#71717a" stroke-width="1" stroke-dasharray="3 3"/>
+                <text x="134" y="14" fill="#71717a" font-size="9" font-family="Inter, monospace">ECI &middot; Age 38</text>
+                <!-- Fill between lines -->
+                <path d="M130,30 L220,70 L310,130 L400,170 L450,195 L490,200 L490,200 L400,155 L310,110 L220,50 L130,30 Z" fill="#3b82f6" fill-opacity="0.04"/>
+                <!-- Without insurance (grey) -->
+                <path d="M40,20 L130,30 L220,70 L310,130 L400,170 L450,195 L490,200" fill="none" stroke="#71717a" stroke-width="1.5"/>
+                <!-- With insurance (blue) -->
+                <path d="M40,20 L130,30 L220,50 L310,110 L400,155 L490,185 L560,197 L580,200" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#71717a"></span> Without insurance</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> With insurance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div class="card">
+            <div class="stats-strip" style="border:none;margin:0;border-radius:0;flex-wrap:wrap">
+              <div class="stat-item" style="flex:1 1 50%;border-bottom:1px solid var(--border)">
+                <div class="stat-label">Depletion (no ins.)</div>
+                <div class="stat-value" style="color:var(--destructive)">Age 47</div>
+              </div>
+              <div class="stat-item" style="flex:1 1 50%;border-bottom:1px solid var(--border)">
+                <div class="stat-label">Depletion (with ins.)</div>
+                <div class="stat-value">Age 61</div>
+              </div>
+              <div class="stat-item" style="flex:1 1 50%">
+                <div class="stat-label">Years saved</div>
+                <div class="stat-value" style="color:var(--success)">+14 years</div>
+              </div>
+              <div class="stat-item" style="flex:1 1 50%">
+                <div class="stat-label">Total payout</div>
+                <div class="stat-value">S$200,000</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Narrative</span>
+            </div>
+            <div class="card-body" style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+              If you experience Early Critical Illness at age 38, your savings run out at <span style="color:var(--destructive);font-weight:500">age 47</span> without insurance. With your current policies, you're covered to <span style="color:var(--text);font-weight:500">age 61</span>. Your insurance bought you <span style="color:var(--success);font-weight:500">14 years</span>.
+              <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);color:var(--text-muted);font-size:11px">
+                That security costs S$187/month in premiums across 2 active policies.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retirement View -->
+    <div class="content view" id="view-retirement">
+      <div class="retirement-layout">
+        <div class="retirement-left">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Retirement Projection</span>
+              <span class="badge">Age 65</span>
+            </div>
+            <div class="card-body">
+              <svg class="chart-area" viewBox="0 0 600 200" preserveAspectRatio="none">
+                <!-- Grid -->
+                <line x1="40" y1="10" x2="600" y2="10" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="57" x2="600" y2="57" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="104" x2="600" y2="104" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="151" x2="600" y2="151" stroke="#18181b" stroke-width="1"/>
+                <line x1="40" y1="190" x2="600" y2="190" stroke="#18181b" stroke-width="1"/>
+                <!-- Y labels -->
+                <text x="36" y="14" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$2.0M</text>
+                <text x="36" y="61" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$1.5M</text>
+                <text x="36" y="108" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$1.0M</text>
+                <text x="36" y="155" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$500K</text>
+                <text x="36" y="194" text-anchor="end" fill="#71717a" font-size="9" font-family="Inter, monospace">S$0</text>
+                <!-- X labels -->
+                <text x="40" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">30</text>
+                <text x="120" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">35</text>
+                <text x="200" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">40</text>
+                <text x="280" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">45</text>
+                <text x="360" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">50</text>
+                <text x="440" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">55</text>
+                <text x="520" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">60</text>
+                <text x="590" y="200" fill="#71717a" font-size="9" font-family="Inter, monospace">65</text>
+                <!-- Required line -->
+                <line x1="40" y1="40" x2="600" y2="40" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 3"/>
+                <!-- Gap fill -->
+                <path d="M520,55 L600,40 L600,62 L520,55 Z" fill="#ef4444" fill-opacity="0.08"/>
+                <!-- Projected fill -->
+                <path d="M40,182 Q120,178 200,170 Q280,158 360,138 Q440,108 520,72 L600,62 L600,190 L40,190 Z" fill="#22c55e" fill-opacity="0.06"/>
+                <!-- Projected line -->
+                <path d="M40,182 Q120,178 200,170 Q280,158 360,138 Q440,108 520,72 L600,62" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+              </svg>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span> Projected: S$1.16M</span>
+                <span class="legend-item"><span class="legend-dash"></span> Required: S$1.87M</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <span class="card-title">Income Breakdown at Retirement</span>
+            </div>
+            <div>
+              <table class="income-table">
+                <tr>
+                  <td class="col-source">CPF Life</td>
+                  <td class="col-num">S$1,200</td>
+                  <td class="col-num">S$14,400</td>
+                </tr>
+                <tr>
+                  <td class="col-source">Portfolio Income</td>
+                  <td class="col-num">S$2,800</td>
+                  <td class="col-num">S$33,600</td>
+                </tr>
+                <tr>
+                  <td class="col-source">SRS / Passive</td>
+                  <td class="col-num">S$500</td>
+                  <td class="col-num">S$6,000</td>
+                </tr>
+                <tr class="row-total">
+                  <td class="col-source">Total</td>
+                  <td class="col-num">S$4,500</td>
+                  <td class="col-num">S$54,000</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="verdict">
+            Projected <span class="v-green">S$1.16M</span><span class="v-sep">&middot;</span>Required <span class="v-red">S$1.87M</span><span class="v-sep">&middot;</span>Funded <span style="color:var(--warning);font-weight:500">62%</span><span class="v-sep">&middot;</span>Gap <span class="v-red">S$710K</span>
+          </div>
+        </div>
+
+        <div class="retirement-right">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Parameters</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="form-field">
+                  <label>Retirement Age</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="65">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Monthly Investment</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="S$1,000">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Expected Return</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="6.0%">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Dividend Yield</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="4.0%">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Inflation Rate</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="3.0%">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Desired Monthly Income</label>
+                  <div class="input-with-btns">
+                    <input type="text" value="S$4,500">
+                    <button class="input-btn">&minus;</button>
+                    <button class="input-btn">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab and sidebar navigation
+const tabs = document.querySelectorAll('.tab');
+const navLinks = document.querySelectorAll('.nav-link[data-view]');
+const views = document.querySelectorAll('.view');
+const breadcrumb = document.getElementById('breadcrumb');
+
+const viewNames = {
+  dashboard: 'Dashboard',
+  stress: 'Tools / Stress Test',
+  retirement: 'Tools / Retirement'
+};
+
+function switchView(viewId) {
+  views.forEach(v => v.classList.remove('active'));
+  tabs.forEach(t => t.classList.remove('active'));
+  navLinks.forEach(l => l.classList.remove('active'));
+
+  document.getElementById('view-' + viewId).classList.add('active');
+  tabs.forEach(t => { if (t.dataset.view === viewId) t.classList.add('active'); });
+  navLinks.forEach(l => { if (l.dataset.view === viewId) l.classList.add('active'); });
+  breadcrumb.textContent = viewNames[viewId] || 'Dashboard';
+}
+
+tabs.forEach(t => t.addEventListener('click', () => switchView(t.dataset.view)));
+navLinks.forEach(l => l.addEventListener('click', () => { if (l.dataset.view) switchView(l.dataset.view); }));
+
+// Segment control
+document.querySelectorAll('.segment-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

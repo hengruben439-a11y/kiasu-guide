@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Stripe Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--card:#111111;--card-hover:#161616;--header-bg:#0d0d0d;
+  --border:#1f1f1f;--border-hover:#333333;
+  --text:#e5e5e5;--text-sec:#999999;--text-muted:#666666;
+  --accent:#635bff;
+  --success:#22c55e;--success-bg:rgba(34,197,94,0.08);
+  --warning:#eab308;--warning-bg:rgba(234,179,8,0.08);
+  --danger:#ef4444;--danger-bg:rgba(239,68,68,0.08);
+  --radius:6px;
+}
+html{font-size:13px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* SIDEBAR */
+.sidebar{width:200px;min-width:200px;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sidebar-brand{padding:16px 16px 12px;border-bottom:1px solid var(--border)}
+.sidebar-brand span{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);letter-spacing:0.05em}
+.sidebar-nav{flex:1;padding:8px 0}
+.nav-phase{padding:12px 16px 4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase}
+.nav-phase:not(:first-child){border-top:1px solid var(--border);margin-top:4px;padding-top:12px}
+.nav-link{display:block;padding:5px 16px 5px 14px;font-size:12px;color:var(--text-sec);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.nav-link.active{color:var(--text);border-left-color:var(--accent)}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.sidebar-footer .email{font-size:10px;color:var(--text-muted)}
+.sidebar-footer .logout{font-size:10px;color:var(--accent);text-decoration:none;display:block;margin-top:4px}
+.sidebar-footer .logout:hover{text-decoration:underline}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--header-bg);min-height:38px}
+.breadcrumb{font-size:12px;color:var(--text-sec)}
+.breadcrumb .chevron{color:var(--text-muted);margin:0 6px}
+.breadcrumb .current{color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-muted)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 20px;background:var(--header-bg)}
+.tab{padding:10px 16px;font-size:12px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+.tab:hover{color:var(--text-sec)}
+.tab.active{color:var(--text);border-bottom-color:var(--accent)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+.view{display:none}
+.view.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card:hover{border-color:var(--border-hover)}
+.card-header{padding:10px 12px;font-size:11px;font-weight:500;color:var(--text-sec);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-body{padding:12px}
+
+/* STATS STRIP */
+.stats-strip{display:flex;border-radius:var(--radius)}
+.stat-cell{flex:1;padding:12px;text-align:center;border-right:1px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-label{font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;color:var(--text)}
+.stat-value .up{color:var(--success)}
+.stat-value .down{color:var(--danger)}
+.stat-value .warn{color:var(--warning)}
+
+/* GRID LAYOUTS */
+.grid-3{display:grid;grid-template-columns:40% 35% 25%;gap:8px;margin-top:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grid-2-55{display:grid;grid-template-columns:55% 45%;gap:8px;margin-top:8px}
+
+/* TABLES */
+.dense-table{width:100%;border-collapse:collapse}
+.dense-table th{font-size:10px;color:var(--text-muted);text-align:left;padding:6px 8px;background:var(--header-bg);font-weight:500;border-bottom:1px solid var(--border)}
+.dense-table td{font-size:11px;padding:6px 8px;border-bottom:1px solid rgba(31,31,31,0.5)}
+.dense-table tr:nth-child(even){background:var(--bg)}
+.dense-table tr:nth-child(odd){background:var(--card)}
+.dense-table .mono-cell{font-family:'JetBrains Mono',monospace;font-size:11px}
+.dense-table tr.total-row{font-weight:600;background:var(--header-bg);border-top:1px solid var(--border)}
+
+/* PILLS */
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500;line-height:1.4}
+.pill-active{background:var(--success-bg);color:var(--success)}
+.pill-gap{background:var(--danger-bg);color:var(--danger)}
+.pill-low{background:var(--warning-bg);color:var(--warning)}
+.pill-pending{background:var(--warning-bg);color:var(--warning)}
+
+/* ALERTS */
+.alert-row{padding:8px 10px;font-size:10px;color:var(--text-sec);border-left:3px solid;margin-bottom:1px}
+.alert-red{border-color:var(--danger);background:var(--danger-bg)}
+.alert-amber{border-color:var(--warning);background:var(--warning-bg)}
+.alert-green{border-color:var(--success);background:var(--success-bg)}
+
+/* ACTIVITY */
+.activity-row{display:flex;justify-content:space-between;padding:6px 10px;font-size:10px;color:var(--text-sec)}
+.activity-row .time{color:var(--text-muted)}
+
+/* TOOL GRID */
+.tool-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;height:60px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:border-color .15s}
+.tool-card:hover{border-color:var(--border-hover)}
+.tool-card .tool-name{font-size:11px;color:var(--text);margin-bottom:4px}
+.tool-card .tool-status{font-size:10px}
+
+/* SEGMENTED CONTROL */
+.segmented{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.seg-btn{padding:7px 16px;font-size:11px;color:var(--text-sec);cursor:pointer;border:none;background:transparent;font-family:'Inter',sans-serif;transition:all .15s}
+.seg-btn:not(:last-child){border-right:1px solid var(--border)}
+.seg-btn.active{background:var(--accent);color:#fff}
+.seg-btn:hover:not(.active){background:rgba(255,255,255,0.03)}
+
+/* FORM INPUTS */
+.input-group{display:flex;flex-direction:column;gap:3px}
+.input-group label{font-size:10px;color:var(--text-muted)}
+.input-group input{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);outline:none;width:100%;transition:border-color .15s}
+.input-group input:focus{border-color:var(--accent)}
+
+/* CHECKBOX LIST */
+.check-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;color:var(--text-sec)}
+.check-box{width:14px;height:14px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-box.checked{background:var(--accent);border-color:var(--accent)}
+.check-box.checked::after{content:'';display:block;width:6px;height:6px;background:#fff;border-radius:1px;clip-path:polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)}
+
+/* NUMBER INPUT WITH +/- */
+.num-input{display:flex;align-items:center;gap:4px}
+.num-input input{width:90px;text-align:center}
+.num-btn{width:22px;height:22px;background:var(--border);border:none;border-radius:4px;color:var(--text-sec);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;line-height:1}
+.num-btn:hover{background:var(--border-hover)}
+
+/* VERDICT LINE */
+.verdict{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-sec);padding:12px 0 4px}
+.verdict .green{color:var(--success)}
+.verdict .red{color:var(--danger)}
+
+/* RESULTS STRIP */
+.results-strip{display:flex}
+.result-cell{flex:1;padding:12px;text-align:center;border-right:1px solid var(--border)}
+.result-cell:last-child{border-right:none}
+.result-label{font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.result-value{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500}
+
+/* SPARKLINE */
+.sparkline{vertical-align:middle;margin-left:6px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand"><span>TKG</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-phase">KNOW</div>
+    <a class="nav-link active" href="#" onclick="switchTab(0);return false">Dashboard</a>
+    <a class="nav-link" href="#">Financial Profile</a>
+    <a class="nav-link" href="#">CPF Overview</a>
+    <a class="nav-link" href="#">BMI &amp; Health</a>
+
+    <div class="nav-phase">FIND</div>
+    <a class="nav-link" href="#">Insurance Benefits</a>
+    <a class="nav-link" href="#">LTC Gap</a>
+    <a class="nav-link" href="#" onclick="switchTab(1);return false">Stress Test</a>
+
+    <div class="nav-phase">PLOT</div>
+    <a class="nav-link" href="#" onclick="switchTab(2);return false">Retirement</a>
+    <a class="nav-link" href="#">Cost of Waiting</a>
+    <a class="nav-link" href="#">CPF Planner</a>
+
+    <div class="nav-phase">OPTIMIZE</div>
+    <a class="nav-link" href="#">Cash Flow</a>
+    <a class="nav-link" href="#">Net Worth</a>
+
+    <div class="nav-phase">REVIEW</div>
+    <a class="nav-link" href="#">Session Summary</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="email">noah@kiasu.sg</div>
+    <a class="logout" href="#">Log out</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb"><span class="current">Dashboard</span></div>
+    <div class="topbar-right">Updated 2 min ago <span class="live-dot"></span></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">Dashboard</div>
+    <div class="tab" onclick="switchTab(1)">Stress Test</div>
+    <div class="tab" onclick="switchTab(2)">Retirement</div>
+  </div>
+
+  <div class="content">
+
+    <!-- VIEW 1: DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <!-- Stats Strip -->
+      <div class="card stats-strip">
+        <div class="stat-cell">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value mono">S$412,000 <span class="up">&#8593;</span></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Surplus/mo</div>
+          <div class="stat-value mono">S$1,897</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Savings Rate</div>
+          <div class="stat-value mono">24%</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Retirement</div>
+          <div class="stat-value mono">62% <span class="warn">&#9888;</span></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">CPF Total</div>
+          <div class="stat-value mono">S$185,000</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Protection</div>
+          <div class="stat-value mono">68<span style="font-size:10px;color:var(--text-muted)">/100</span></div>
+        </div>
+      </div>
+
+      <!-- Three Column -->
+      <div class="grid-3">
+        <!-- COL 1: Portfolio Chart -->
+        <div class="card">
+          <div class="card-header">Portfolio Projection <span style="font-size:10px;color:var(--text-muted)">2026-2060</span></div>
+          <div class="card-body" style="padding:8px">
+            <svg viewBox="0 0 360 180" width="100%" height="180" style="display:block">
+              <!-- Grid -->
+              <line x1="40" y1="10" x2="40" y2="160" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="160" x2="350" y2="160" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="120" x2="350" y2="120" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="80" x2="350" y2="80" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="40" x2="350" y2="40" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <!-- Y axis labels -->
+              <text x="36" y="163" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">0</text>
+              <text x="36" y="123" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">500K</text>
+              <text x="36" y="83" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">1.0M</text>
+              <text x="36" y="43" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">1.5M</text>
+              <!-- X axis labels -->
+              <text x="40" y="175" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">26</text>
+              <text x="117" y="175" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">35</text>
+              <text x="195" y="175" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">45</text>
+              <text x="272" y="175" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">55</text>
+              <text x="350" y="175" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">65</text>
+              <!-- Required line (red dashed) -->
+              <line x1="40" y1="35" x2="350" y2="35" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+              <text x="352" y="33" fill="#ef4444" font-family="JetBrains Mono" font-size="8" opacity="0.7">req</text>
+              <!-- Projected line (green) -->
+              <polyline points="40,155 80,148 120,138 160,122 200,100 240,76 280,55 320,42 350,38" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+              <!-- Shaded area under projected -->
+              <polygon points="40,155 80,148 120,138 160,122 200,100 240,76 280,55 320,42 350,38 350,160 40,160" fill="#22c55e" opacity="0.04"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- COL 2: Coverage Table -->
+        <div class="card">
+          <div class="card-header">Coverage Analysis</div>
+          <table class="dense-table">
+            <thead><tr><th>Type</th><th>Current</th><th>Rec</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Death</td><td class="mono-cell">S$500K</td><td class="mono-cell">S$960K</td><td><span class="pill pill-active">Active</span></td></tr>
+              <tr><td>TPD</td><td class="mono-cell">S$500K</td><td class="mono-cell">S$960K</td><td><span class="pill pill-active">Active</span></td></tr>
+              <tr><td>Early CI</td><td class="mono-cell">S$150K</td><td class="mono-cell">S$480K</td><td><span class="pill pill-low">Low</span></td></tr>
+              <tr><td>Adv CI</td><td class="mono-cell">&mdash;</td><td class="mono-cell">S$480K</td><td><span class="pill pill-gap">Gap</span></td></tr>
+              <tr><td>Hospital</td><td class="mono-cell" style="font-family:Inter;font-size:11px">AIA Gold</td><td class="mono-cell" style="font-family:Inter;font-size:11px">Required</td><td><span class="pill pill-active">Active</span></td></tr>
+              <tr><td>PA</td><td class="mono-cell">S$100K</td><td class="mono-cell" style="font-family:Inter;font-size:11px">Any</td><td><span class="pill pill-active">Active</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- COL 3: Alerts + Activity -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="card">
+            <div class="card-header">Alerts</div>
+            <div>
+              <div class="alert-row alert-red">Critical illness coverage below 3x annual income</div>
+              <div class="alert-row alert-amber">Retirement only 62% funded &mdash; S$710K gap</div>
+              <div class="alert-row alert-green">Cash flow surplus healthy at S$1,897/mo</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Activity</div>
+            <div>
+              <div class="activity-row"><span>Updated AIA policy</span><span class="time">3h</span></div>
+              <div class="activity-row"><span>Ran stress test (CI)</span><span class="time">1d</span></div>
+              <div class="activity-row"><span>Uploaded payslip PDF</span><span class="time">2d</span></div>
+              <div class="activity-row"><span>Completed onboarding</span><span class="time">5d</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool Grid -->
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tool-name">Stress Test</div>
+          <div class="tool-status"><span class="pill pill-active">Complete</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">Retirement</div>
+          <div class="tool-status"><span class="pill pill-low">62% funded</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">Insurance</div>
+          <div class="tool-status"><span class="pill pill-gap">1 gap</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">Cash Flow</div>
+          <div class="tool-status"><span class="pill pill-active">Healthy</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">CPF Planner</div>
+          <div class="tool-status"><span class="pill pill-pending">Pending</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">LTC Gap</div>
+          <div class="tool-status"><span class="pill pill-pending">Pending</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: STRESS TEST -->
+    <div class="view" id="view-stress">
+      <!-- Scenario selector -->
+      <div style="margin-bottom:12px">
+        <div class="segmented">
+          <button class="seg-btn active" onclick="setScenario(this)">Death</button>
+          <button class="seg-btn" onclick="setScenario(this)">TPD</button>
+          <button class="seg-btn" onclick="setScenario(this)">Early CI</button>
+          <button class="seg-btn" onclick="setScenario(this)">Adv CI</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- LEFT: Config -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="card">
+            <div class="card-header">Scenario Parameters</div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="input-group">
+                  <label>Age at event</label>
+                  <input type="text" value="38">
+                </div>
+                <div class="input-group">
+                  <label>Duration</label>
+                  <input type="text" value="3 years">
+                </div>
+                <div class="input-group">
+                  <label>Income loss</label>
+                  <input type="text" value="100%">
+                </div>
+                <div class="input-group">
+                  <label>Recovery</label>
+                  <input type="text" value="80%">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Policies Applied</div>
+            <div class="card-body" style="padding:8px 12px">
+              <div class="check-item">
+                <div class="check-box checked"></div>
+                <span>AIA ECI Shield &middot; <span class="mono" style="font-size:11px">S$200K</span> lump &middot; <span style="color:var(--success)">Applied</span></span>
+              </div>
+              <div class="check-item">
+                <div class="check-box checked"></div>
+                <span>NTUC Monthly &middot; <span class="mono" style="font-size:11px">S$2K</span>/mo &middot; <span style="color:var(--success)">Applied</span></span>
+              </div>
+              <div class="check-item">
+                <div class="check-box"></div>
+                <span style="color:var(--text-muted)">Great Eastern TPD &middot; <span class="mono" style="font-size:11px">S$300K</span> &middot; Not applicable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Chart -->
+        <div class="card">
+          <div class="card-header">Savings Runway <span style="font-size:10px;color:var(--text-muted)">Age 30&ndash;70</span></div>
+          <div class="card-body" style="padding:8px">
+            <svg viewBox="0 0 380 200" width="100%" height="200" style="display:block">
+              <!-- Grid -->
+              <line x1="40" y1="10" x2="40" y2="175" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="175" x2="370" y2="175" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="135" x2="370" y2="135" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="95" x2="370" y2="95" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="55" x2="370" y2="55" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <!-- Y axis -->
+              <text x="36" y="178" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">0</text>
+              <text x="36" y="138" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">200K</text>
+              <text x="36" y="98" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">400K</text>
+              <text x="36" y="58" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">600K</text>
+              <!-- X axis -->
+              <text x="40" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">30</text>
+              <text x="123" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">38</text>
+              <text x="205" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">47</text>
+              <text x="288" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">55</text>
+              <text x="370" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">65</text>
+              <!-- Event marker -->
+              <line x1="123" y1="10" x2="123" y2="175" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+              <text x="123" y="8" fill="#666" font-family="JetBrains Mono" font-size="8" text-anchor="middle">event</text>
+              <!-- Without insurance (grey dashed) -->
+              <polyline points="40,50 80,48 123,46 140,70 160,100 180,130 200,155 215,170 225,175" fill="none" stroke="#666" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- With insurance (indigo) -->
+              <polyline points="40,50 80,48 123,46 135,55 150,70 170,88 200,110 240,140 280,160 310,172 330,175" fill="none" stroke="#635bff" stroke-width="1.5"/>
+              <!-- Shaded area between -->
+              <polygon points="123,46 140,70 160,100 180,130 200,155 215,170 225,175 330,175 310,172 280,160 240,140 200,110 170,88 150,70 135,55 123,46" fill="#635bff" opacity="0.04"/>
+              <!-- Legend -->
+              <line x1="250" y1="14" x2="270" y2="14" stroke="#666" stroke-width="1" stroke-dasharray="4,2"/>
+              <text x="273" y="17" fill="#666" font-family="Inter" font-size="9">Without</text>
+              <line x1="310" y1="14" x2="330" y2="14" stroke="#635bff" stroke-width="1.5"/>
+              <text x="333" y="17" fill="#999" font-family="Inter" font-size="9">With</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Strip -->
+      <div class="card" style="margin-top:8px">
+        <div class="results-strip">
+          <div class="result-cell">
+            <div class="result-label">Without Insurance</div>
+            <div class="result-value" style="color:var(--danger)">Depletes age 47 <span class="down">&#8595;</span></div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">With Insurance</div>
+            <div class="result-value" style="color:var(--accent)">Depletes age 61</div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">Years Saved</div>
+            <div class="result-value" style="color:var(--success)">+14 years <span class="up">&#8593;</span></div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">Total Payout</div>
+            <div class="result-value">S$200,000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: RETIREMENT -->
+    <div class="view" id="view-retirement">
+      <div class="grid-2-55">
+        <!-- LEFT: Chart -->
+        <div class="card">
+          <div class="card-header">Retirement Projection <span style="font-size:10px;color:var(--text-muted)">Age 38&ndash;90</span></div>
+          <div class="card-body" style="padding:8px">
+            <svg viewBox="0 0 400 200" width="100%" height="200" style="display:block">
+              <!-- Grid -->
+              <line x1="40" y1="10" x2="40" y2="175" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="175" x2="390" y2="175" stroke="#1f1f1f" stroke-width="1"/>
+              <line x1="40" y1="135" x2="390" y2="135" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="95" x2="390" y2="95" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <line x1="40" y1="55" x2="390" y2="55" stroke="#1f1f1f" stroke-width="0.5" stroke-dasharray="2"/>
+              <!-- Y axis -->
+              <text x="36" y="178" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">0</text>
+              <text x="36" y="138" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">500K</text>
+              <text x="36" y="98" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">1.0M</text>
+              <text x="36" y="58" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="end">1.5M</text>
+              <!-- X axis -->
+              <text x="40" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">38</text>
+              <text x="150" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">50</text>
+              <text x="260" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">65</text>
+              <text x="390" y="190" fill="#666" font-family="JetBrains Mono" font-size="9" text-anchor="middle">90</text>
+              <!-- Retirement line -->
+              <line x1="260" y1="10" x2="260" y2="175" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
+              <text x="260" y="8" fill="#666" font-family="JetBrains Mono" font-size="8" text-anchor="middle">retire</text>
+              <!-- Required (red dashed) -->
+              <polyline points="40,160 100,145 150,125 200,95 260,55 300,48 340,42 390,35" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+              <!-- Projected (green) -->
+              <polyline points="40,160 80,152 120,140 160,120 200,95 240,72 260,62 300,58 340,55 390,52" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+              <!-- Shaded area (projected) -->
+              <polygon points="40,160 80,152 120,140 160,120 200,95 240,72 260,62 300,58 340,55 390,52 390,175 40,175" fill="#22c55e" opacity="0.04"/>
+              <!-- Gap shading between required and projected (after retirement) -->
+              <polygon points="260,55 300,48 340,42 390,35 390,52 340,55 300,58 260,62" fill="#ef4444" opacity="0.06"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- RIGHT: Parameters + Income Table -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="card">
+            <div class="card-header">Parameters</div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="font-size:11px;color:var(--text-muted)">Retirement Age</span>
+                  <div class="num-input">
+                    <button class="num-btn">&minus;</button>
+                    <input type="text" value="65">
+                    <button class="num-btn">+</button>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="font-size:11px;color:var(--text-muted)">Monthly Investment</span>
+                  <div class="num-input">
+                    <button class="num-btn">&minus;</button>
+                    <input type="text" value="S$1,000">
+                    <button class="num-btn">+</button>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="font-size:11px;color:var(--text-muted)">Expected Return</span>
+                  <div class="num-input">
+                    <button class="num-btn">&minus;</button>
+                    <input type="text" value="6.0%">
+                    <button class="num-btn">+</button>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="font-size:11px;color:var(--text-muted)">Dividend Yield</span>
+                  <div class="num-input">
+                    <button class="num-btn">&minus;</button>
+                    <input type="text" value="4.0%">
+                    <button class="num-btn">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">Income Sources at Retirement</div>
+            <table class="dense-table">
+              <thead><tr><th>Source</th><th>Monthly</th><th>Annual</th><th>%</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>CPF Life</td>
+                  <td class="mono-cell">S$1,200</td>
+                  <td class="mono-cell">S$14,400</td>
+                  <td class="mono-cell">27%</td>
+                  <td><svg class="sparkline" width="40" height="12" viewBox="0 0 40 12"><polyline points="0,10 8,9 16,7 24,5 32,4 40,3" fill="none" stroke="#22c55e" stroke-width="1"/></svg></td>
+                </tr>
+                <tr>
+                  <td>Portfolio</td>
+                  <td class="mono-cell">S$2,800</td>
+                  <td class="mono-cell">S$33,600</td>
+                  <td class="mono-cell">62%</td>
+                  <td><svg class="sparkline" width="40" height="12" viewBox="0 0 40 12"><polyline points="0,11 10,9 20,6 30,3 40,1" fill="none" stroke="#22c55e" stroke-width="1"/></svg></td>
+                </tr>
+                <tr>
+                  <td>SRS</td>
+                  <td class="mono-cell">S$500</td>
+                  <td class="mono-cell">S$6,000</td>
+                  <td class="mono-cell">11%</td>
+                  <td><svg class="sparkline" width="40" height="12" viewBox="0 0 40 12"><polyline points="0,10 10,9 20,8 30,6 40,5" fill="none" stroke="#22c55e" stroke-width="1"/></svg></td>
+                </tr>
+                <tr class="total-row">
+                  <td>Total</td>
+                  <td class="mono-cell">S$4,500</td>
+                  <td class="mono-cell">S$54,000</td>
+                  <td class="mono-cell">100%</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict">
+        Projected <span class="green">S$1.16M</span> &middot; Required <span class="red">S$1.87M</span> &middot; Funded <span class="red">62%</span> &middot; Gap <span class="red">S$710K</span>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+const views = ['view-dashboard','view-stress','view-retirement'];
+const tabLabels = ['Dashboard','Stress Test','Retirement'];
+const breadcrumbs = [
+  '<span class="current">Dashboard</span>',
+  'Tools <span class="chevron">&#8250;</span> <span class="current">Stress Test</span>',
+  'Tools <span class="chevron">&#8250;</span> <span class="current">Retirement Analytics</span>'
+];
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.view').forEach((v,i) => v.classList.toggle('active', i===idx));
+  document.getElementById('breadcrumb').innerHTML = breadcrumbs[idx];
+  // Update sidebar active
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const sidebarMap = {0:0, 1:6, 2:7};
+  const links = document.querySelectorAll('.nav-link');
+  if(links[sidebarMap[idx]]) links[sidebarMap[idx]].classList.add('active');
+}
+
+function setScenario(el) {
+  el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
