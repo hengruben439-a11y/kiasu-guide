@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass — City | The Kiasu Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --text-primary: rgba(255,255,255,0.90);
+  --text-secondary: rgba(255,255,255,0.50);
+  --text-muted: rgba(255,255,255,0.25);
+  --gold: #c4a882;
+  --gold-dim: rgba(196,168,130,0.3);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --purple: #a78bfa;
+  --glass-bg: rgba(15,15,25,0.55);
+  --glass-bg-hover: rgba(15,15,25,0.65);
+  --glass-border: rgba(255,255,255,0.10);
+  --glass-border-hover: rgba(255,255,255,0.18);
+  --glass-blur: blur(40px) saturate(1.4);
+  --glass-radius: 24px;
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  --inner-bg: rgba(255,255,255,0.04);
+  --inner-radius: 16px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+}
+
+/* ── Dusk sky background ── */
+.sky {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    linear-gradient(180deg, #0a0e1a 0%, #1a1535 25%, #2d1f3d 40%, #4a2845 55%, #8b4a3a 70%, #d4855a 85%, #e8a960 95%, #f0c070 100%);
+}
+
+/* ── Cityscape silhouette ── */
+.cityscape {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Glass mixin via class ── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s;
+}
+.glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+.glass-lift:hover {
+  transform: translateY(-2px);
+}
+
+.inner-card {
+  background: var(--inner-bg);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--inner-radius);
+  padding: 20px;
+  transition: all 0.3s;
+}
+.inner-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  border-radius: 28px;
+  padding: 24px 18px;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-phase {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin: 16px 0 8px;
+}
+.sidebar-phase:first-of-type { margin-top: 0; }
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 5px 0;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.sidebar-link:hover { color: var(--text-primary); }
+.sidebar-link.active { color: #fff; font-weight: 500; }
+.sidebar-link.active::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ── Main content ── */
+.main {
+  position: relative; z-index: 10;
+  margin-left: 232px;
+  padding: 24px 32px 24px 16px;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.tab-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s;
+  color: var(--text-secondary);
+  background: transparent;
+}
+.tab-pill:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+.tab-pill.active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Tab panels ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Grid helpers ── */
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 0; }
+.grid-2x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+/* ── Utility ── */
+.playfair { font-family: 'Playfair Display', serif; }
+.gold { color: var(--gold); }
+.green { color: var(--success); }
+.amber { color: var(--warning); }
+.red { color: var(--danger); }
+.purple { color: var(--purple); }
+.dim { color: var(--text-secondary); }
+.muted { color: var(--text-muted); }
+.label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.big-num { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
+.med-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; line-height: 1.2; }
+.section { margin-bottom: 20px; }
+.mb-sm { margin-bottom: 12px; }
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+.badge-green { background: rgba(74,222,128,0.15); color: var(--success); }
+.badge-amber { background: rgba(251,191,36,0.15); color: var(--warning); }
+.badge-red { background: rgba(248,113,113,0.15); color: var(--danger); }
+.badge-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+.badge-gold { background: rgba(196,168,130,0.15); color: var(--gold); }
+
+/* ── Welcome panel ── */
+.welcome-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 32px;
+}
+
+/* ── Score ring ── */
+.score-ring {
+  width: 80px; height: 80px;
+  position: relative;
+  flex-shrink: 0;
+}
+.score-ring svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+.score-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* ── Tool cards ── */
+.tool-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+.tool-card .emoji { font-size: 28px; margin-bottom: 4px; }
+.tool-card .name { font-size: 14px; font-weight: 600; }
+.tool-card .desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+/* ── Preset pills (Stress Test) ── */
+.preset-card {
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+}
+.preset-card .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+.preset-card .name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.preset-card .desc { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+.preset-card.selected { border-color: var(--gold); background: rgba(196,168,130,0.08); }
+
+/* ── Stat row ── */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 14px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row .val { font-weight: 600; }
+
+/* ── Progress bar ── */
+.progress-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+  margin-top: 10px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--gold);
+  transition: width 0.6s ease;
+}
+
+/* ── Range slider ── */
+.slider-wrap { margin-top: 12px; }
+.slider-wrap label { font-size: 13px; color: var(--text-secondary); }
+.slider-wrap input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  margin-top: 8px;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid rgba(0,0,0,0.3);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ── Chart containers ── */
+.chart-panel { padding: 24px; }
+.chart-panel .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.chart-svg { width: 100%; height: auto; display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 16px; }
+  .grid-2x3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(1, 1fr); }
+  .row { flex-direction: column; }
+  .welcome-panel { flex-direction: column; gap: 16px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sky background -->
+<div class="sky"></div>
+
+<!-- Cityscape silhouette -->
+<svg class="cityscape" viewBox="0 0 1600 220" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyline-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0a0e1a"/>
+    </linearGradient>
+  </defs>
+  <!-- Buildings from left to right -->
+  <rect x="0" y="160" width="1600" height="60" fill="#0a0e1a"/>
+  <!-- Far left cluster -->
+  <rect x="20" y="120" width="35" height="100" fill="url(#skyline-g)"/>
+  <rect x="60" y="90" width="28" height="130" fill="url(#skyline-g)"/>
+  <rect x="95" y="105" width="40" height="115" fill="url(#skyline-g)"/>
+  <rect x="140" y="130" width="30" height="90" fill="url(#skyline-g)"/>
+  <!-- MBS-style -->
+  <rect x="200" y="70" width="22" height="150" rx="2" fill="url(#skyline-g)"/>
+  <rect x="230" y="70" width="22" height="150" rx="2" fill="url(#skyline-g)"/>
+  <rect x="260" y="70" width="22" height="150" rx="2" fill="url(#skyline-g)"/>
+  <rect x="195" y="62" width="92" height="12" rx="6" fill="url(#skyline-g)"/>
+  <!-- Mid-left -->
+  <rect x="310" y="95" width="45" height="125" fill="url(#skyline-g)"/>
+  <rect x="360" y="110" width="30" height="110" fill="url(#skyline-g)"/>
+  <rect x="400" y="60" width="25" height="160" fill="url(#skyline-g)"/>
+  <rect x="430" y="85" width="38" height="135" fill="url(#skyline-g)"/>
+  <!-- Tall center tower -->
+  <rect x="500" y="30" width="30" height="190" fill="url(#skyline-g)"/>
+  <polygon points="505,30 515,10 525,30" fill="url(#skyline-g)"/>
+  <rect x="540" y="75" width="42" height="145" fill="url(#skyline-g)"/>
+  <rect x="590" y="100" width="35" height="120" fill="url(#skyline-g)"/>
+  <rect x="630" y="55" width="28" height="165" fill="url(#skyline-g)"/>
+  <!-- CBD cluster -->
+  <rect x="680" y="45" width="35" height="175" fill="url(#skyline-g)"/>
+  <rect x="720" y="70" width="40" height="150" fill="url(#skyline-g)"/>
+  <rect x="765" y="35" width="25" height="185" fill="url(#skyline-g)"/>
+  <polygon points="770,35 777,15 785,35" fill="url(#skyline-g)"/>
+  <rect x="800" y="80" width="50" height="140" fill="url(#skyline-g)"/>
+  <rect x="855" y="60" width="30" height="160" fill="url(#skyline-g)"/>
+  <!-- Right cluster -->
+  <rect x="910" y="90" width="38" height="130" fill="url(#skyline-g)"/>
+  <rect x="955" y="50" width="28" height="170" fill="url(#skyline-g)"/>
+  <rect x="990" y="75" width="45" height="145" fill="url(#skyline-g)"/>
+  <rect x="1045" y="100" width="32" height="120" fill="url(#skyline-g)"/>
+  <rect x="1085" y="65" width="25" height="155" fill="url(#skyline-g)"/>
+  <!-- Far right -->
+  <rect x="1140" y="85" width="40" height="135" fill="url(#skyline-g)"/>
+  <rect x="1190" y="110" width="35" height="110" fill="url(#skyline-g)"/>
+  <rect x="1230" y="70" width="28" height="150" fill="url(#skyline-g)"/>
+  <rect x="1270" y="95" width="45" height="125" fill="url(#skyline-g)"/>
+  <rect x="1330" y="120" width="30" height="100" fill="url(#skyline-g)"/>
+  <rect x="1370" y="100" width="38" height="120" fill="url(#skyline-g)"/>
+  <rect x="1420" y="130" width="28" height="90" fill="url(#skyline-g)"/>
+  <rect x="1460" y="110" width="42" height="110" fill="url(#skyline-g)"/>
+  <rect x="1510" y="125" width="35" height="95" fill="url(#skyline-g)"/>
+  <rect x="1555" y="140" width="45" height="80" fill="url(#skyline-g)"/>
+  <!-- Window lights -->
+  <g fill="rgba(255,220,150,0.25)">
+    <rect x="208" y="85" width="4" height="3" rx="0.5"/>
+    <rect x="208" y="95" width="4" height="3" rx="0.5"/>
+    <rect x="238" y="90" width="4" height="3" rx="0.5"/>
+    <rect x="268" y="85" width="4" height="3" rx="0.5"/>
+    <rect x="268" y="100" width="4" height="3" rx="0.5"/>
+    <rect x="508" y="50" width="4" height="3" rx="0.5"/>
+    <rect x="508" y="70" width="4" height="3" rx="0.5"/>
+    <rect x="508" y="90" width="4" height="3" rx="0.5"/>
+    <rect x="688" y="65" width="4" height="3" rx="0.5"/>
+    <rect x="688" y="85" width="4" height="3" rx="0.5"/>
+    <rect x="728" y="90" width="4" height="3" rx="0.5"/>
+    <rect x="773" y="55" width="4" height="3" rx="0.5"/>
+    <rect x="773" y="75" width="4" height="3" rx="0.5"/>
+    <rect x="963" y="70" width="4" height="3" rx="0.5"/>
+    <rect x="963" y="90" width="4" height="3" rx="0.5"/>
+    <rect x="1093" y="80" width="4" height="3" rx="0.5"/>
+    <rect x="1238" y="90" width="4" height="3" rx="0.5"/>
+  </g>
+</svg>
+
+<!-- Sidebar -->
+<aside class="sidebar glass">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+
+  <div class="sidebar-phase">Know Your Position</div>
+  <a class="sidebar-link" href="#">Financial Profile</a>
+  <a class="sidebar-link" href="#">CPF Overview</a>
+  <a class="sidebar-link" href="#">BMI &amp; Health</a>
+
+  <div class="sidebar-phase">Find the Gaps</div>
+  <a class="sidebar-link" href="#">Insurance Benefits</a>
+  <a class="sidebar-link" href="#">LTC Gap Calculator</a>
+  <a class="sidebar-link active" href="#">Stress Test</a>
+
+  <div class="sidebar-phase">Plot the Path</div>
+  <a class="sidebar-link" href="#">Retirement Planning</a>
+  <a class="sidebar-link" href="#">Cost of Waiting</a>
+  <a class="sidebar-link" href="#">CPF Planner</a>
+
+  <div class="sidebar-phase">Understand Tools</div>
+  <a class="sidebar-link" href="#">Risk Profiler</a>
+  <a class="sidebar-link" href="#">Concepts Library</a>
+
+  <div class="sidebar-phase">Optimise</div>
+  <a class="sidebar-link" href="#">Cash Flow</a>
+  <a class="sidebar-link" href="#">Net Worth</a>
+</aside>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-pill active" onclick="switchTab(0)">Dashboard</button>
+    <button class="tab-pill" onclick="switchTab(1)">Stress Test</button>
+    <button class="tab-pill" onclick="switchTab(2)">Retirement</button>
+  </div>
+
+  <!-- ═══════════ TAB 1: DASHBOARD ═══════════ -->
+  <div class="tab-panel active" id="tab-0">
+
+    <!-- Welcome -->
+    <div class="glass welcome-panel section">
+      <div>
+        <div class="playfair" style="font-size:24px;font-weight:600;line-height:1.3">
+          Hi Noah, welcome back<br>to your financial plan.
+        </div>
+        <div class="dim" style="font-size:13px;margin-top:8px">Last session: 28 Mar 2026</div>
+      </div>
+      <div class="score-ring">
+        <svg viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--gold)" stroke-width="5"
+                  stroke-dasharray="213.6" stroke-dashoffset="55.5" stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-label">74</div>
+      </div>
+    </div>
+
+    <!-- 4 stat cards -->
+    <div class="grid-4 section">
+      <div class="glass glass-lift inner-card" style="padding:22px">
+        <div class="label">Net Worth</div>
+        <div class="big-num">S$412K</div>
+        <div class="dim" style="font-size:11px;margin-top:6px">Assets &minus; Liabilities</div>
+      </div>
+      <div class="glass glass-lift inner-card" style="padding:22px">
+        <div class="label">Monthly Surplus</div>
+        <div class="big-num green">S$1,897</div>
+        <div class="dim" style="font-size:11px;margin-top:6px">24% savings rate</div>
+      </div>
+      <div class="glass glass-lift inner-card" style="padding:22px">
+        <div class="label">Retirement Readiness</div>
+        <div class="big-num amber">62%</div>
+        <div class="dim" style="font-size:11px;margin-top:6px">Gap: S$312K</div>
+      </div>
+      <div class="glass glass-lift inner-card" style="padding:22px">
+        <div class="label">CPF Balances</div>
+        <div class="big-num purple">S$185K</div>
+        <div class="dim" style="font-size:11px;margin-top:6px">OA + SA + MA</div>
+      </div>
+    </div>
+
+    <!-- Chart: Portfolio Projection -->
+    <div class="glass chart-panel section">
+      <div class="chart-title">Portfolio Projection</div>
+      <svg class="chart-svg" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gold-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--gold)" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="var(--gold)" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid lines -->
+        <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+          <line x1="50" y1="20" x2="50" y2="220"/><line x1="50" y1="220" x2="680" y2="220"/>
+          <line x1="50" y1="170" x2="680" y2="170" stroke-dasharray="4,4"/>
+          <line x1="50" y1="120" x2="680" y2="120" stroke-dasharray="4,4"/>
+          <line x1="50" y1="70" x2="680" y2="70" stroke-dasharray="4,4"/>
+          <line x1="50" y1="20" x2="680" y2="20" stroke-dasharray="4,4"/>
+        </g>
+        <!-- Y-axis labels -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="end">
+          <text x="45" y="224">S$0</text>
+          <text x="45" y="174">S$500K</text>
+          <text x="45" y="124">S$1M</text>
+          <text x="45" y="74">S$1.5M</text>
+          <text x="45" y="24">S$2M</text>
+        </g>
+        <!-- X-axis labels -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="middle">
+          <text x="50" y="240">28</text>
+          <text x="207" y="240">38</text>
+          <text x="365" y="240">48</text>
+          <text x="522" y="240">58</text>
+          <text x="680" y="240">65</text>
+        </g>
+        <!-- Required line (red dashed) -->
+        <line x1="50" y1="46" x2="680" y2="46" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+        <text x="684" y="50" fill="var(--danger)" font-size="9" font-family="DM Sans" opacity="0.7">Required</text>
+        <!-- Gold area fill -->
+        <path d="M50,210 Q150,205 207,190 Q300,170 365,140 Q450,100 522,72 Q600,50 680,30 L680,220 L50,220 Z"
+              fill="url(#gold-fill)"/>
+        <!-- Gold line -->
+        <path d="M50,210 Q150,205 207,190 Q300,170 365,140 Q450,100 522,72 Q600,50 680,30"
+              fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Dot at end -->
+        <circle cx="680" cy="30" r="4" fill="var(--gold)"/>
+        <circle cx="680" cy="30" r="7" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+
+    <!-- Tool grid -->
+    <div class="grid-2x3 section">
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x1F4CA;</span>
+        <span class="name">Financial Profile</span>
+        <span class="desc">Your master financial record</span>
+        <span class="badge badge-green">Complete</span>
+      </div>
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x1F6E1;&#xFE0F;</span>
+        <span class="name">Insurance Benefits</span>
+        <span class="desc">Policy vault &amp; gap analysis</span>
+        <span class="badge badge-amber">2 gaps</span>
+      </div>
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x26A0;&#xFE0F;</span>
+        <span class="name">Stress Test</span>
+        <span class="desc">What if the worst happens?</span>
+        <span class="badge badge-gold">Flagship</span>
+      </div>
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x1F3D6;&#xFE0F;</span>
+        <span class="name">Retirement Planning</span>
+        <span class="desc">Tri-lock goal solver</span>
+        <span class="badge badge-amber">62% funded</span>
+      </div>
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x1F4B0;</span>
+        <span class="name">Cash Flow</span>
+        <span class="desc">Income vs expenses breakdown</span>
+        <span class="badge badge-green">Healthy</span>
+      </div>
+      <div class="glass glass-lift tool-card">
+        <span class="emoji">&#x1F3E6;</span>
+        <span class="name">CPF Planner</span>
+        <span class="desc">OA, SA, MA projections</span>
+        <span class="badge badge-purple">S$185K</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 2: STRESS TEST ═══════════ -->
+  <div class="tab-panel" id="tab-1">
+
+    <div class="section">
+      <div class="playfair" style="font-size:22px;font-weight:600;margin-bottom:16px">Financial Stress Test</div>
+    </div>
+
+    <!-- 4 preset pills -->
+    <div class="grid-4 section">
+      <div class="glass glass-lift preset-card selected" onclick="selectPreset(this)">
+        <span class="emoji">&#x1F480;</span>
+        <span class="name">Death</span>
+        <span class="desc">Total income loss for dependants</span>
+      </div>
+      <div class="glass glass-lift preset-card" onclick="selectPreset(this)">
+        <span class="emoji">&#x1F9BD;</span>
+        <span class="name">TPD</span>
+        <span class="desc">Permanent disability, no income</span>
+      </div>
+      <div class="glass glass-lift preset-card" onclick="selectPreset(this)">
+        <span class="emoji">&#x1F9EC;</span>
+        <span class="name">Early CI</span>
+        <span class="desc">Critical illness, partial loss</span>
+      </div>
+      <div class="glass glass-lift preset-card" onclick="selectPreset(this)">
+        <span class="emoji">&#x1F3E5;</span>
+        <span class="name">Advanced CI</span>
+        <span class="desc">Severe illness, total loss</span>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass chart-panel section">
+      <div class="chart-title">Savings Runway Projection</div>
+      <svg class="chart-svg" viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="uplift-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--gold)" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="var(--gold)" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+          <line x1="50" y1="20" x2="50" y2="240"/><line x1="50" y1="240" x2="680" y2="240"/>
+          <line x1="50" y1="184" x2="680" y2="184" stroke-dasharray="4,4"/>
+          <line x1="50" y1="128" x2="680" y2="128" stroke-dasharray="4,4"/>
+          <line x1="50" y1="72" x2="680" y2="72" stroke-dasharray="4,4"/>
+        </g>
+        <!-- Y labels -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="end">
+          <text x="45" y="244">S$0</text>
+          <text x="45" y="188">S$150K</text>
+          <text x="45" y="132">S$300K</text>
+          <text x="45" y="76">S$450K</text>
+        </g>
+        <!-- X labels (ages) -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="middle">
+          <text x="50" y="258">28</text>
+          <text x="138" y="258">33</text>
+          <text x="226" y="258">38</text>
+          <text x="314" y="258">43</text>
+          <text x="402" y="258">48</text>
+          <text x="490" y="258">53</text>
+          <text x="578" y="258">58</text>
+          <text x="666" y="258">63</text>
+        </g>
+        <!-- Uplift area between lines -->
+        <path d="M50,60 Q138,70 226,95 Q314,130 402,175 Q445,200 470,240
+                 L470,240 Q445,215 402,190 Q314,155 226,120 Q138,95 50,60 Z"
+              fill="none"/>
+        <!-- Area fill for "with insurance" -->
+        <path d="M50,60 Q180,75 314,120 Q440,175 520,220 Q555,235 578,240
+                 L578,240 L50,240 Z" fill="url(#uplift-fill)"/>
+        <!-- Without insurance (dashed grey) -->
+        <path d="M50,60 Q138,80 226,120 Q314,175 380,220 Q395,235 402,240"
+              fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-dasharray="8,6"/>
+        <!-- With insurance (solid gold) -->
+        <path d="M50,60 Q180,75 314,120 Q440,175 520,220 Q555,235 578,240"
+              fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Zero-crossing dots -->
+        <circle cx="402" cy="240" r="5" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        <circle cx="578" cy="240" r="5" fill="var(--gold)" stroke="rgba(196,168,130,0.3)" stroke-width="2"/>
+        <!-- Legend -->
+        <g font-size="11" font-family="DM Sans">
+          <line x1="400" y1="270" x2="425" y2="270" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-dasharray="6,4"/>
+          <text x="430" y="274" fill="var(--text-secondary)">Without Insurance</text>
+          <line x1="560" y1="270" x2="585" y2="270" stroke="var(--gold)" stroke-width="2"/>
+          <text x="590" y="274" fill="var(--text-secondary)">With Insurance</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- 3 result stats -->
+    <div class="grid-3 section">
+      <div class="glass glass-lift inner-card" style="text-align:center;padding:24px">
+        <div class="label">Runway With Insurance</div>
+        <div class="med-num gold" style="font-size:28px;margin-top:4px">Age 58</div>
+      </div>
+      <div class="glass glass-lift inner-card" style="text-align:center;padding:24px">
+        <div class="label">Insurance Saved You</div>
+        <div class="med-num green" style="font-size:28px;margin-top:4px">13 Years</div>
+      </div>
+      <div class="glass glass-lift inner-card" style="text-align:center;padding:24px">
+        <div class="label">Total Policy Payout</div>
+        <div class="med-num" style="font-size:28px;margin-top:4px">S$500K</div>
+      </div>
+    </div>
+
+    <!-- Hero narrative -->
+    <div class="glass section" style="padding:24px 28px">
+      <div style="font-size:15px;line-height:1.7;color:var(--text-primary)">
+        If you experience <strong class="gold">death</strong> at age <strong>28</strong>,
+        your savings run out at <strong class="red">age 45</strong> without insurance.
+        With your current policies, your family is covered to <strong class="green">age 58</strong>.
+      </div>
+      <div style="font-size:14px;color:var(--text-secondary);margin-top:10px">
+        Your insurance bought you <strong class="gold">13 extra years</strong> of financial security.
+        That protection costs <strong>S$284/month</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 3: RETIREMENT ═══════════ -->
+  <div class="tab-panel" id="tab-2">
+
+    <!-- Verdict -->
+    <div class="glass section" style="padding:28px 32px">
+      <div class="playfair" style="font-size:20px;font-weight:600;line-height:1.4">
+        You need <span class="gold">S$1.87M</span> by age 65.<br>
+        You're projected to reach <span style="color:var(--text-primary)">S$1.16M</span>.
+      </div>
+      <div style="margin-top:14px;font-size:15px">
+        <span class="amber" style="font-weight:600">62% funded</span>
+        <span class="dim" style="margin-left:8px;font-size:13px">Gap: S$710K</span>
+      </div>
+      <div class="progress-track" style="margin-top:14px">
+        <div class="progress-fill" style="width:62%"></div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass chart-panel section">
+      <div class="chart-title">Projected Portfolio vs Required</div>
+      <svg class="chart-svg" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ret-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--gold)" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="var(--gold)" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid -->
+        <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+          <line x1="50" y1="20" x2="50" y2="250"/><line x1="50" y1="250" x2="680" y2="250"/>
+          <line x1="50" y1="192" x2="680" y2="192" stroke-dasharray="4,4"/>
+          <line x1="50" y1="135" x2="680" y2="135" stroke-dasharray="4,4"/>
+          <line x1="50" y1="77" x2="680" y2="77" stroke-dasharray="4,4"/>
+          <line x1="50" y1="20" x2="680" y2="20" stroke-dasharray="4,4"/>
+        </g>
+        <!-- Y labels -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="end">
+          <text x="45" y="254">S$0</text>
+          <text x="45" y="196">S$500K</text>
+          <text x="45" y="139">S$1M</text>
+          <text x="45" y="81">S$1.5M</text>
+          <text x="45" y="24">S$2M</text>
+        </g>
+        <!-- X labels -->
+        <g fill="var(--text-muted)" font-size="10" font-family="DM Sans" text-anchor="middle">
+          <text x="50" y="270">28</text>
+          <text x="220" y="270">38</text>
+          <text x="390" y="270">48</text>
+          <text x="560" y="270">58</text>
+          <text x="680" y="270">65</text>
+        </g>
+        <!-- Required line -->
+        <line x1="50" y1="57" x2="680" y2="57" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.5"/>
+        <text x="684" y="61" fill="var(--danger)" font-size="9" font-family="DM Sans" opacity="0.6">S$1.87M</text>
+        <!-- Projected area -->
+        <path d="M50,235 Q150,230 220,210 Q320,180 390,145 Q480,105 560,80 Q630,65 680,107
+                 L680,250 L50,250 Z" fill="url(#ret-fill)"/>
+        <!-- Projected line -->
+        <path d="M50,235 Q150,230 220,210 Q320,180 390,145 Q480,105 560,80 Q630,65 680,107"
+              fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- End dot -->
+        <circle cx="680" cy="107" r="4" fill="var(--gold)"/>
+        <circle cx="680" cy="107" r="7" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/>
+        <!-- Gap label -->
+        <text x="660" y="85" fill="var(--warning)" font-size="10" font-family="DM Sans" text-anchor="end" opacity="0.8">Gap</text>
+        <line x1="680" y1="60" x2="680" y2="104" stroke="var(--warning)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+      </svg>
+    </div>
+
+    <!-- Income breakdown + slider side by side -->
+    <div class="row section">
+      <div class="glass" style="padding:24px;flex:1.2">
+        <div class="chart-title" style="margin-bottom:14px">Projected Retirement Income</div>
+        <div class="stat-row">
+          <span class="dim">CPF Life</span>
+          <span class="val purple">S$1,200/mo</span>
+        </div>
+        <div class="stat-row">
+          <span class="dim">Portfolio Dividends</span>
+          <span class="val gold">S$2,800/mo</span>
+        </div>
+        <div class="stat-row" style="border-bottom:none;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
+          <span style="font-weight:600">Total</span>
+          <span class="val gold" style="font-size:18px">S$4,000/mo</span>
+        </div>
+      </div>
+      <div class="glass" style="padding:24px;flex:1">
+        <div class="chart-title" style="margin-bottom:14px">Adjust Parameters</div>
+        <div class="slider-wrap">
+          <label>Retirement Age: <strong id="ret-age-val">65</strong></label>
+          <input type="range" min="55" max="75" value="65" oninput="document.getElementById('ret-age-val').textContent=this.value">
+        </div>
+        <div class="slider-wrap" style="margin-top:16px">
+          <label>Monthly Investment: <strong id="inv-val">S$1,500</strong></label>
+          <input type="range" min="500" max="5000" step="100" value="1500" oninput="document.getElementById('inv-val').textContent='S$'+Number(this.value).toLocaleString()">
+        </div>
+        <div class="slider-wrap" style="margin-top:16px">
+          <label>Expected Return: <strong id="ret-val">6%</strong></label>
+          <input type="range" min="2" max="12" step="0.5" value="6" oninput="document.getElementById('ret-val').textContent=this.value+'%'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(idx) {
+  document.querySelectorAll('.tab-pill').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+
+function selectPreset(el) {
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

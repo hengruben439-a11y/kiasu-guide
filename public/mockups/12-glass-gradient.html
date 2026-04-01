@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 12 — Glass Gradient</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a1a;
+    --glass: rgba(255,255,255,0.04);
+    --glass-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.14);
+    --gold: #c4a882;
+    --gold-dim: rgba(196,168,130,0.15);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --purple: #a78bfa;
+    --text: rgba(255,255,255,0.88);
+    --text-dim: rgba(255,255,255,0.48);
+    --text-muted: rgba(255,255,255,0.24);
+    --radius: 24px;
+    --radius-sm: 16px;
+    --radius-pill: 28px;
+    --blur: blur(40px) saturate(1.3);
+    --shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Abstract mesh gradient background ── */
+  .mesh-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(88,28,135,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(196,168,130,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(30,58,138,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 40% 10%, rgba(139,92,246,0.08) 0%, transparent 40%);
+  }
+
+  /* ── Glass panel base ── */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: all 0.3s cubic-bezier(0.25,0.1,0.25,1);
+  }
+  .glass:hover {
+    background: var(--glass-hover);
+    border-color: var(--border-hover);
+  }
+  .glass-lift:hover {
+    transform: translateY(-2px);
+    background: var(--glass-hover);
+    border-color: var(--border-hover);
+  }
+
+  /* ── Floating pill sidebar ── */
+  .sidebar {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    border-radius: var(--radius-pill);
+    padding: 28px 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sidebar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 2px;
+    padding-left: 6px;
+  }
+  .sidebar-sub {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-left: 6px;
+    margin-bottom: 18px;
+  }
+  .sidebar-phase {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-left: 6px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .sidebar-link:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+  .sidebar-link.active {
+    color: #fff;
+    font-weight: 600;
+  }
+  .sidebar-link .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+    flex-shrink: 0;
+  }
+  .sidebar-link.active .dot {
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(196,168,130,0.5);
+  }
+
+  /* ── Main content ── */
+  .main {
+    position: relative;
+    z-index: 1;
+    margin-left: 240px;
+    padding: 32px 40px;
+    max-width: 1200px;
+  }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 32px;
+  }
+  .tab-pill {
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+    background: var(--glass);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+  }
+  .tab-pill:hover {
+    color: var(--text);
+    background: var(--glass-hover);
+    border-color: var(--border);
+  }
+  .tab-pill.active {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+    border-color: var(--border-hover);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+
+  /* ── Tab pages ── */
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  /* ── Grid helpers ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+  /* ── Card variants ── */
+  .card { padding: 24px; }
+  .card-sm { padding: 18px 20px; }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .card-value.sm {
+    font-size: 22px;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ── Welcome banner ── */
+  .welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 32px;
+    margin-bottom: 16px;
+  }
+  .welcome-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .welcome-text p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ── Score ring ── */
+  .score-ring {
+    width: 72px;
+    height: 72px;
+    position: relative;
+  }
+  .score-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .score-ring .track {
+    fill: none;
+    stroke: rgba(255,255,255,0.06);
+    stroke-width: 5;
+  }
+  .score-ring .value {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 188;
+    stroke-dashoffset: 50;
+    filter: drop-shadow(0 0 6px rgba(196,168,130,0.35));
+  }
+  .score-ring .number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    transform: none;
+  }
+
+  /* ── Chart container ── */
+  .chart-container {
+    position: relative;
+    height: 220px;
+    padding: 20px 24px;
+  }
+  .chart-container svg { width: 100%; height: 100%; }
+
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    padding: 0 24px 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .chart-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ── Tool cards grid ── */
+  .tool-card {
+    padding: 22px;
+    cursor: pointer;
+  }
+  .tool-card .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  .tool-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .tool-card p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ── Scenario pills ── */
+  .scenario-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .scenario-pill {
+    padding: 8px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-dim);
+    transition: all 0.25s ease;
+  }
+  .scenario-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+  .scenario-pill.active {
+    background: rgba(196,168,130,0.12);
+    border-color: rgba(196,168,130,0.3);
+    color: var(--gold);
+  }
+
+  /* ── Stat row ── */
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .stat-card { padding: 20px; text-align: center; }
+  .stat-card .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ── Verdict banner ── */
+  .verdict {
+    padding: 28px 32px;
+    margin-bottom: 16px;
+  }
+  .verdict h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    line-height: 1.35;
+  }
+  .verdict p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── Progress bar ── */
+  .progress-track {
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--gold), #d4b896);
+    box-shadow: 0 0 12px rgba(196,168,130,0.3);
+  }
+
+  /* ── Breakdown card ── */
+  .breakdown { padding: 24px; }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .label { color: var(--text-dim); }
+  .breakdown-row .val { font-weight: 600; color: #fff; }
+
+  /* ── Slider ── */
+  .slider-group {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .slider-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .slider-row input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    outline: none;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(196,168,130,0.4);
+    cursor: pointer;
+  }
+  .slider-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* ── Section heading ── */
+  .section-head {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    margin-top: 24px;
+    padding-left: 2px;
+  }
+
+  /* ── Accent colours on icons ── */
+  .icon-gold { background: rgba(196,168,130,0.12); color: var(--gold); }
+  .icon-green { background: rgba(74,222,128,0.10); color: var(--success); }
+  .icon-purple { background: rgba(167,139,250,0.10); color: var(--purple); }
+  .icon-warning { background: rgba(251,191,36,0.10); color: var(--warning); }
+  .icon-danger { background: rgba(248,113,113,0.10); color: var(--danger); }
+  .icon-blue { background: rgba(96,165,250,0.10); color: #60a5fa; }
+</style>
+</head>
+<body>
+
+<div class="mesh-bg"></div>
+
+<!-- ── Floating Pill Sidebar ── -->
+<nav class="sidebar glass">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+  <div class="sidebar-sub">Financial Advisory</div>
+
+  <div class="sidebar-phase">Know Your Position</div>
+  <div class="sidebar-link active"><span class="dot"></span>Dashboard</div>
+  <div class="sidebar-link"><span class="dot"></span>Financial Profile</div>
+  <div class="sidebar-link"><span class="dot"></span>CPF Overview</div>
+
+  <div class="sidebar-phase">Find the Gaps</div>
+  <div class="sidebar-link"><span class="dot"></span>Insurance Benefits</div>
+  <div class="sidebar-link"><span class="dot"></span>Stress Test</div>
+
+  <div class="sidebar-phase">Plot the Path</div>
+  <div class="sidebar-link"><span class="dot"></span>Retirement</div>
+  <div class="sidebar-link"><span class="dot"></span>Cash Flow</div>
+
+  <div class="sidebar-phase">Optimise</div>
+  <div class="sidebar-link"><span class="dot"></span>Net Worth</div>
+</nav>
+
+<!-- ── Main Content ── -->
+<div class="main">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-pill active" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab-pill" onclick="switchTab('stress')">Stress Test</div>
+    <div class="tab-pill" onclick="switchTab('retirement')">Retirement</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 1 — DASHBOARD                          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-page active" id="tab-dashboard">
+
+    <!-- Welcome -->
+    <div class="welcome glass">
+      <div class="welcome-text">
+        <h1>Good evening, Wei Lin</h1>
+        <p>Your financial health overview as of 1 Apr 2026</p>
+      </div>
+      <div class="score-ring">
+        <svg viewBox="0 0 72 72">
+          <circle class="track" cx="36" cy="36" r="30" />
+          <circle class="value" cx="36" cy="36" r="30" />
+        </svg>
+        <div class="number">73</div>
+      </div>
+    </div>
+
+    <!-- 4 stat cards -->
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="glass card-sm glass-lift">
+        <div class="card-label">Net Worth</div>
+        <div class="card-value sm">S$412K</div>
+        <div class="card-sub" style="color:var(--success);">+3.2% this quarter</div>
+      </div>
+      <div class="glass card-sm glass-lift">
+        <div class="card-label">Monthly Surplus</div>
+        <div class="card-value sm">S$1,897</div>
+        <div class="card-sub">of S$8,400 income</div>
+      </div>
+      <div class="glass card-sm glass-lift">
+        <div class="card-label">Retirement</div>
+        <div class="card-value sm" style="color:var(--warning);">62%</div>
+        <div class="card-sub">on track to target</div>
+      </div>
+      <div class="glass card-sm glass-lift">
+        <div class="card-label">CPF Total</div>
+        <div class="card-value sm">S$185K</div>
+        <div class="card-sub">OA + SA + MA</div>
+      </div>
+    </div>
+
+    <!-- Projection chart -->
+    <div class="glass" style="margin-bottom:16px;">
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:var(--gold)"></span> Projected wealth</span>
+        <span><span class="legend-dot" style="background:var(--danger);opacity:0.7"></span> Required corpus</span>
+      </div>
+      <div class="chart-container">
+        <svg viewBox="0 0 800 200" preserveAspectRatio="none">
+          <!-- Grid lines -->
+          <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.03)" />
+
+          <!-- Gold fill gradient -->
+          <defs>
+            <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(196,168,130,0.25)" />
+              <stop offset="100%" stop-color="rgba(196,168,130,0)" />
+            </linearGradient>
+          </defs>
+
+          <!-- Projected area fill -->
+          <path d="M0,180 C100,170 200,150 300,125 C400,100 500,72 600,50 C680,35 750,25 800,18 L800,200 L0,200 Z"
+                fill="url(#goldFill)" />
+
+          <!-- Projected line -->
+          <path d="M0,180 C100,170 200,150 300,125 C400,100 500,72 600,50 C680,35 750,25 800,18"
+                fill="none" stroke="var(--gold)" stroke-width="2.5"
+                stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(196,168,130,0.4))" />
+
+          <!-- Required corpus line (dashed red) -->
+          <line x1="0" y1="80" x2="800" y2="80"
+                stroke="var(--danger)" stroke-width="1.5"
+                stroke-dasharray="8 6" opacity="0.6" />
+
+          <!-- Axis labels -->
+          <text x="4" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">2026</text>
+          <text x="195" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">2031</text>
+          <text x="395" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">2036</text>
+          <text x="595" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">2041</text>
+          <text x="760" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">2046</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Tool cards -->
+    <div class="section-head">Planning Tools</div>
+    <div class="grid-3">
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-danger">&#9889;</div>
+        <h3>Stress Test</h3>
+        <p>See how your finances hold under worst-case events</p>
+      </div>
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-gold">&#9733;</div>
+        <h3>Retirement Planner</h3>
+        <p>Project your path to financial independence</p>
+      </div>
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-green">&#128176;</div>
+        <h3>Cash Flow</h3>
+        <p>Track income vs expenses with smart benchmarks</p>
+      </div>
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-purple">&#128737;</div>
+        <h3>Insurance Benefits</h3>
+        <p>Review coverage and identify protection gaps</p>
+      </div>
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-blue">&#127968;</div>
+        <h3>CPF Planner</h3>
+        <p>Optimise OA, SA, MA allocations over time</p>
+      </div>
+      <div class="tool-card glass glass-lift">
+        <div class="icon icon-warning">&#128200;</div>
+        <h3>Net Worth</h3>
+        <p>Asset and liability snapshot with trends</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 2 — STRESS TEST                        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-page" id="tab-stress">
+
+    <!-- Verdict -->
+    <div class="verdict glass">
+      <h2>If you lose your income today, your savings run out at age 47 without insurance. With your policies, you're covered to age 58.</h2>
+      <p>Your insurance bought you 11 additional years of financial runway. That security costs S$287/month in premiums.</p>
+    </div>
+
+    <!-- Scenario pills -->
+    <div class="scenario-bar">
+      <div class="scenario-pill active">Job Loss</div>
+      <div class="scenario-pill">Critical Illness</div>
+      <div class="scenario-pill">Disability</div>
+      <div class="scenario-pill">Market Crash</div>
+    </div>
+
+    <!-- Dual-line chart -->
+    <div class="glass" style="margin-bottom:16px;">
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> Without insurance</span>
+        <span><span class="legend-dot" style="background:var(--gold)"></span> With insurance</span>
+        <span><span class="legend-dot" style="background:var(--success);opacity:0.4"></span> Coverage uplift</span>
+      </div>
+      <div class="chart-container">
+        <svg viewBox="0 0 800 200" preserveAspectRatio="none">
+          <!-- Grid -->
+          <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.03)" />
+
+          <!-- Uplift area (between the two lines) -->
+          <defs>
+            <linearGradient id="upliftFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(196,168,130,0.15)" />
+              <stop offset="100%" stop-color="rgba(196,168,130,0.02)" />
+            </linearGradient>
+          </defs>
+          <path d="M0,30 C100,32 200,38 300,55 C400,78 480,110 540,148 C580,168 600,185 620,195
+                   L620,195 C600,190 580,182 540,168 C480,142 400,108 300,80 C200,56 100,42 0,30 Z"
+                fill="url(#upliftFill)" />
+
+          <!-- Without insurance (grey dashed) -->
+          <path d="M0,30 C100,42 200,56 300,80 C400,108 480,142 540,168 C580,182 600,190 620,195"
+                fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"
+                stroke-dasharray="6 5" stroke-linecap="round" />
+
+          <!-- With insurance (gold solid) -->
+          <path d="M0,30 C100,32 200,38 300,55 C400,78 480,110 540,148 C580,168 600,185 620,195"
+                fill="none" stroke="var(--gold)" stroke-width="2.5"
+                stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(196,168,130,0.4))" />
+
+          <!-- Zero line -->
+          <line x1="0" y1="195" x2="800" y2="195" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+
+          <!-- Age labels -->
+          <text x="0" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans" dy="12">Age 33</text>
+          <text x="195" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans" dy="12">38</text>
+          <text x="395" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans" dy="12">43</text>
+          <text x="530" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans" dy="12">47</text>
+          <text x="615" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans" dy="12">58</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 3 result stat cards -->
+    <div class="stat-row">
+      <div class="stat-card glass glass-lift">
+        <div class="stat-num" style="color:var(--danger);">47</div>
+        <div class="stat-label">Savings depleted age (no cover)</div>
+      </div>
+      <div class="stat-card glass glass-lift">
+        <div class="stat-num" style="color:var(--gold);">58</div>
+        <div class="stat-label">Protected until age (with cover)</div>
+      </div>
+      <div class="stat-card glass glass-lift">
+        <div class="stat-num" style="color:var(--success);">+11 yrs</div>
+        <div class="stat-label">Insurance runway added</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 3 — RETIREMENT                         -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-page" id="tab-retirement">
+
+    <!-- Verdict with progress bar -->
+    <div class="verdict glass">
+      <h2>You need S$1,248,000 by age 62. You're projected to reach S$774,000. You're 62% of the way there.</h2>
+      <p>At your current savings rate of S$1,897/month, you'll close the gap if you extend your timeline by 4 years or increase contributions by S$420/month.</p>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:62%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text-dim);">
+        <span>S$774K projected</span>
+        <span>S$1.25M target</span>
+      </div>
+    </div>
+
+    <!-- Area chart -->
+    <div class="glass" style="margin-bottom:16px;">
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:var(--gold)"></span> Projected savings</span>
+        <span><span class="legend-dot" style="background:var(--danger);opacity:0.5"></span> Required corpus</span>
+        <span><span class="legend-dot" style="background:var(--purple);opacity:0.4"></span> CPF Life capitalised</span>
+      </div>
+      <div class="chart-container">
+        <svg viewBox="0 0 800 200" preserveAspectRatio="none">
+          <!-- Grid -->
+          <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.03)" />
+          <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.03)" />
+
+          <defs>
+            <linearGradient id="projFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(196,168,130,0.20)" />
+              <stop offset="100%" stop-color="rgba(196,168,130,0)" />
+            </linearGradient>
+            <linearGradient id="cpfFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(167,139,250,0.12)" />
+              <stop offset="100%" stop-color="rgba(167,139,250,0)" />
+            </linearGradient>
+          </defs>
+
+          <!-- CPF base layer -->
+          <path d="M0,185 C200,178 400,168 600,155 C700,148 780,142 800,140 L800,200 L0,200 Z"
+                fill="url(#cpfFill)" />
+          <path d="M0,185 C200,178 400,168 600,155 C700,148 780,142 800,140"
+                fill="none" stroke="var(--purple)" stroke-width="1.5" opacity="0.5" />
+
+          <!-- Projected savings area -->
+          <path d="M0,175 C100,168 200,152 300,130 C400,108 500,85 600,65 C700,48 780,38 800,35 L800,200 L0,200 Z"
+                fill="url(#projFill)" />
+          <path d="M0,175 C100,168 200,152 300,130 C400,108 500,85 600,65 C700,48 780,38 800,35"
+                fill="none" stroke="var(--gold)" stroke-width="2.5"
+                stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(196,168,130,0.4))" />
+
+          <!-- Required corpus line -->
+          <line x1="600" y1="30" x2="800" y2="30"
+                stroke="var(--danger)" stroke-width="1.5"
+                stroke-dasharray="8 6" opacity="0.5" />
+          <text x="610" y="24" fill="var(--danger)" font-size="9" font-family="DM Sans" opacity="0.6">S$1.25M required</text>
+
+          <!-- Gap arrow -->
+          <line x1="790" y1="30" x2="790" y2="35"
+                stroke="var(--warning)" stroke-width="1.5" opacity="0.6"
+                stroke-dasharray="3 2" />
+
+          <!-- Age labels -->
+          <text x="4" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">Age 33</text>
+          <text x="195" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">40</text>
+          <text x="395" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">47</text>
+          <text x="595" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">55</text>
+          <text x="760" y="196" fill="rgba(255,255,255,0.24)" font-size="10" font-family="DM Sans">62</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Bottom row: breakdown + slider -->
+    <div class="grid-2">
+
+      <!-- Income breakdown -->
+      <div class="breakdown glass">
+        <div class="card-label" style="margin-bottom:14px;">Retirement Income Breakdown</div>
+        <div class="breakdown-row">
+          <span class="label">CPF Life (est.)</span>
+          <span class="val">S$1,450/mo</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">Investment dividends</span>
+          <span class="val">S$1,820/mo</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">Rental income</span>
+          <span class="val">S$2,200/mo</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label" style="color:var(--text);">Total projected</span>
+          <span class="val" style="color:var(--gold);">S$5,470/mo</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">Desired lifestyle</span>
+          <span class="val" style="color:var(--warning);">S$6,500/mo</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">Monthly shortfall</span>
+          <span class="val" style="color:var(--danger);">-S$1,030/mo</span>
+        </div>
+      </div>
+
+      <!-- Retirement age slider -->
+      <div class="glass" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="slider-group">
+          <label>Retirement Age</label>
+          <div class="slider-row">
+            <input type="range" min="55" max="70" value="62" id="retAge"
+                   oninput="document.getElementById('retAgeVal').textContent=this.value" />
+            <span class="slider-val" id="retAgeVal">62</span>
+          </div>
+        </div>
+        <div class="slider-group" style="padding-top:0;">
+          <label>Monthly Investment</label>
+          <div class="slider-row">
+            <input type="range" min="500" max="5000" step="100" value="1900" id="retInvest"
+                   oninput="document.getElementById('retInvestVal').textContent='S$'+Number(this.value).toLocaleString()" />
+            <span class="slider-val" id="retInvestVal" style="min-width:60px;font-size:15px;">S$1,900</span>
+          </div>
+        </div>
+        <div class="slider-group" style="padding-top:0;">
+          <label>Expected Return</label>
+          <div class="slider-row">
+            <input type="range" min="2" max="10" step="0.5" value="5" id="retReturn"
+                   oninput="document.getElementById('retReturnVal').textContent=this.value+'%'" />
+            <span class="slider-val" id="retReturnVal" style="min-width:40px;font-size:15px;">5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-pill').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// Scenario pill switching
+document.querySelectorAll('.scenario-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.scenario-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass — Texture | The Kiasu Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #d4a574;
+  --gold-dim: rgba(212,165,116,0.15);
+  --gold-glow: rgba(212,165,116,0.25);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --purple: #a78bfa;
+  --text-primary: rgba(245,235,225,0.90);
+  --text-secondary: rgba(245,235,225,0.48);
+  --glass-bg: rgba(20,15,12,0.50);
+  --glass-bg-hover: rgba(20,15,12,0.60);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-hover: rgba(255,255,255,0.13);
+  --glass-radius: 24px;
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  --glass-blur: blur(40px) saturate(1.2);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #0d0b0f;
+  background-image:
+    radial-gradient(ellipse at 25% 25%, rgba(60,40,30,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 60%, rgba(40,30,50,0.20) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(80,50,30,0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 15% 70%, rgba(50,40,60,0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 30%, rgba(70,45,35,0.12) 0%, transparent 35%);
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* Floating pill sidebar */
+.sidebar {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: var(--glass-shadow);
+  padding: 28px 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  padding: 0 8px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
+}
+
+.sidebar-phase {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  padding: 10px 8px 4px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.04);
+}
+
+.sidebar-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.sidebar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Main content */
+.main {
+  margin-left: 240px;
+  padding: 32px 40px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 4px;
+  margin-bottom: 32px;
+  width: fit-content;
+}
+
+.tab {
+  padding: 10px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+.tab:hover { color: var(--text-primary); }
+
+.tab.active {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Glass panel */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
+}
+
+.glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+/* Tab content */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Dashboard */
+.dashboard-top { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+
+.welcome-card {
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.welcome-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.welcome-text p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Score ring */
+.score-ring-container { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+.score-ring-container svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+.score-ring-container .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+.score-ring-container .ring-fill { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 226; stroke-dashoffset: 45; transition: stroke-dashoffset 1s ease; }
+.score-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+.score-label span { font-size: 9px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
+
+/* Stat cards */
+.stats-card { padding: 24px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.stat-inner {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 18px;
+  transition: all 0.25s ease;
+}
+.stat-inner:hover { background: rgba(255,255,255,0.05); }
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-value.green { color: var(--success); }
+.stat-value.amber { color: var(--warning); }
+.stat-value.purple { color: var(--purple); }
+.stat-value.gold { color: var(--gold); }
+
+/* Chart panel */
+.chart-panel { padding: 28px; margin-bottom: 24px; }
+.chart-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.chart-panel-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.chart-panel-header .legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.chart-area {
+  width: 100%;
+  height: 200px;
+  position: relative;
+}
+
+/* Tool cards grid */
+.tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.tool-card {
+  padding: 24px;
+  cursor: pointer;
+}
+
+.tool-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.tool-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.tool-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+/* Stress Test */
+.scenario-pills { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+
+.scenario-pill {
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  transition: all 0.25s ease;
+}
+
+.scenario-pill:hover { color: var(--text-primary); border-color: var(--glass-border-hover); }
+
+.scenario-pill.active {
+  background: var(--gold-dim);
+  border-color: rgba(212,165,116,0.30);
+  color: var(--gold);
+}
+
+.stress-chart-panel { padding: 28px; margin-bottom: 24px; }
+
+.result-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.result-card { padding: 24px; text-align: center; }
+.result-card .result-icon { font-size: 28px; margin-bottom: 10px; }
+.result-card .result-value { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.result-card .result-label { font-size: 12px; color: var(--text-secondary); }
+
+/* Retirement */
+.verdict-panel { padding: 28px; margin-bottom: 24px; }
+.verdict-panel h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.verdict-text { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+.verdict-text strong { color: var(--text-primary); font-weight: 600; }
+
+.progress-bar-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--gold), #e8b888);
+  transition: width 1s ease;
+}
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+
+.retirement-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; }
+
+.retirement-chart-panel { padding: 28px; }
+.retirement-chart-panel h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.income-panel { padding: 28px; }
+.income-panel h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.income-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.income-row:last-child { border-bottom: none; }
+.income-row-label { font-size: 14px; color: var(--text-secondary); }
+.income-row-value { font-size: 16px; font-weight: 600; }
+.income-row-value.gold { color: var(--gold); }
+
+.income-total {
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.income-total-label { font-size: 14px; font-weight: 600; }
+.income-total-value { font-size: 22px; font-weight: 700; color: var(--gold); }
+
+/* Slider */
+.slider-container { margin-top: 20px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.slider-label { font-size: 13px; color: var(--text-secondary); }
+.slider-value { font-size: 15px; font-weight: 600; color: var(--gold); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 2px 8px rgba(212,165,116,0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+}
+@media (max-width: 768px) {
+  .dashboard-top { grid-template-columns: 1fr; }
+  .tools-grid { grid-template-columns: 1fr 1fr; }
+  .result-cards { grid-template-columns: 1fr; }
+  .retirement-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+  <div class="sidebar-phase">Phase 1 &mdash; Position</div>
+  <div class="sidebar-item active"><span class="sidebar-dot" style="background:var(--gold)"></span> Dashboard</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> Profile</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> CPF Overview</div>
+  <div class="sidebar-phase">Phase 2 &mdash; Gaps</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> Insurance</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> Stress Test</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> LTC Gap</div>
+  <div class="sidebar-phase">Phase 3 &mdash; Path</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> Retirement</div>
+  <div class="sidebar-item"><span class="sidebar-dot" style="background:rgba(255,255,255,0.15)"></span> Cash Flow</div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="switchTab('stress')">Stress Test</button>
+    <button class="tab" onclick="switchTab('retirement')">Retirement</button>
+  </div>
+
+  <!-- TAB 1: Dashboard -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="dashboard-top">
+      <!-- Welcome -->
+      <div class="glass welcome-card">
+        <div class="welcome-text">
+          <h1>Hi Noah, welcome back.</h1>
+          <p>Your financial health score is looking strong this month.</p>
+        </div>
+        <div class="score-ring-container">
+          <svg viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+            <circle class="ring-fill" cx="40" cy="40" r="36"/>
+          </svg>
+          <div class="score-label">80<span>SCORE</span></div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="glass stats-card">
+        <div class="stats-grid">
+          <div class="stat-inner">
+            <div class="stat-label">Net Worth</div>
+            <div class="stat-value gold">S$412K</div>
+          </div>
+          <div class="stat-inner">
+            <div class="stat-label">Monthly Surplus</div>
+            <div class="stat-value green">S$1,897</div>
+          </div>
+          <div class="stat-inner">
+            <div class="stat-label">Retirement</div>
+            <div class="stat-value amber">62%</div>
+          </div>
+          <div class="stat-inner">
+            <div class="stat-label">CPF Total</div>
+            <div class="stat-value purple">S$185K</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass chart-panel">
+      <div class="chart-panel-header">
+        <h3>Net Worth Projection</h3>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:var(--gold)"></span>Projected</span>
+          <span><span class="legend-dot" style="background:var(--danger)"></span>Required</span>
+        </div>
+      </div>
+      <div class="chart-area">
+        <svg width="100%" height="200" viewBox="0 0 700 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(212,165,116,0.30)"/>
+              <stop offset="100%" stop-color="rgba(212,165,116,0.02)"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="0" y1="50" x2="700" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="700" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="150" x2="700" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <!-- Fill -->
+          <path d="M0,160 C100,150 200,130 300,110 C400,85 500,55 600,35 L700,25 L700,200 L0,200 Z" fill="url(#goldGrad)"/>
+          <!-- Gold line -->
+          <path d="M0,160 C100,150 200,130 300,110 C400,85 500,55 600,35 L700,25" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Red dashed required line -->
+          <line x1="0" y1="80" x2="700" y2="80" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+          <!-- Dots -->
+          <circle cx="0" cy="160" r="4" fill="var(--gold)"/>
+          <circle cx="175" cy="140" r="4" fill="var(--gold)"/>
+          <circle cx="350" cy="110" r="4" fill="var(--gold)"/>
+          <circle cx="525" cy="65" r="4" fill="var(--gold)"/>
+          <circle cx="700" cy="25" r="4" fill="var(--gold)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Tools grid -->
+    <div class="tools-grid">
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:var(--gold-dim); color:var(--gold);">&#9888;</div>
+        <h4>Stress Test</h4>
+        <p>See how your finances hold up under different scenarios.</p>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:rgba(74,222,128,0.12); color:var(--success);">&#9728;</div>
+        <h4>Retirement</h4>
+        <p>Plan your path to financial freedom with the tri-solver.</p>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:rgba(167,139,250,0.12); color:var(--purple);">&#9830;</div>
+        <h4>CPF Planner</h4>
+        <p>Track OA, SA, MA balances and project future growth.</p>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:rgba(251,191,36,0.12); color:var(--warning);">&#9733;</div>
+        <h4>Insurance Vault</h4>
+        <p>Upload policies, scan with AI, find your coverage gaps.</p>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:rgba(248,113,113,0.12); color:var(--danger);">&#9829;</div>
+        <h4>LTC Gap</h4>
+        <p>Model long-term care costs against CareShield payouts.</p>
+      </div>
+      <div class="glass tool-card">
+        <div class="tool-icon" style="background:rgba(212,165,116,0.12); color:var(--gold);">&#9670;</div>
+        <h4>Cash Flow</h4>
+        <p>Visualise income vs expenses with smart category cards.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Stress Test -->
+  <div class="tab-content" id="tab-stress">
+    <div class="scenario-pills">
+      <button class="scenario-pill active">Job Loss</button>
+      <button class="scenario-pill">Critical Illness</button>
+      <button class="scenario-pill">Market Crash</button>
+      <button class="scenario-pill">Disability</button>
+    </div>
+
+    <div class="glass stress-chart-panel">
+      <div class="chart-panel-header">
+        <h3>Financial Runway</h3>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:rgba(255,255,255,0.25)"></span>Without Insurance</span>
+          <span><span class="legend-dot" style="background:var(--gold)"></span>With Insurance</span>
+        </div>
+      </div>
+      <div class="chart-area">
+        <svg width="100%" height="200" viewBox="0 0 700 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="upliftGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(212,165,116,0.20)"/>
+              <stop offset="100%" stop-color="rgba(212,165,116,0.02)"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid -->
+          <line x1="0" y1="50" x2="700" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="700" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="150" x2="700" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <!-- Grey dashed: without insurance -->
+          <path d="M0,30 C80,40 160,65 250,100 C340,135 420,165 500,185 L580,195 L660,198" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-dasharray="8,5"/>
+          <!-- Uplift fill between lines -->
+          <path d="M0,30 C80,35 160,45 250,60 C340,80 420,95 500,115 C560,130 620,145 700,155 L700,198 L660,198 L580,195 L500,185 C420,165 340,135 250,100 C160,65 80,40 0,30 Z" fill="url(#upliftGrad)"/>
+          <!-- Gold line: with insurance -->
+          <path d="M0,30 C80,35 160,45 250,60 C340,80 420,95 500,115 C560,130 620,145 700,155" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Data points -->
+          <circle cx="0" cy="30" r="4" fill="var(--gold)"/>
+          <circle cx="250" cy="60" r="4" fill="var(--gold)"/>
+          <circle cx="500" cy="115" r="4" fill="var(--gold)"/>
+          <circle cx="700" cy="155" r="4" fill="var(--gold)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="result-cards">
+      <div class="glass result-card">
+        <div class="result-icon">&#128176;</div>
+        <div class="result-value" style="color:var(--danger);">Age 47</div>
+        <div class="result-label">Savings depleted without insurance</div>
+      </div>
+      <div class="glass result-card">
+        <div class="result-icon">&#128737;</div>
+        <div class="result-value" style="color:var(--gold);">Age 62</div>
+        <div class="result-label">Savings depleted with insurance</div>
+      </div>
+      <div class="glass result-card">
+        <div class="result-icon">&#9889;</div>
+        <div class="result-value" style="color:var(--success);">+15 years</div>
+        <div class="result-label">Insurance bought you 15 years</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Retirement -->
+  <div class="tab-content" id="tab-retirement">
+    <!-- Verdict -->
+    <div class="glass verdict-panel">
+      <h3>Retirement Readiness</h3>
+      <p class="verdict-text">
+        You need <strong>S$1,247,000</strong> by age <strong>65</strong>.
+        You're projected to reach <strong>S$773,140</strong>.
+        You're <strong style="color:var(--warning);">62%</strong> of the way there.
+      </p>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width: 62%;"></div>
+      </div>
+      <div class="progress-label">
+        <span>S$0</span>
+        <span>S$773K projected</span>
+        <span>S$1.25M target</span>
+      </div>
+    </div>
+
+    <div class="retirement-grid">
+      <!-- Area chart -->
+      <div class="glass retirement-chart-panel">
+        <h3>Projected Growth</h3>
+        <div class="chart-area">
+          <svg width="100%" height="200" viewBox="0 0 500 200" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="retireGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(212,165,116,0.25)"/>
+                <stop offset="100%" stop-color="rgba(212,165,116,0.02)"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <!-- Target line -->
+            <line x1="0" y1="40" x2="500" y2="40" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+            <!-- Area -->
+            <path d="M0,180 C60,175 120,165 180,148 C240,128 300,105 360,80 C400,65 450,52 500,45 L500,200 L0,200 Z" fill="url(#retireGrad)"/>
+            <!-- Line -->
+            <path d="M0,180 C60,175 120,165 180,148 C240,128 300,105 360,80 C400,65 450,52 500,45" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="0" cy="180" r="3.5" fill="var(--gold)"/>
+            <circle cx="250" cy="118" r="3.5" fill="var(--gold)"/>
+            <circle cx="500" cy="45" r="3.5" fill="var(--gold)"/>
+          </svg>
+        </div>
+
+        <!-- Slider -->
+        <div class="slider-container">
+          <div class="slider-header">
+            <span class="slider-label">Retirement Age</span>
+            <span class="slider-value" id="retireAgeVal">65</span>
+          </div>
+          <input type="range" min="55" max="75" value="65" oninput="document.getElementById('retireAgeVal').textContent=this.value">
+        </div>
+      </div>
+
+      <!-- Income breakdown -->
+      <div class="glass income-panel">
+        <h3>Retirement Income</h3>
+        <div class="income-row">
+          <span class="income-row-label">CPF Life (Basic)</span>
+          <span class="income-row-value">S$870</span>
+        </div>
+        <div class="income-row">
+          <span class="income-row-label">CPF Life (Enhanced)</span>
+          <span class="income-row-value">S$1,420</span>
+        </div>
+        <div class="income-row">
+          <span class="income-row-label">Dividend Income</span>
+          <span class="income-row-value gold">S$1,650</span>
+        </div>
+        <div class="income-row">
+          <span class="income-row-label">SRS Drawdown</span>
+          <span class="income-row-value">S$480</span>
+        </div>
+        <div class="income-total">
+          <span class="income-total-label">Total Monthly</span>
+          <span class="income-total-value">S$4,420</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const labels = { dashboard: 'Dashboard', stress: 'Stress Test', retirement: 'Retirement' };
+  document.querySelectorAll('.tab').forEach(el => {
+    if (el.textContent === labels[tab]) el.classList.add('active');
+  });
+}
+
+// Scenario pill toggle
+document.querySelectorAll('.scenario-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.scenario-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Sidebar item toggle
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
