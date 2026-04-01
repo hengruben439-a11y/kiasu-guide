@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0c0c0c;
+    --card: #161616;
+    --card-hover: #1a1a1a;
+    --border: #222222;
+    --border-hover: #333333;
+    --accent: #3b82f6;
+    --text: #e5e5e5;
+    --text-dim: #888888;
+    --text-muted: #555555;
+    --success: #22c55e;
+    --warning: #eab308;
+    --danger: #ef4444;
+    --radius-card: 12px;
+    --radius-btn: 8px;
+    --radius-input: 6px;
+  }
+
+  html { font-size: 14px; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* LAYOUT */
+  .app { display: flex; height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+    background: var(--bg);
+    border-right: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 0 16px;
+    margin-bottom: 28px;
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 16px;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-phase:first-of-type { margin-top: 0; }
+
+  .sidebar-item {
+    display: block;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 5px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .sidebar-item:hover { color: var(--text); }
+
+  .sidebar-item.active {
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-email {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .sidebar-logout {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .sidebar-logout:hover { color: var(--text); }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding-bottom: 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+  }
+
+  .tab:hover { color: var(--text-dim); }
+
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  /* TAB CONTENT */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* HEADER */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .page-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page-updated {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .btn-text:hover { opacity: 0.8; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .card:hover { border-color: var(--border-hover); }
+
+  /* STATS STRIP */
+  .stats-strip {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .stat-item {
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-right: 1px solid var(--border);
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .text-success { color: var(--success); }
+  .text-warning { color: var(--warning); }
+  .text-danger { color: var(--danger); }
+  .text-accent { color: var(--accent); }
+  .text-dim { color: var(--text-dim); }
+  .text-muted { color: var(--text-muted); }
+
+  /* TWO-COLUMN */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-2-equal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* CHART CARD */
+  .chart-card { padding: 20px; }
+
+  .chart-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .chart-area {
+    width: 100%;
+    height: 200px;
+  }
+
+  /* TABLE */
+  .compact-table { width: 100%; border-collapse: collapse; }
+
+  .compact-table th {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compact-table td {
+    font-size: 11px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .compact-table tr:last-child td { border-bottom: none; }
+
+  .compact-table .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .dot-success { background: var(--success); }
+  .dot-warning { background: var(--warning); }
+  .dot-danger { background: var(--danger); }
+
+  .table-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px 0;
+  }
+
+  /* ALERTS */
+  .alert-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .alert-row:last-child { border-bottom: none; }
+
+  .alert-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px 4px;
+  }
+
+  /* TOOL DIRECTORY */
+  .tool-directory { margin-top: 4px; }
+
+  .tool-dir-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .tool-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .tool-row:last-child { border-bottom: none; }
+
+  .tool-name { color: var(--text-dim); }
+  .tool-status { font-size: 11px; }
+
+  /* STRESS TEST */
+  .scenario-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .scenario-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 0 16px 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+  }
+
+  .scenario-btn:hover { color: var(--text-dim); }
+
+  .scenario-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .config-card { padding: 20px; margin-bottom: 16px; }
+
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .config-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .config-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .config-input {
+    background: var(--bg);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-input);
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .config-input:focus { border-color: var(--accent); }
+
+  .insurance-list { margin-bottom: 16px; }
+
+  .insurance-list-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .ins-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .ins-row:last-child { border-bottom: none; }
+
+  .ins-info { display: flex; align-items: center; gap: 8px; }
+
+  .ins-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Toggle */
+  .toggle {
+    position: relative;
+    width: 28px;
+    height: 14px;
+    background: var(--border-hover);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle.on { background: var(--accent); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--text);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .toggle.on::after { transform: translateX(14px); }
+
+  /* RESULTS ROW */
+  .results-strip {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .result-item {
+    flex: 1;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-right: 1px solid var(--border);
+  }
+
+  .result-item:last-child { border-right: none; }
+
+  .result-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* RETIREMENT */
+  .retirement-layout {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .controls-card { padding: 20px; }
+
+  .controls-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .slider-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .slider-label { color: var(--text-dim); }
+
+  .slider-value {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border-hover);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* INCOME BREAKDOWN */
+  .income-card { padding: 20px; }
+
+  .bar-stack-container { margin-bottom: 12px; }
+
+  .bar-stack-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .bar-stack {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--border);
+  }
+
+  .bar-segment { height: 100%; }
+
+  .bar-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 2px;
+  }
+
+  .income-total {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* VERDICT LINE */
+  .verdict {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 0;
+    line-height: 1.8;
+  }
+
+  .verdict span { font-weight: 500; }
+
+  /* SVG styles */
+  .grid-line { stroke: #1a1a1a; stroke-width: 1; }
+  .axis-text { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #555; }
+  .line-projected { stroke: var(--success); stroke-width: 1.5; fill: none; }
+  .line-required { stroke: var(--danger); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  .line-without { stroke: #555; stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+  .line-with { stroke: var(--success); stroke-width: 1.5; fill: none; }
+  .event-line { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">TKG</div>
+
+    <div class="sidebar-phase">Know</div>
+    <a class="sidebar-item active">Profile</a>
+    <a class="sidebar-item">BMI</a>
+    <a class="sidebar-item">CPF Overview</a>
+
+    <div class="sidebar-phase">Find</div>
+    <a class="sidebar-item">Insurance</a>
+    <a class="sidebar-item">LTC Gap</a>
+    <a class="sidebar-item">Stress Test</a>
+
+    <div class="sidebar-phase">Plot</div>
+    <a class="sidebar-item">Retirement</a>
+    <a class="sidebar-item">Cost of Waiting</a>
+    <a class="sidebar-item">CPF Planner</a>
+
+    <div class="sidebar-phase">Optimize</div>
+    <a class="sidebar-item">Cash Flow</a>
+    <a class="sidebar-item">Net Worth</a>
+
+    <div class="sidebar-phase">Review</div>
+    <a class="sidebar-item">Summary</a>
+
+    <div class="sidebar-bottom">
+      <span class="sidebar-email">noah@thekiasuguide.com</span>
+      <a class="sidebar-logout">Log out</a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="stress">Stress Test</button>
+      <button class="tab" data-tab="retirement">Retirement</button>
+    </div>
+
+    <!-- ======= TAB 1: DASHBOARD ======= -->
+    <div class="tab-content active" id="tab-dashboard">
+
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="page-meta">
+          <span class="page-updated">Updated 2 min ago</span>
+          <button class="btn-text">New session</button>
+        </div>
+      </div>
+
+      <!-- STATS STRIP -->
+      <div class="card stats-strip">
+        <div class="stat-item">
+          <span class="stat-label">Net Worth</span>
+          <span class="stat-value mono text-success">S$412,000</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Monthly Surplus</span>
+          <span class="stat-value mono text-success">S$1,897</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Retirement</span>
+          <span class="stat-value mono text-warning">62%</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">CPF Total</span>
+          <span class="stat-value mono">S$185,400</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Protection</span>
+          <span class="stat-value mono text-warning">68</span>
+        </div>
+      </div>
+
+      <!-- TWO COLUMNS -->
+      <div class="grid-2">
+
+        <!-- LEFT: CHART -->
+        <div class="card chart-card">
+          <div class="chart-label">Portfolio Projection</div>
+          <svg class="chart-area" viewBox="0 0 500 200" preserveAspectRatio="none">
+            <!-- Grid lines -->
+            <line x1="40" y1="20" x2="490" y2="20" class="grid-line"/>
+            <line x1="40" y1="56" x2="490" y2="56" class="grid-line"/>
+            <line x1="40" y1="92" x2="490" y2="92" class="grid-line"/>
+            <line x1="40" y1="128" x2="490" y2="128" class="grid-line"/>
+            <line x1="40" y1="164" x2="490" y2="164" class="grid-line"/>
+
+            <!-- Y-axis labels -->
+            <text x="36" y="24" class="axis-text" text-anchor="end">2.0M</text>
+            <text x="36" y="60" class="axis-text" text-anchor="end">1.5M</text>
+            <text x="36" y="96" class="axis-text" text-anchor="end">1.0M</text>
+            <text x="36" y="132" class="axis-text" text-anchor="end">0.5M</text>
+            <text x="36" y="168" class="axis-text" text-anchor="end">0</text>
+
+            <!-- X-axis labels -->
+            <text x="40" y="185" class="axis-text">2026</text>
+            <text x="152" y="185" class="axis-text">2031</text>
+            <text x="265" y="185" class="axis-text">2036</text>
+            <text x="377" y="185" class="axis-text">2041</text>
+            <text x="475" y="185" class="axis-text">2046</text>
+
+            <!-- Required line (red dashed) -->
+            <polyline class="line-required" points="40,164 152,138 265,110 377,72 490,20"/>
+
+            <!-- Projected line (green) -->
+            <polyline class="line-projected" points="40,164 152,148 265,126 377,96 490,56"/>
+          </svg>
+        </div>
+
+        <!-- RIGHT: STACKED CARDS -->
+        <div class="stack">
+
+          <!-- COVERAGE TABLE -->
+          <div class="card">
+            <div class="table-title">Coverage</div>
+            <table class="compact-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Current</th>
+                  <th>Target</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Death</td>
+                  <td class="num">S$500K</td>
+                  <td class="num">S$960K</td>
+                  <td><span class="status-dot dot-success"></span><span class="num">52%</span></td>
+                </tr>
+                <tr>
+                  <td>TPD</td>
+                  <td class="num">S$500K</td>
+                  <td class="num">S$960K</td>
+                  <td><span class="status-dot dot-success"></span><span class="num">52%</span></td>
+                </tr>
+                <tr>
+                  <td>ECI</td>
+                  <td class="num">S$150K</td>
+                  <td class="num">S$480K</td>
+                  <td><span class="status-dot dot-warning"></span><span class="num">31%</span></td>
+                </tr>
+                <tr>
+                  <td>ACI</td>
+                  <td class="num">S$0</td>
+                  <td class="num">S$480K</td>
+                  <td><span class="status-dot dot-danger"></span><span class="num">0%</span></td>
+                </tr>
+                <tr>
+                  <td>Hosp</td>
+                  <td class="num">&mdash;</td>
+                  <td class="num">Required</td>
+                  <td><span class="status-dot dot-danger"></span><span class="num">Gap</span></td>
+                </tr>
+                <tr>
+                  <td>PA</td>
+                  <td class="num">S$100K</td>
+                  <td class="num">Any</td>
+                  <td><span class="status-dot dot-success"></span><span class="num">Met</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ALERTS -->
+          <div class="card">
+            <div class="alert-title">Alerts</div>
+            <div class="alert-row">
+              <span class="status-dot dot-danger"></span>
+              No hospitalisation plan detected
+            </div>
+            <div class="alert-row">
+              <span class="status-dot dot-warning"></span>
+              ECI coverage at 31% of recommended
+            </div>
+            <div class="alert-row">
+              <span class="status-dot dot-success"></span>
+              Emergency fund covers 4.2 months
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TOOL DIRECTORY -->
+      <div class="tool-directory">
+        <div class="tool-dir-title">Tools</div>
+        <div class="tool-row">
+          <span class="tool-name">Financial Stress Test</span>
+          <span class="tool-status text-success" style="font-size:11px;">Last run 3d ago</span>
+        </div>
+        <div class="tool-row">
+          <span class="tool-name">Retirement Planning</span>
+          <span class="tool-status text-warning" style="font-size:11px;">62% funded</span>
+        </div>
+        <div class="tool-row">
+          <span class="tool-name">Insurance Benefits</span>
+          <span class="tool-status text-danger" style="font-size:11px;">3 gaps found</span>
+        </div>
+        <div class="tool-row">
+          <span class="tool-name">CPF Planner</span>
+          <span class="tool-status text-dim" style="font-size:11px;">Not started</span>
+        </div>
+        <div class="tool-row">
+          <span class="tool-name">Cash Flow</span>
+          <span class="tool-status text-success" style="font-size:11px;">Healthy surplus</span>
+        </div>
+        <div class="tool-row">
+          <span class="tool-name">LTC Gap Calculator</span>
+          <span class="tool-status text-dim" style="font-size:11px;">Not started</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======= TAB 2: STRESS TEST ======= -->
+    <div class="tab-content" id="tab-stress">
+
+      <div class="page-header">
+        <h1 class="page-title">Stress Test</h1>
+        <div class="page-meta">
+          <span class="page-updated">Client: Wei Ling, 38</span>
+        </div>
+      </div>
+
+      <!-- SCENARIO BAR -->
+      <div class="scenario-bar">
+        <button class="scenario-btn active">Death</button>
+        <button class="scenario-btn">TPD</button>
+        <button class="scenario-btn">ECI</button>
+        <button class="scenario-btn">ACI</button>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="card config-card">
+        <div class="config-grid">
+          <div class="config-field">
+            <label class="config-label">Age at event</label>
+            <input class="config-input" type="text" value="38">
+          </div>
+          <div class="config-field">
+            <label class="config-label">Duration</label>
+            <input class="config-input" type="text" value="3 years">
+          </div>
+          <div class="config-field">
+            <label class="config-label">Income loss</label>
+            <input class="config-input" type="text" value="100%">
+          </div>
+          <div class="config-field">
+            <label class="config-label">Recovery rate</label>
+            <input class="config-input" type="text" value="80%">
+          </div>
+        </div>
+      </div>
+
+      <!-- INSURANCE APPLIED -->
+      <div class="insurance-list">
+        <div class="insurance-list-title">Insurance Applied</div>
+        <div class="ins-row">
+          <div class="ins-info">
+            <span>AIA ECI Shield</span>
+            <span class="ins-amount">S$200K</span>
+          </div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="ins-row">
+          <div class="ins-info">
+            <span>NTUC Monthly Payout</span>
+            <span class="ins-amount">S$2K/mo</span>
+          </div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="ins-row">
+          <div class="ins-info">
+            <span>Prudential Term Life</span>
+            <span class="ins-amount">S$300K</span>
+          </div>
+          <div class="toggle"></div>
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="card chart-card" style="margin-bottom: 16px;">
+        <div class="chart-label">Savings Trajectory</div>
+        <svg class="chart-area" viewBox="0 0 500 220" preserveAspectRatio="none">
+          <!-- Grid -->
+          <line x1="40" y1="20" x2="490" y2="20" class="grid-line"/>
+          <line x1="40" y1="60" x2="490" y2="60" class="grid-line"/>
+          <line x1="40" y1="100" x2="490" y2="100" class="grid-line"/>
+          <line x1="40" y1="140" x2="490" y2="140" class="grid-line"/>
+          <line x1="40" y1="180" x2="490" y2="180" class="grid-line"/>
+
+          <!-- Y-axis -->
+          <text x="36" y="24" class="axis-text" text-anchor="end">600K</text>
+          <text x="36" y="64" class="axis-text" text-anchor="end">400K</text>
+          <text x="36" y="104" class="axis-text" text-anchor="end">200K</text>
+          <text x="36" y="144" class="axis-text" text-anchor="end">0</text>
+          <text x="36" y="184" class="axis-text" text-anchor="end">-200K</text>
+
+          <!-- X-axis (ages) -->
+          <text x="40" y="200" class="axis-text">38</text>
+          <text x="130" y="200" class="axis-text">43</text>
+          <text x="220" y="200" class="axis-text">48</text>
+          <text x="310" y="200" class="axis-text">53</text>
+          <text x="400" y="200" class="axis-text">58</text>
+          <text x="475" y="200" class="axis-text">63</text>
+
+          <!-- Event marker -->
+          <line x1="40" y1="16" x2="40" y2="185" class="event-line"/>
+          <text x="44" y="14" class="axis-text" fill="#3b82f6">Event</text>
+
+          <!-- Without insurance (grey dashed) -->
+          <polyline class="line-without" points="40,60 130,88 220,120 280,140 310,148"/>
+
+          <!-- With insurance (green solid) -->
+          <polyline class="line-with" points="40,60 130,54 220,68 310,92 400,120 470,140"/>
+        </svg>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="card results-strip">
+        <div class="result-item">
+          <span class="result-label">Depleted at</span>
+          <span class="result-value mono text-danger">52</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">With Insurance</span>
+          <span class="result-value mono text-success">63</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Gain</span>
+          <span class="result-value mono text-accent">+11 yrs</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Total Payout</span>
+          <span class="result-value mono">S$200,000</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======= TAB 3: RETIREMENT ======= -->
+    <div class="tab-content" id="tab-retirement">
+
+      <div class="page-header">
+        <h1 class="page-title">Retirement</h1>
+        <div class="page-meta">
+          <span class="page-updated">Client: Wei Ling, 38</span>
+        </div>
+      </div>
+
+      <div class="retirement-layout">
+
+        <!-- LEFT: CHART -->
+        <div class="card chart-card">
+          <div class="chart-label">Corpus Projection</div>
+          <svg class="chart-area" viewBox="0 0 460 200" preserveAspectRatio="none">
+            <!-- Grid -->
+            <line x1="40" y1="20" x2="450" y2="20" class="grid-line"/>
+            <line x1="40" y1="56" x2="450" y2="56" class="grid-line"/>
+            <line x1="40" y1="92" x2="450" y2="92" class="grid-line"/>
+            <line x1="40" y1="128" x2="450" y2="128" class="grid-line"/>
+            <line x1="40" y1="164" x2="450" y2="164" class="grid-line"/>
+
+            <!-- Y-axis -->
+            <text x="36" y="24" class="axis-text" text-anchor="end">2.0M</text>
+            <text x="36" y="60" class="axis-text" text-anchor="end">1.5M</text>
+            <text x="36" y="96" class="axis-text" text-anchor="end">1.0M</text>
+            <text x="36" y="132" class="axis-text" text-anchor="end">0.5M</text>
+            <text x="36" y="168" class="axis-text" text-anchor="end">0</text>
+
+            <!-- X-axis -->
+            <text x="40" y="185" class="axis-text">38</text>
+            <text x="143" y="185" class="axis-text">45</text>
+            <text x="245" y="185" class="axis-text">52</text>
+            <text x="348" y="185" class="axis-text">59</text>
+            <text x="435" y="185" class="axis-text">65</text>
+
+            <!-- Required (red dashed) -->
+            <polyline class="line-required" points="40,164 143,142 245,110 348,68 450,20"/>
+
+            <!-- Projected (green) -->
+            <polyline class="line-projected" points="40,164 143,150 245,130 348,100 450,56"/>
+          </svg>
+        </div>
+
+        <!-- RIGHT: CONTROLS -->
+        <div class="card controls-card">
+          <div class="controls-title">Controls</div>
+          <div class="slider-group">
+            <div class="slider-field">
+              <div class="slider-header">
+                <span class="slider-label">Retirement Age</span>
+                <span class="slider-value">65</span>
+              </div>
+              <input type="range" min="55" max="75" value="65">
+            </div>
+            <div class="slider-field">
+              <div class="slider-header">
+                <span class="slider-label">Monthly Investment</span>
+                <span class="slider-value">S$1,000</span>
+              </div>
+              <input type="range" min="0" max="5000" value="1000">
+            </div>
+            <div class="slider-field">
+              <div class="slider-header">
+                <span class="slider-label">Expected Return</span>
+                <span class="slider-value">6.0%</span>
+              </div>
+              <input type="range" min="0" max="12" value="6">
+            </div>
+            <div class="slider-field">
+              <div class="slider-header">
+                <span class="slider-label">Dividend Yield</span>
+                <span class="slider-value">4.0%</span>
+              </div>
+              <input type="range" min="0" max="8" value="4">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INCOME BREAKDOWN -->
+      <div class="card income-card" style="margin-bottom: 16px;">
+        <div class="bar-stack-label">Monthly Income at Retirement</div>
+        <div class="bar-stack">
+          <div class="bar-segment" style="width:40%; background: var(--success);"></div>
+          <div class="bar-segment" style="width:35%; background: var(--accent);"></div>
+          <div class="bar-segment" style="width:25%; background: #8b5cf6;"></div>
+        </div>
+        <div class="bar-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--success);"></span>
+            CPF Life
+            <span class="legend-value">S$1,800</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--accent);"></span>
+            Dividends
+            <span class="legend-value">S$1,575</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #8b5cf6;"></span>
+            Passive
+            <span class="legend-value">S$1,125</span>
+          </div>
+        </div>
+        <div class="income-total">Total: S$4,500/mo</div>
+      </div>
+
+      <!-- VERDICT -->
+      <div class="verdict">
+        Projected: <span class="text-success">S$1.16M</span> &middot;
+        Required: <span class="text-danger">S$1.87M</span> &middot;
+        Funded: <span class="text-warning">62%</span> &middot;
+        Gap: <span class="text-danger">S$710K</span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Toggle switches
+  document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => toggle.classList.toggle('on'));
+  });
+
+  // Sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // Scenario buttons
+  document.querySelectorAll('.scenario-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
