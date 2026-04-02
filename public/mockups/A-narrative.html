@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Narrative Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #12100e;
+  --chapter-alt: rgba(196,168,130,0.03);
+  --text: #f0ebe4;
+  --text-dim: rgba(240,235,228,0.50);
+  --text-muted: rgba(240,235,228,0.25);
+  --gold: #c4a882;
+  --burgundy: #9b2040;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --purple: #a78bfa;
+  --card-bg: rgba(240,235,228,0.04);
+  --card-border: rgba(196,168,130,0.08);
+  --card-radius: 16px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── STICKY TOP BAR ─── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(18,16,14,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(196,168,130,0.08);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.topbar-brand {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.topbar-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.topbar-tab {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.topbar-tab:hover {
+  color: var(--text);
+  background: rgba(240,235,228,0.05);
+}
+
+.topbar-tab.active {
+  color: var(--gold);
+  background: rgba(196,168,130,0.1);
+}
+
+.phase-dots {
+  display: flex;
+  gap: 6px;
+  margin-left: 16px;
+}
+
+.phase-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.phase-dot.completed { background: var(--gold); }
+.phase-dot.current { background: transparent; border: 1.5px solid var(--gold); box-shadow: 0 0 6px rgba(196,168,130,0.3); }
+.phase-dot.future { background: rgba(196,168,130,0.15); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(196,168,130,0.15);
+  border: 1px solid rgba(196,168,130,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 80px 24px 120px;
+}
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ─── CHAPTERS ─── */
+.chapter {
+  margin-bottom: 64px;
+}
+
+.chapter-alt {
+  background: var(--chapter-alt);
+  margin-left: -24px;
+  margin-right: -24px;
+  padding: 48px 24px;
+  border-radius: 2px;
+}
+
+.chapter-heading {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+
+.chapter-heading-small {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ─── VERDICT ─── */
+.verdict-text {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.65;
+  margin-bottom: 40px;
+  max-width: 720px;
+}
+
+.verdict-text strong {
+  color: var(--gold);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.health-score-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.health-score-number {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.health-score-meta {
+  padding-bottom: 10px;
+}
+
+.health-score-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.health-bar-track {
+  width: 200px;
+  height: 4px;
+  background: rgba(240,235,228,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #d4b896);
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+/* ─── TWO-COLUMN ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+}
+
+.networth-amount {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.networth-change {
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Stacked bar */
+.stacked-bar-container { margin-bottom: 12px; }
+
+.stacked-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.stacked-bar-seg {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.6s ease;
+}
+
+.stacked-bar-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.bar-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.bar-label-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Mini stats */
+.mini-stats { display: flex; flex-direction: column; gap: 20px; }
+
+.mini-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-stat-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.mini-stat-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-dot.green { background: var(--success); }
+.status-dot.amber { background: var(--warning); }
+.status-dot.red { background: var(--danger); }
+
+/* ─── GAP CARDS ─── */
+.gap-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .gap-cards { grid-template-columns: 1fr; }
+}
+
+.gap-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gap-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.gap-card.red::before { background: var(--danger); }
+.gap-card.amber::before { background: var(--warning); }
+
+.gap-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.gap-card-amount {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.gap-card-pct {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.gap-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(240,235,228,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gap-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.gap-progress-fill.red { background: var(--danger); }
+.gap-progress-fill.amber { background: var(--warning); }
+
+/* ─── ACTION ITEMS ─── */
+.actions-list { display: flex; flex-direction: column; gap: 28px; }
+
+.action-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.action-num {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 1px;
+}
+
+.action-content { flex: 1; }
+
+.action-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.action-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.action-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.action-link:hover { color: #d4b896; }
+
+/* ─── STRESS TEST VIEW ─── */
+.narrative-opening {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.55;
+  margin-bottom: 40px;
+}
+
+.scenario-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 640px) {
+  .scenario-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+.scenario-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scenario-card:hover {
+  border-color: rgba(196,168,130,0.2);
+  background: rgba(240,235,228,0.06);
+}
+
+.scenario-card.active {
+  border-color: var(--gold);
+  background: rgba(196,168,130,0.08);
+}
+
+.scenario-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.scenario-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.scenario-card.active .scenario-label { color: var(--gold); }
+
+.story-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: 32px;
+  margin-bottom: 40px;
+}
+
+.story-panel p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+.story-panel strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.story-panel .highlight-danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.story-panel .highlight-success {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* Chart container */
+.chart-container {
+  width: 100%;
+  margin-bottom: 32px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chart-container svg { display: block; }
+
+.takeaway {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.6;
+  padding-left: 20px;
+  border-left: 2px solid var(--gold);
+}
+
+/* ─── RETIREMENT VIEW ─── */
+.retirement-split {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 640px) {
+  .retirement-split { grid-template-columns: 1fr; }
+}
+
+.ret-key-numbers { display: flex; flex-direction: column; gap: 20px; }
+
+.ret-number-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.ret-number-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.ret-number-value.large {
+  font-size: 32px;
+  color: var(--text);
+}
+
+.ret-number-value.amber {
+  font-size: 32px;
+  color: var(--warning);
+}
+
+.ret-number-value.red {
+  font-size: 24px;
+  color: var(--danger);
+}
+
+.ret-funded-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ret-funded-pct {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.ret-funded-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(240,235,228,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ret-funded-fill {
+  height: 100%;
+  background: var(--warning);
+  border-radius: 3px;
+}
+
+/* Income rows */
+.income-rows { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+.income-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.income-row-label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.income-row-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.income-total {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.income-total-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+/* Sliders */
+.slider-group { margin-top: 40px; display: flex; flex-direction: column; gap: 24px; }
+
+.slider-row { display: flex; flex-direction: column; gap: 8px; }
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.slider-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(240,235,228,0.08);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--gold);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(196,168,130,0.3);
+}
+
+/* ─── INSURANCE VIEW ─── */
+.coverage-narrative {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.coverage-line {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  position: relative;
+  padding-left: 24px;
+}
+
+.coverage-line .verdict-good {
+  color: var(--success);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.coverage-line .verdict-bad {
+  color: var(--danger);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.coverage-line .verdict-ok {
+  color: var(--warning);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.policy-list { display: flex; flex-direction: column; gap: 8px; }
+
+.policy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.policy-row-left { display: flex; flex-direction: column; gap: 2px; }
+
+.policy-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.policy-insurer {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.policy-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.policy-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(240,235,228,0.05);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.policy-row-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(196,168,130,0.15);
+  margin: 48px 0;
+}
+
+/* ─── SCROLL ANIMATIONS ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle link style */
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- STICKY TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand">The Kiasu Guide</div>
+  <div class="topbar-center">
+    <div class="topbar-tabs">
+      <button class="topbar-tab active" data-view="story">Your Story</button>
+      <button class="topbar-tab" data-view="stress">Stress Test</button>
+      <button class="topbar-tab" data-view="retirement">Retirement</button>
+      <button class="topbar-tab" data-view="insurance">Insurance</button>
+    </div>
+    <div class="phase-dots">
+      <div class="phase-dot completed"></div>
+      <div class="phase-dot completed"></div>
+      <div class="phase-dot current"></div>
+      <div class="phase-dot future"></div>
+      <div class="phase-dot future"></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="avatar">N</div>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- VIEW 1: YOUR STORY -->
+<div class="view active" id="view-story">
+
+  <!-- Chapter 1: The Verdict -->
+  <div class="chapter fade-in">
+    <p class="verdict-text">
+      Noah, your client is building momentum. Their savings discipline is strong &mdash; <strong>S$1,897 surplus every month</strong>, consistently. But there&rsquo;s a blind spot: critical illness coverage is dangerously low at <strong>S$150K</strong>, and retirement is only <strong>62% funded</strong>. Today&rsquo;s session should focus on closing the CI gap and mapping the path to S$1.87M.
+    </p>
+
+    <div class="health-score-row">
+      <div class="health-score-number">74</div>
+      <div class="health-score-meta">
+        <div class="health-score-label">Financial Health Score</div>
+        <div class="health-bar-track">
+          <div class="health-bar-fill" style="width: 74%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Chapter 2: Where They Stand -->
+  <div class="chapter fade-in">
+    <div class="chapter-heading">Where They Stand</div>
+    <div class="two-col">
+      <div>
+        <div class="chapter-heading-small">Net Worth</div>
+        <div class="networth-amount">S$412,000</div>
+        <div class="networth-change">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L9 6H1L5 1Z" fill="#10b981"/></svg>
+          S$18K this quarter
+        </div>
+
+        <div class="stacked-bar-container">
+          <div class="stacked-bar">
+            <div class="stacked-bar-seg" style="width:22%; background:var(--gold);"></div>
+            <div class="stacked-bar-seg" style="width:18%; background:var(--purple);"></div>
+            <div class="stacked-bar-seg" style="width:38%; background:rgba(196,168,130,0.3);"></div>
+            <div class="stacked-bar-seg" style="width:22%; background:#8b5cf6;"></div>
+          </div>
+          <div class="stacked-bar-labels">
+            <div class="bar-label"><span class="bar-label-dot" style="background:var(--gold)"></span>Liquid S$91K</div>
+            <div class="bar-label"><span class="bar-label-dot" style="background:var(--purple)"></span>Portfolio S$74K</div>
+            <div class="bar-label"><span class="bar-label-dot" style="background:rgba(196,168,130,0.3)"></span>Property S$156K</div>
+            <div class="bar-label"><span class="bar-label-dot" style="background:#8b5cf6"></span>CPF S$91K</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span class="mini-stat-label">Monthly Surplus</span>
+          <span class="mini-stat-value"><span class="status-dot green"></span>S$1,897</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Savings Rate</span>
+          <span class="mini-stat-value"><span class="status-dot green"></span>24%</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Emergency Fund</span>
+          <span class="mini-stat-value"><span class="status-dot amber"></span>4.2 months</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Debt-to-Income</span>
+          <span class="mini-stat-value"><span class="status-dot green"></span>28%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Chapter 3: The Gaps -->
+  <div class="chapter fade-in">
+    <div class="chapter-heading">Where You're Exposed</div>
+    <div class="gap-cards">
+      <div class="gap-card red">
+        <div class="gap-card-title">CI Coverage</div>
+        <div class="gap-card-amount">S$150K of S$480K needed</div>
+        <div class="gap-card-pct">31% covered</div>
+        <div class="gap-progress"><div class="gap-progress-fill red" style="width:31%"></div></div>
+      </div>
+      <div class="gap-card red">
+        <div class="gap-card-title">Hospitalisation</div>
+        <div class="gap-card-amount">No plan on file</div>
+        <div class="gap-card-pct">Gap identified</div>
+        <div class="gap-progress"><div class="gap-progress-fill red" style="width:0%"></div></div>
+      </div>
+      <div class="gap-card amber">
+        <div class="gap-card-title">Retirement</div>
+        <div class="gap-card-amount">S$1.16M of S$1.87M</div>
+        <div class="gap-card-pct">62% funded</div>
+        <div class="gap-progress"><div class="gap-progress-fill amber" style="width:62%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Chapter 4: What To Do Next -->
+  <div class="chapter fade-in">
+    <div class="chapter-heading">Recommended Actions</div>
+    <div class="actions-list">
+      <div class="action-item">
+        <div class="action-num">1</div>
+        <div class="action-content">
+          <div class="action-title">Close the CI gap</div>
+          <div class="action-desc">Review early CI coverage options to reach 3x annual income. Current coverage leaves a S$330K shortfall.</div>
+          <a class="action-link" href="#">Open Tool &rarr;</a>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num">2</div>
+        <div class="action-content">
+          <div class="action-title">Add hospitalisation plan</div>
+          <div class="action-desc">Your HealthShield needs to be on file. Without it, a 5-day hospital stay could cost S$15K+ out of pocket.</div>
+          <a class="action-link" href="#">Open Tool &rarr;</a>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num">3</div>
+        <div class="action-content">
+          <div class="action-title">Accelerate retirement savings</div>
+          <div class="action-desc">S$710K gap requires either higher monthly investment or an adjusted timeline. Let's model both.</div>
+          <a class="action-link" href="#">Open Tool &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- VIEW 2: STRESS TEST -->
+<div class="view" id="view-stress">
+
+  <div class="chapter fade-in">
+    <p class="narrative-opening">What happens if the worst occurs?<br>Let's walk through it.</p>
+  </div>
+
+  <div class="chapter fade-in">
+    <div class="scenario-cards">
+      <div class="scenario-card" data-scenario="death">
+        <div class="scenario-icon">&#9760;</div>
+        <div class="scenario-label">Death</div>
+      </div>
+      <div class="scenario-card" data-scenario="tpd">
+        <div class="scenario-icon">&#9888;</div>
+        <div class="scenario-label">TPD</div>
+      </div>
+      <div class="scenario-card active" data-scenario="eci">
+        <div class="scenario-icon">&#9829;</div>
+        <div class="scenario-label">Early CI</div>
+      </div>
+      <div class="scenario-card" data-scenario="aci">
+        <div class="scenario-icon">&#9889;</div>
+        <div class="scenario-label">Adv. CI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter fade-in">
+    <div class="story-panel" id="stress-story">
+      <p>
+        At age <strong>38</strong>, an early critical illness diagnosis hits. Your income drops to zero for 3 years. Medical expenses spike by <strong>S$3,000/month</strong>. Without insurance, your savings <span class="highlight-danger">deplete by age 47</span>. But with your current AIA ECI Shield (<strong>S$200K lump sum</strong>), your runway extends to <span class="highlight-success">age 61</span> &mdash; buying you <strong>14 extra years</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div class="chapter fade-in">
+    <div class="chart-container">
+      <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background grid -->
+        <line x1="60" y1="240" x2="760" y2="240" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+        <line x1="60" y1="180" x2="760" y2="180" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+        <line x1="60" y1="120" x2="760" y2="120" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+        <line x1="60" y1="60" x2="760" y2="60" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+
+        <!-- Y axis labels -->
+        <text x="50" y="244" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">S$0</text>
+        <text x="50" y="184" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">S$200K</text>
+        <text x="50" y="124" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">S$400K</text>
+        <text x="50" y="64" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">S$600K</text>
+
+        <!-- X axis labels -->
+        <text x="60" y="260" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">Age 38</text>
+        <text x="235" y="260" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">43</text>
+        <text x="410" y="260" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">48</text>
+        <text x="585" y="260" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">53</text>
+        <text x="740" y="260" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="10">58</text>
+
+        <!-- Gradient definitions -->
+        <defs>
+          <linearGradient id="greyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(240,235,228,0.08)"/>
+            <stop offset="100%" stop-color="rgba(240,235,228,0)"/>
+          </linearGradient>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(196,168,130,0.15)"/>
+            <stop offset="100%" stop-color="rgba(196,168,130,0)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Without insurance (grey) -->
+        <path d="M60,60 L130,72 L200,90 L270,115 L340,150 L410,195 L445,240 L760,240 Z" fill="url(#greyGrad)"/>
+        <polyline points="60,60 130,72 200,90 270,115 340,150 410,195 445,240" fill="none" stroke="rgba(240,235,228,0.2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- With insurance (gold) -->
+        <path d="M60,60 L130,68 L200,78 L270,92 L340,108 L410,128 L480,152 L550,180 L620,210 L690,232 L740,240 L760,240 Z" fill="url(#goldGrad)"/>
+        <polyline points="60,60 130,68 200,78 270,92 340,108 410,128 480,152 550,180 620,210 690,232 740,240" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Legend -->
+        <line x1="560" y1="28" x2="580" y2="28" stroke="var(--gold)" stroke-width="2"/>
+        <text x="585" y="32" fill="rgba(240,235,228,0.5)" font-family="DM Sans, sans-serif" font-size="10">With insurance</text>
+        <line x1="680" y1="28" x2="700" y2="28" stroke="rgba(240,235,228,0.2)" stroke-width="2"/>
+        <text x="705" y="32" fill="rgba(240,235,228,0.5)" font-family="DM Sans, sans-serif" font-size="10">Without</text>
+
+        <!-- Depletion markers -->
+        <circle cx="445" cy="240" r="4" fill="var(--danger)" opacity="0.8"/>
+        <text x="445" y="275" text-anchor="middle" fill="var(--danger)" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">Age 47</text>
+        <circle cx="740" cy="240" r="4" fill="var(--gold)" opacity="0.8"/>
+        <text x="740" y="275" text-anchor="middle" fill="var(--gold)" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">Age 61</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="chapter fade-in">
+    <p class="takeaway">Your insurance bought you 14 years. The question: is that enough?</p>
+  </div>
+</div>
+
+
+<!-- VIEW 3: RETIREMENT -->
+<div class="view" id="view-retirement">
+
+  <div class="chapter fade-in">
+    <p class="narrative-opening">The path to S$1.87M &mdash;<br>and where you are on it.</p>
+  </div>
+
+  <div class="chapter fade-in">
+    <div class="retirement-split">
+      <!-- Chart -->
+      <div class="chart-container">
+        <svg viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(196,168,130,0.2)"/>
+              <stop offset="100%" stop-color="rgba(196,168,130,0)"/>
+            </linearGradient>
+            <linearGradient id="retGapGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(239,68,68,0.08)"/>
+              <stop offset="100%" stop-color="rgba(239,68,68,0)"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Grid -->
+          <line x1="40" y1="220" x2="420" y2="220" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+          <line x1="40" y1="165" x2="420" y2="165" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+          <line x1="40" y1="110" x2="420" y2="110" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+          <line x1="40" y1="55" x2="420" y2="55" stroke="rgba(240,235,228,0.06)" stroke-width="1"/>
+
+          <!-- Target line -->
+          <line x1="40" y1="45" x2="420" y2="45" stroke="var(--gold)" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="425" y="49" fill="var(--gold)" font-family="DM Sans, sans-serif" font-size="9" opacity="0.6">Target</text>
+
+          <!-- Gap area -->
+          <path d="M380,80 L420,80 L420,45 L380,45 Z" fill="url(#retGapGrad)" opacity="0.5"/>
+
+          <!-- Projected area -->
+          <path d="M40,220 L100,210 L160,195 L220,172 L280,140 L340,110 L380,80 L420,80 L420,220 Z" fill="url(#retGrad)"/>
+          <polyline points="40,220 100,210 160,195 220,172 280,140 340,110 380,80 420,80" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- X labels -->
+          <text x="40" y="238" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">Now</text>
+          <text x="130" y="238" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">5y</text>
+          <text x="220" y="238" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">10y</text>
+          <text x="310" y="238" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">15y</text>
+          <text x="400" y="238" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">20y</text>
+
+          <!-- Y labels -->
+          <text x="35" y="224" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">0</text>
+          <text x="35" y="169" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">S$500K</text>
+          <text x="35" y="114" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">S$1M</text>
+          <text x="35" y="59" text-anchor="end" fill="rgba(240,235,228,0.25)" font-family="DM Sans, sans-serif" font-size="9">S$1.5M</text>
+        </svg>
+      </div>
+
+      <!-- Key numbers -->
+      <div class="ret-key-numbers">
+        <div>
+          <div class="ret-number-label">Target Corpus</div>
+          <div class="ret-number-value large">S$1.87M</div>
+        </div>
+        <div>
+          <div class="ret-number-label">Projected</div>
+          <div class="ret-number-value amber">S$1.16M</div>
+        </div>
+        <div>
+          <div class="ret-number-label">Gap</div>
+          <div class="ret-number-value red">S$710K</div>
+        </div>
+        <div>
+          <div class="ret-number-label">Funded</div>
+          <div class="ret-funded-row">
+            <span class="ret-funded-pct">62%</span>
+            <div class="ret-funded-bar"><div class="ret-funded-fill" style="width:62%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Income chapter -->
+  <div class="chapter fade-in">
+    <div class="chapter-heading">What your money earns in retirement</div>
+    <div class="income-rows">
+      <div class="income-row">
+        <span class="income-row-label">CPF Life</span>
+        <span class="income-row-value">S$1,200/mo</span>
+      </div>
+      <div class="income-row">
+        <span class="income-row-label">Portfolio Dividends</span>
+        <span class="income-row-value">S$2,800/mo</span>
+      </div>
+      <div class="income-row">
+        <span class="income-row-label">SRS Withdrawals</span>
+        <span class="income-row-value">S$500/mo</span>
+      </div>
+    </div>
+    <div style="margin-top: 16px;">
+      <div class="income-total-label">Total Monthly Retirement Income</div>
+      <div class="income-total">S$4,500/mo</div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Slider controls -->
+  <div class="chapter fade-in">
+    <div class="chapter-heading">Adjust Your Assumptions</div>
+    <div class="slider-group">
+      <div class="slider-row">
+        <div class="slider-header">
+          <span class="slider-label">Monthly Investment</span>
+          <span class="slider-value">S$1,500</span>
+        </div>
+        <input type="range" min="500" max="5000" value="1500" step="100">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span class="slider-label">Expected Return</span>
+          <span class="slider-value">6.0%</span>
+        </div>
+        <input type="range" min="2" max="12" value="6" step="0.5">
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span class="slider-label">Retirement Age</span>
+          <span class="slider-value">62</span>
+        </div>
+        <input type="range" min="55" max="70" value="62" step="1">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- VIEW 4: INSURANCE -->
+<div class="view" id="view-insurance">
+
+  <div class="chapter fade-in">
+    <p class="narrative-opening">Your protection portfolio &mdash;<br>what's covered and what's not.</p>
+  </div>
+
+  <div class="chapter fade-in">
+    <div class="coverage-narrative">
+      <div class="coverage-line">
+        <strong>Death coverage:</strong> S$500K across 2 policies. That's 5.2x your annual income &mdash; <span class="verdict-good">solid.</span>
+      </div>
+      <div class="coverage-line">
+        <strong>TPD coverage:</strong> S$400K across 2 policies. At 4.2x income, this <span class="verdict-ok">meets the minimum</span> but leaves little room for long-term care costs.
+      </div>
+      <div class="coverage-line">
+        <strong>Early CI:</strong> Only S$150K. At 1.6x income, this is <span class="verdict-bad">your biggest vulnerability.</span> Recommendation: increase to at least 3x income (S$288K).
+      </div>
+      <div class="coverage-line">
+        <strong>Hospitalisation:</strong> <span class="verdict-bad">No plan on file.</span> Without an Integrated Shield Plan, a hospital stay means out-of-pocket exposure.
+      </div>
+      <div class="coverage-line">
+        <strong>Personal Accident:</strong> S$100K via employer group plan. <span class="verdict-ok">Adequate for now</span>, but note this lapses if you change jobs.
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="chapter fade-in">
+    <div class="chapter-heading">Your Policies</div>
+    <div class="policy-list">
+      <div class="policy-row">
+        <div class="policy-row-left">
+          <span class="policy-name">AIA Life Shield</span>
+          <span class="policy-insurer">AIA Singapore</span>
+        </div>
+        <div class="policy-row-right">
+          <span class="policy-type">Death &amp; TPD</span>
+          <span class="policy-amount">S$300K</span>
+        </div>
+      </div>
+      <div class="policy-row">
+        <div class="policy-row-left">
+          <span class="policy-name">Prudential PRUActive Term</span>
+          <span class="policy-insurer">Prudential Singapore</span>
+        </div>
+        <div class="policy-row-right">
+          <span class="policy-type">Death &amp; TPD</span>
+          <span class="policy-amount">S$200K</span>
+        </div>
+      </div>
+      <div class="policy-row">
+        <div class="policy-row-left">
+          <span class="policy-name">AIA ECI Shield</span>
+          <span class="policy-insurer">AIA Singapore</span>
+        </div>
+        <div class="policy-row-right">
+          <span class="policy-type">Early CI</span>
+          <span class="policy-amount">S$150K</span>
+        </div>
+      </div>
+      <div class="policy-row">
+        <div class="policy-row-left">
+          <span class="policy-name">Employer Group PA</span>
+          <span class="policy-insurer">NTUC Income</span>
+        </div>
+        <div class="policy-row-right">
+          <span class="policy-type">Personal Accident</span>
+          <span class="policy-amount">S$100K</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="chapter fade-in">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <div class="chapter-heading" style="margin-bottom:0;">Annual Premium Summary</div>
+      <div style="font-family:var(--font-display); font-size:24px; font-weight:800; color:var(--gold);">S$3,240/yr</div>
+    </div>
+    <div style="font-size:13px; color:var(--text-dim); line-height:1.7;">
+      That's <strong style="color:var(--text);">3.4%</strong> of annual income &mdash; well within the recommended 10&ndash;15% budget for protection. The issue isn't spending too little on insurance &mdash; it's that the coverage is concentrated on death/TPD and neglects critical illness and hospitalisation.
+    </div>
+  </div>
+</div>
+
+</main>
+
+
+<script>
+(function() {
+  // Tab switching
+  var tabs = document.querySelectorAll('.topbar-tab');
+  var views = document.querySelectorAll('.view');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var target = tab.getAttribute('data-view');
+
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+
+      views.forEach(function(v) {
+        v.classList.remove('active');
+        if (v.id === 'view-' + target) {
+          v.classList.add('active');
+          // Re-trigger fade-in for new view
+          var fadeEls = v.querySelectorAll('.fade-in');
+          fadeEls.forEach(function(el) { el.classList.remove('visible'); });
+          requestAnimationFrame(function() { observeElements(); });
+        }
+      });
+    });
+  });
+
+  // Scenario switching via DOM manipulation (no innerHTML)
+  var scenarioCards = document.querySelectorAll('.scenario-card');
+  var storyPanel = document.getElementById('stress-story');
+
+  // Pre-build scenario DOM nodes
+  function buildStoryNode(parts) {
+    var p = document.createElement('p');
+    parts.forEach(function(part) {
+      if (part.type === 'text') {
+        p.appendChild(document.createTextNode(part.value));
+      } else if (part.type === 'strong') {
+        var s = document.createElement('strong');
+        s.textContent = part.value;
+        p.appendChild(s);
+      } else if (part.type === 'danger') {
+        var span = document.createElement('span');
+        span.className = 'highlight-danger';
+        span.textContent = part.value;
+        p.appendChild(span);
+      } else if (part.type === 'success') {
+        var span = document.createElement('span');
+        span.className = 'highlight-success';
+        span.textContent = part.value;
+        p.appendChild(span);
+      }
+    });
+    return p;
+  }
+
+  var scenarioData = {
+    death: [
+      {type:'text', value:'At age '},
+      {type:'strong', value:'38'},
+      {type:'text', value:', the unthinkable happens. Your family loses your income entirely \u2014 '},
+      {type:'strong', value:'S$96K/year'},
+      {type:'text', value:', gone. Without insurance, their savings '},
+      {type:'danger', value:'last only 4.3 years'},
+      {type:'text', value:'. But your S$500K death benefit provides a '},
+      {type:'strong', value:'5.2-year income replacement'},
+      {type:'text', value:', plus mortgage coverage. Total runway extends to '},
+      {type:'success', value:'age 52 for your dependants'},
+      {type:'text', value:'.'}
+    ],
+    tpd: [
+      {type:'text', value:'At age '},
+      {type:'strong', value:'38'},
+      {type:'text', value:', a total permanent disability ends your earning capacity. You need '},
+      {type:'strong', value:'S$4,200/month'},
+      {type:'text', value:' for living expenses plus care costs. Without insurance, savings '},
+      {type:'danger', value:'deplete by age 45'},
+      {type:'text', value:'. With S$400K TPD coverage, your runway reaches '},
+      {type:'success', value:'age 56'},
+      {type:'text', value:' \u2014 buying '},
+      {type:'strong', value:'11 extra years'},
+      {type:'text', value:' to plan.'}
+    ],
+    eci: [
+      {type:'text', value:'At age '},
+      {type:'strong', value:'38'},
+      {type:'text', value:', an early critical illness diagnosis hits. Your income drops to zero for 3 years. Medical expenses spike by '},
+      {type:'strong', value:'S$3,000/month'},
+      {type:'text', value:'. Without insurance, your savings '},
+      {type:'danger', value:'deplete by age 47'},
+      {type:'text', value:'. But with your current AIA ECI Shield ('},
+      {type:'strong', value:'S$200K lump sum'},
+      {type:'text', value:'), your runway extends to '},
+      {type:'success', value:'age 61'},
+      {type:'text', value:' \u2014 buying you '},
+      {type:'strong', value:'14 extra years'},
+      {type:'text', value:'.'}
+    ],
+    aci: [
+      {type:'text', value:'At age '},
+      {type:'strong', value:'38'},
+      {type:'text', value:', an advanced critical illness diagnosis changes everything. Income ceases permanently. Treatment costs '},
+      {type:'strong', value:'S$5,000/month'},
+      {type:'text', value:' for 2 years, then ongoing care at S$2,500/month. Without insurance, savings '},
+      {type:'danger', value:'gone by age 43'},
+      {type:'text', value:'. With current coverage, you reach '},
+      {type:'success', value:'age 49'},
+      {type:'text', value:' \u2014 but the gap remains '},
+      {type:'danger', value:'severe'},
+      {type:'text', value:'.'}
+    ]
+  };
+
+  scenarioCards.forEach(function(card) {
+    card.addEventListener('click', function() {
+      scenarioCards.forEach(function(c) { c.classList.remove('active'); });
+      card.classList.add('active');
+      var scenario = card.getAttribute('data-scenario');
+      if (scenarioData[scenario]) {
+        while (storyPanel.firstChild) { storyPanel.removeChild(storyPanel.firstChild); }
+        storyPanel.appendChild(buildStoryNode(scenarioData[scenario]));
+      }
+    });
+  });
+
+  // Scroll-triggered fade-in
+  function observeElements() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.view.active .fade-in').forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+
+  observeElements();
+
+  // Slider interactivity
+  document.querySelectorAll('.slider-row').forEach(function(row) {
+    var input = row.querySelector('input[type="range"]');
+    var display = row.querySelector('.slider-value');
+    var label = row.querySelector('.slider-label').textContent;
+
+    input.addEventListener('input', function() {
+      var val = parseFloat(input.value);
+      if (label.indexOf('Investment') !== -1) {
+        display.textContent = 'S$' + val.toLocaleString();
+      } else if (label.indexOf('Return') !== -1) {
+        display.textContent = val.toFixed(1) + '%';
+      } else if (label.indexOf('Age') !== -1) {
+        display.textContent = val;
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
