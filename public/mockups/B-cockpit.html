@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kiasu Guide — Cockpit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f0d0c;
+  --glass: rgba(255,255,255,0.03);
+  --glass-hover: rgba(255,255,255,0.06);
+  --gold-rim: rgba(196,168,130,0.15);
+  --violet-rim: rgba(167,139,250,0.15);
+  --green-rim: rgba(16,185,129,0.15);
+  --red-rim: rgba(239,68,68,0.12);
+  --text: #f0ece8;
+  --dim: rgba(240,236,232,0.50);
+  --muted: rgba(240,236,232,0.25);
+  --gold: #c4a882;
+  --burgundy: #9b2040;
+  --violet: #a78bfa;
+  --green: #10b981;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --sidebar-w: 56px;
+  --sidebar-expanded: 200px;
+  --radius: 16px;
+}
+html { font-size: 14px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 16px 0;
+  transition: width 0.3s cubic-bezier(0.25,0.1,0.25,1);
+  z-index: 100;
+  overflow: hidden;
+}
+.sidebar:hover { width: var(--sidebar-expanded); }
+.sidebar .brand {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800; font-size: 16px;
+  color: var(--gold);
+  padding: 4px 16px 20px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.sidebar .brand span { display: inline; opacity: 0; transition: opacity 0.25s 0.1s; }
+.sidebar:hover .brand span { opacity: 1; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; width: 100%;
+  cursor: pointer; border-radius: 8px;
+  transition: background 0.2s;
+  white-space: nowrap; text-decoration: none; color: var(--dim);
+  font-size: 13px; font-weight: 500;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { color: var(--gold); background: rgba(196,168,130,0.08); }
+.nav-item .icon { font-size: 18px; min-width: 24px; text-align: center; }
+.nav-item .label { opacity: 0; transition: opacity 0.2s 0.1s; }
+.sidebar:hover .nav-item .label { opacity: 1; }
+.sidebar-spacer { flex: 1; }
+.cmd-hint {
+  padding: 10px 16px; width: 100%;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; color: var(--muted); font-size: 12px;
+  white-space: nowrap; transition: color 0.2s;
+}
+.cmd-hint:hover { color: var(--dim); }
+.cmd-hint .label { opacity: 0; transition: opacity 0.2s 0.1s; }
+.sidebar:hover .cmd-hint .label { opacity: 1; }
+.cmd-kbd {
+  font-size: 10px; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 2px 5px; font-family: 'DM Sans', sans-serif;
+  opacity: 0; transition: opacity 0.2s 0.1s;
+}
+.sidebar:hover .cmd-kbd { opacity: 1; }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; padding: 24px 28px; }
+
+/* TAB BAR */
+.tab-bar {
+  display: flex; gap: 4px; margin-bottom: 24px;
+  background: rgba(255,255,255,0.02); border-radius: 12px; padding: 4px;
+  width: fit-content;
+}
+.tab {
+  padding: 8px 20px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--dim);
+  transition: all 0.25s; border: none; background: transparent;
+  font-family: 'DM Sans', sans-serif;
+}
+.tab:hover { color: var(--text); }
+.tab.active { background: rgba(196,168,130,0.12); color: var(--gold); }
+
+/* VIEWS */
+.view { display: none; animation: fadeUp 0.35s ease; }
+.view.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* BENTO GRID */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, auto);
+  gap: 16px;
+}
+.tile {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.25,0.1,0.25,1);
+  position: relative;
+  overflow: hidden;
+}
+.tile::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--gold-rim);
+  pointer-events: none;
+  transition: border-color 0.3s;
+}
+.tile:hover { background: var(--glass-hover); transform: translateY(-2px); }
+.tile:hover::before { border-color: rgba(196,168,130,0.3); }
+.tile.rim-violet::before { border-color: var(--violet-rim); }
+.tile.rim-violet:hover::before { border-color: rgba(167,139,250,0.3); }
+.tile.rim-green::before { border-color: var(--green-rim); }
+.tile.rim-green:hover::before { border-color: rgba(16,185,129,0.3); }
+.tile.rim-red::before { border-color: var(--red-rim); }
+.tile.rim-red:hover::before { border-color: rgba(239,68,68,0.25); }
+
+.tile-a { grid-column: 1 / 4; grid-row: 1 / 3; padding: 24px; }
+.tile-b { grid-column: 4 / 6; grid-row: 1; }
+.tile-c { grid-column: 6; grid-row: 1; }
+.tile-d { grid-column: 4; grid-row: 2; }
+.tile-e { grid-column: 5; grid-row: 2; }
+.tile-f { grid-column: 6; grid-row: 2; }
+.tile-g { grid-column: 1 / 3; grid-row: 3; }
+.tile-h { grid-column: 3 / 5; grid-row: 3; }
+.tile-i { grid-column: 5 / 7; grid-row: 3; }
+.tile-strip { grid-column: 1 / 7; grid-row: 4; padding: 12px 20px; }
+
+.tile-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+.tile-value {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 28px; color: var(--text);
+}
+.tile-value.sm { font-size: 20px; }
+.tile-sub { font-size: 12px; color: var(--dim); margin-top: 4px; }
+.sparkline { margin-top: 10px; }
+
+/* Tool strip */
+.tool-strip { display: flex; gap: 12px; justify-content: space-between; }
+.tool-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer; transition: all 0.2s;
+  font-size: 12px; color: var(--dim); white-space: nowrap;
+  flex: 1; justify-content: center;
+}
+.tool-chip:hover { background: rgba(255,255,255,0.06); color: var(--text); border-color: rgba(255,255,255,0.12); }
+
+/* Alerts */
+.alert-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; font-size: 12px; color: var(--dim); line-height: 1.4;
+}
+.alert-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+
+/* Activity */
+.activity-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+}
+.activity-row:last-child { border-bottom: none; }
+.activity-text { color: var(--dim); }
+.activity-time { color: var(--muted); font-size: 11px; }
+
+/* Coverage table */
+.cov-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+}
+.cov-row:last-child { border-bottom: none; }
+.cov-type { color: var(--dim); }
+.cov-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin: 0 12px; }
+.cov-bar { height: 100%; border-radius: 2px; }
+.cov-pct { color: var(--text); font-weight: 600; min-width: 36px; text-align: right; }
+
+/* Retirement ring */
+.ring-wrap { display: flex; align-items: center; gap: 20px; }
+.ring-text .verdict { font-size: 13px; color: var(--dim); margin-top: 4px; max-width: 180px; line-height: 1.4; }
+
+/* Health ring */
+.health-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 8px; }
+.health-label { font-size: 12px; color: var(--dim); }
+.health-segments { display: flex; gap: 6px; margin-top: 4px; }
+.health-seg { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.health-seg .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* CPF bars */
+.cpf-bars { display: flex; gap: 6px; margin-top: 12px; align-items: flex-end; }
+.cpf-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cpf-bar { width: 20px; border-radius: 3px 3px 0 0; }
+.cpf-bar-label { font-size: 9px; color: var(--muted); }
+
+/* Surplus toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: rgba(255,255,255,0.1); cursor: pointer;
+  position: relative; transition: background 0.25s;
+}
+.toggle.on { background: var(--green); }
+.toggle .thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; left: 2px;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toggle.on .thumb { transform: translateX(16px); }
+.toggle-label { font-size: 11px; color: var(--muted); }
+
+/* COMMAND PALETTE */
+.cmd-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10,8,7,0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 20vh;
+  animation: fadeIn 0.2s;
+}
+.cmd-overlay.show { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.cmd-box { width: 600px; animation: cmdSlide 0.25s ease; }
+@keyframes cmdSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.cmd-input {
+  width: 100%; height: 52px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 0 20px;
+  font-size: 16px; font-family: 'DM Sans', sans-serif;
+  color: var(--text); outline: none;
+  backdrop-filter: blur(20px);
+}
+.cmd-input::placeholder { color: var(--muted); }
+.cmd-input:focus { border-color: rgba(196,168,130,0.3); }
+.cmd-results {
+  margin-top: 12px; background: rgba(255,255,255,0.03);
+  border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.cmd-result-item {
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.15s;
+  font-size: 14px; color: var(--dim);
+}
+.cmd-result-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.cmd-result-item .r-icon { font-size: 16px; min-width: 24px; text-align: center; }
+.cmd-result-item .shortcut { margin-left: auto; font-size: 11px; color: var(--muted); }
+
+/* STRESS TEST */
+.st-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
+.st-chart-wrap {
+  background: var(--glass); border-radius: var(--radius);
+  border: 1px solid var(--gold-rim); padding: 24px;
+}
+.st-scenario-picker { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.scenario-btn {
+  padding: 8px 16px; border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--dim); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.scenario-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+.scenario-btn.active { background: rgba(196,168,130,0.1); border-color: var(--gold); color: var(--gold); }
+.control-card {
+  background: var(--glass); border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06); padding: 16px;
+}
+.control-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+.control-value { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; }
+.control-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.result-verdict {
+  background: rgba(196,168,130,0.06); border: 1px solid var(--gold-rim);
+  border-radius: 12px; padding: 16px; margin-top: 8px;
+}
+.result-verdict p { font-size: 13px; color: var(--dim); line-height: 1.6; }
+.result-verdict strong { color: var(--gold); }
+.slider-wrap { margin-top: 8px; }
+.slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.slider-row label { font-size: 11px; color: var(--muted); min-width: 100px; }
+.slider-row input[type="range"] {
+  flex: 1; -webkit-appearance: none; height: 4px;
+  background: rgba(255,255,255,0.1); border-radius: 2px; outline: none;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--gold); cursor: pointer;
+}
+.slider-row .val { font-size: 12px; color: var(--text); font-weight: 600; min-width: 50px; text-align: right; }
+
+/* RETIREMENT */
+.ret-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+.ret-chart-card {
+  background: var(--glass); border-radius: var(--radius);
+  border: 1px solid var(--gold-rim); padding: 24px;
+}
+.ret-hero {
+  text-align: center; margin-bottom: 24px;
+  padding: 20px; background: rgba(196,168,130,0.04);
+  border-radius: 12px; border: 1px solid var(--gold-rim);
+}
+.ret-hero .big { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 40px; color: var(--gold); }
+.ret-hero .sub { font-size: 14px; color: var(--dim); margin-top: 8px; }
+.ret-controls { display: flex; flex-direction: column; gap: 14px; }
+.ret-field { display: flex; flex-direction: column; gap: 4px; }
+.ret-field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.ret-field .field-val {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 10px 14px; color: var(--text);
+  font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.ret-field .field-val:focus { border-color: var(--gold-rim); }
+.lock-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.lock-icon { cursor: pointer; font-size: 14px; transition: transform 0.2s; }
+.lock-icon:hover { transform: scale(1.15); }
+.lock-label { font-size: 10px; color: var(--muted); }
+.income-table {
+  margin-top: 16px; background: var(--glass);
+  border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.income-table-header, .income-table-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  padding: 10px 16px; font-size: 12px;
+}
+.income-table-header { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.income-table-row { color: var(--dim); border-bottom: 1px solid rgba(255,255,255,0.03); }
+.income-table-row:last-child { border-bottom: none; }
+
+/* INSURANCE */
+.ins-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.ins-stat {
+  background: var(--glass); border-radius: 12px; padding: 16px;
+  border: 1px solid rgba(255,255,255,0.06); text-align: center;
+}
+.ins-stat .val { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 24px; margin-bottom: 4px; }
+.ins-stat .lbl { font-size: 11px; color: var(--muted); }
+.ins-table {
+  background: var(--glass); border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.06); overflow: hidden;
+}
+.ins-table-header, .ins-table-row {
+  display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 0.8fr;
+  padding: 12px 20px; font-size: 12px; align-items: center;
+}
+.ins-table-header {
+  color: var(--muted); font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; font-size: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.01);
+}
+.ins-table-row { color: var(--dim); border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.15s; }
+.ins-table-row:hover { background: rgba(255,255,255,0.02); }
+.ins-table-row:last-child { border-bottom: none; }
+.ins-badge {
+  display: inline-block; padding: 3px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 600;
+}
+.ins-badge.ok { background: rgba(16,185,129,0.1); color: var(--green); }
+.ins-badge.warn { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.ins-badge.crit { background: rgba(239,68,68,0.1); color: var(--red); }
+.ins-upload-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 10px;
+  background: rgba(196,168,130,0.1); border: 1px solid var(--gold-rim);
+  color: var(--gold); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.ins-upload-btn:hover { background: rgba(196,168,130,0.18); }
+
+/* Tooltip */
+.chart-tooltip {
+  position: absolute; padding: 8px 12px;
+  background: rgba(20,18,17,0.95); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; font-size: 12px; color: var(--text);
+  pointer-events: none; white-space: nowrap;
+  display: none; z-index: 50;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .bento { grid-template-columns: repeat(3, 1fr); }
+  .tile-a { grid-column: 1 / 4; grid-row: auto; }
+  .tile-b { grid-column: 1 / 2; } .tile-c { grid-column: 2 / 3; } .tile-d { grid-column: 3 / 4; }
+  .tile-e { grid-column: 1 / 2; } .tile-f { grid-column: 2 / 3; } .tile-g { grid-column: 1 / 2; }
+  .tile-h { grid-column: 2 / 4; } .tile-i { grid-column: 1 / 4; } .tile-strip { grid-column: 1 / 4; }
+  .st-layout, .ret-layout { grid-template-columns: 1fr; }
+  .ins-summary { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="brand">TKG<span> &middot; Kiasu Guide</span></div>
+  <a class="nav-item active" onclick="switchView('dashboard')">
+    <span class="icon">&#127968;</span><span class="label">Dashboard</span>
+  </a>
+  <a class="nav-item" onclick="switchView('stress')">
+    <span class="icon">&#9889;</span><span class="label">Stress Test</span>
+  </a>
+  <a class="nav-item" onclick="switchView('retirement')">
+    <span class="icon">&#127919;</span><span class="label">Retirement</span>
+  </a>
+  <a class="nav-item" onclick="switchView('insurance')">
+    <span class="icon">&#128737;</span><span class="label">Insurance</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">&#128176;</span><span class="label">Cash Flow</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">&#128202;</span><span class="label">CPF</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">&#127973;</span><span class="label">LTC</span>
+  </a>
+  <a class="nav-item">
+    <span class="icon">&#128203;</span><span class="label">Summary</span>
+  </a>
+  <div class="sidebar-spacer"></div>
+  <div class="cmd-hint" onclick="openCmd()">
+    <span class="icon">&#128269;</span>
+    <span class="label">Search tools</span>
+    <span class="cmd-kbd">Cmd+K</span>
+  </div>
+</nav>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-overlay" id="cmdOverlay">
+  <div class="cmd-box">
+    <input class="cmd-input" id="cmdInput" type="text" placeholder="Search tools, clients, or modules..." autofocus>
+    <div class="cmd-results" id="cmdResults">
+      <div class="cmd-result-item" data-view="stress"><span class="r-icon">&#9889;</span>Financial Stress Test<span class="shortcut">Phase 2</span></div>
+      <div class="cmd-result-item" data-view="retirement"><span class="r-icon">&#127919;</span>Retirement Planning<span class="shortcut">Phase 3</span></div>
+      <div class="cmd-result-item" data-view="insurance"><span class="r-icon">&#128737;</span>Insurance Benefits<span class="shortcut">Phase 2</span></div>
+      <div class="cmd-result-item"><span class="r-icon">&#128176;</span>Cash Flow Planner<span class="shortcut">Phase 5</span></div>
+      <div class="cmd-result-item"><span class="r-icon">&#128202;</span>CPF Overview<span class="shortcut">Phase 1</span></div>
+      <div class="cmd-result-item"><span class="r-icon">&#128203;</span>Session Summary<span class="shortcut">Phase 6</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchView('dashboard')">Dashboard</button>
+    <button class="tab" onclick="switchView('stress')">Stress Test</button>
+    <button class="tab" onclick="switchView('retirement')">Retirement</button>
+    <button class="tab" onclick="switchView('insurance')">Insurance</button>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div class="view active" id="view-dashboard">
+    <div class="bento">
+      <!-- TILE A: Portfolio Projection (hero) -->
+      <div class="tile tile-a">
+        <div class="tile-label">Portfolio Projection</div>
+        <div style="position:relative;" id="heroChartWrap">
+          <svg viewBox="0 0 600 260" width="100%" id="heroChart">
+            <defs>
+              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(196,168,130,0.25)"/>
+                <stop offset="100%" stop-color="rgba(196,168,130,0)"/>
+              </linearGradient>
+            </defs>
+            <line x1="60" y1="20" x2="60" y2="220" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="220" x2="580" y2="220" stroke="rgba(255,255,255,0.06)"/>
+            <line x1="60" y1="170" x2="580" y2="170" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+            <line x1="60" y1="120" x2="580" y2="120" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+            <line x1="60" y1="70" x2="580" y2="70" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+            <text x="54" y="224" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$0</text>
+            <text x="54" y="174" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$500K</text>
+            <text x="54" y="124" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$1M</text>
+            <text x="54" y="74" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$1.5M</text>
+            <text x="60" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">2026</text>
+            <text x="190" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">2032</text>
+            <text x="320" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">2038</text>
+            <text x="450" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">2044</text>
+            <text x="560" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">2050</text>
+            <path d="M60,200 C130,190 200,170 270,145 C340,120 410,85 480,60 C520,48 560,40 580,36 L580,220 L60,220 Z" fill="url(#goldGrad)"/>
+            <path d="M60,200 C130,190 200,170 270,145 C340,120 410,85 480,60 C520,48 560,40 580,36" fill="none" stroke="#c4a882" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="60" y1="65" x2="580" y2="65" stroke="rgba(239,68,68,0.3)" stroke-dasharray="6,4"/>
+            <text x="582" y="69" fill="rgba(239,68,68,0.5)" font-size="9" font-family="DM Sans">Target</text>
+            <circle cx="60" cy="200" r="4" fill="#c4a882" class="chart-dot" data-val="S$412K" data-year="2026"/>
+            <circle cx="190" cy="170" r="4" fill="#c4a882" class="chart-dot" data-val="S$620K" data-year="2032"/>
+            <circle cx="320" cy="138" r="4" fill="#c4a882" class="chart-dot" data-val="S$880K" data-year="2038"/>
+            <circle cx="450" cy="78" r="4" fill="#c4a882" class="chart-dot" data-val="S$1.22M" data-year="2044"/>
+            <circle cx="580" cy="36" r="4" fill="#c4a882" class="chart-dot" data-val="S$1.58M" data-year="2050"/>
+          </svg>
+          <div class="chart-tooltip" id="heroTooltip"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:12px;color:var(--dim);">Current: <strong style="color:var(--gold);">S$412,000</strong></span>
+          <span style="font-size:12px;color:var(--dim);">Projected 2050: <strong style="color:var(--gold);">S$1,580,000</strong></span>
+        </div>
+      </div>
+
+      <!-- TILE B: Health Score -->
+      <div class="tile tile-b rim-green">
+        <div class="tile-label">Financial Health</div>
+        <div class="health-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#10b981" stroke-width="8" stroke-dasharray="86.4 202.6" stroke-dashoffset="0" transform="rotate(-90 55 55)" stroke-linecap="round" opacity="0.9"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#c4a882" stroke-width="8" stroke-dasharray="72 217" stroke-dashoffset="-86.4" transform="rotate(-90 55 55)" stroke-linecap="round" opacity="0.8"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#3b82f6" stroke-width="8" stroke-dasharray="57.6 231.4" stroke-dashoffset="-158.4" transform="rotate(-90 55 55)" stroke-linecap="round" opacity="0.7"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#a78bfa" stroke-width="8" stroke-dasharray="43.2 245.8" stroke-dashoffset="-216" transform="rotate(-90 55 55)" stroke-linecap="round" opacity="0.6"/>
+            <text x="55" y="51" text-anchor="middle" fill="#f0ece8" font-family="Playfair Display" font-weight="800" font-size="28">74</text>
+            <text x="55" y="68" text-anchor="middle" fill="rgba(240,236,232,0.5)" font-size="9" font-family="DM Sans">/100</text>
+          </svg>
+          <div class="health-label">Building Momentum</div>
+          <div class="health-segments">
+            <span class="health-seg"><span class="dot" style="background:#10b981;"></span>Protection</span>
+            <span class="health-seg"><span class="dot" style="background:#c4a882;"></span>Retire</span>
+            <span class="health-seg"><span class="dot" style="background:#3b82f6;"></span>Liquidity</span>
+            <span class="health-seg"><span class="dot" style="background:#a78bfa;"></span>Debt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TILE C: Alerts -->
+      <div class="tile tile-c rim-red">
+        <div class="tile-label">Alerts</div>
+        <div class="alert-row"><span class="alert-dot" style="background:var(--red);"></span>CI coverage critically low - S$50K gap</div>
+        <div class="alert-row"><span class="alert-dot" style="background:#f59e0b;"></span>Retirement 62% funded - needs S$710K more</div>
+        <div class="alert-row"><span class="alert-dot" style="background:var(--green);"></span>Cash flow healthy - S$1,897 surplus</div>
+      </div>
+
+      <!-- TILE D: Net Worth -->
+      <div class="tile tile-d">
+        <div class="tile-label">Net Worth</div>
+        <div class="tile-value">S$412K</div>
+        <div class="tile-sub">+8.2% YoY</div>
+        <svg class="sparkline" width="100%" height="30" viewBox="0 0 120 30">
+          <polyline points="0,25 15,22 30,20 45,18 60,17 75,14 90,10 105,8 120,5" fill="none" stroke="#c4a882" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- TILE E: Surplus -->
+      <div class="tile tile-e rim-green">
+        <div class="tile-label">Monthly Surplus</div>
+        <div class="tile-value sm" style="color:var(--green);">S$1,897</div>
+        <div class="tile-sub">After all expenses</div>
+        <div class="toggle-wrap">
+          <div class="toggle on" id="surplusToggle" onclick="toggleSurplus()"><div class="thumb"></div></div>
+          <span class="toggle-label">Include bonuses</span>
+        </div>
+      </div>
+
+      <!-- TILE F: CPF -->
+      <div class="tile tile-f rim-violet">
+        <div class="tile-label">CPF Total</div>
+        <div class="tile-value sm" style="color:var(--violet);">S$185K</div>
+        <div class="cpf-bars">
+          <div class="cpf-bar-col"><div class="cpf-bar" style="height:40px;background:var(--violet);opacity:0.9;"></div><span class="cpf-bar-label">OA</span></div>
+          <div class="cpf-bar-col"><div class="cpf-bar" style="height:28px;background:var(--violet);opacity:0.65;"></div><span class="cpf-bar-label">SA</span></div>
+          <div class="cpf-bar-col"><div class="cpf-bar" style="height:18px;background:var(--violet);opacity:0.4;"></div><span class="cpf-bar-label">MA</span></div>
+        </div>
+      </div>
+
+      <!-- TILE G: Retirement -->
+      <div class="tile tile-g">
+        <div class="tile-label">Retirement Readiness</div>
+        <div class="ring-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="#c4a882" stroke-width="7" stroke-dasharray="124.6 76.4" stroke-dashoffset="0" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+            <text x="40" y="44" text-anchor="middle" fill="#c4a882" font-family="Playfair Display" font-weight="700" font-size="18">62%</text>
+          </svg>
+          <div class="ring-text">
+            <div class="verdict">You need <strong style="color:var(--gold);">S$1.82M</strong> by age 65. You're projected at <strong style="color:var(--gold);">S$1.13M</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TILE H: Protection Summary -->
+      <div class="tile tile-h rim-red">
+        <div class="tile-label">Protection Summary</div>
+        <div class="cov-row"><span class="cov-type">Death</span><div class="cov-bar-wrap"><div class="cov-bar" style="width:85%;background:var(--green);"></div></div><span class="cov-pct">85%</span></div>
+        <div class="cov-row"><span class="cov-type">TPD</span><div class="cov-bar-wrap"><div class="cov-bar" style="width:72%;background:#f59e0b;"></div></div><span class="cov-pct">72%</span></div>
+        <div class="cov-row"><span class="cov-type">Critical Illness</span><div class="cov-bar-wrap"><div class="cov-bar" style="width:35%;background:var(--red);"></div></div><span class="cov-pct" style="color:var(--red);">35%</span></div>
+        <div class="cov-row"><span class="cov-type">Hospitalisation</span><div class="cov-bar-wrap"><div class="cov-bar" style="width:100%;background:var(--green);"></div></div><span class="cov-pct">100%</span></div>
+      </div>
+
+      <!-- TILE I: Recent Activity -->
+      <div class="tile tile-i">
+        <div class="tile-label">Recent Activity</div>
+        <div class="activity-row"><span class="activity-text">Updated insurance benefits</span><span class="activity-time">2h ago</span></div>
+        <div class="activity-row"><span class="activity-text">Ran stress test (Job Loss)</span><span class="activity-time">1d ago</span></div>
+        <div class="activity-row"><span class="activity-text">Reviewed retirement plan</span><span class="activity-time">3d ago</span></div>
+        <div class="activity-row"><span class="activity-text">Uploaded AIA policy PDF</span><span class="activity-time">5d ago</span></div>
+      </div>
+
+      <!-- ROW 4: Tool Strip -->
+      <div class="tile tile-strip">
+        <div class="tool-strip">
+          <div class="tool-chip" onclick="switchView('stress')">&#9889; Stress Test</div>
+          <div class="tool-chip" onclick="switchView('retirement')">&#127919; Retirement</div>
+          <div class="tool-chip" onclick="switchView('insurance')">&#128737; Insurance</div>
+          <div class="tool-chip">&#128176; Cash Flow</div>
+          <div class="tool-chip">&#128202; CPF Planner</div>
+          <div class="tool-chip">&#127973; LTC Gap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRESS TEST VIEW -->
+  <div class="view" id="view-stress">
+    <div class="st-scenario-picker">
+      <button class="scenario-btn active" onclick="setScenario(this,'job')">Job Loss</button>
+      <button class="scenario-btn" onclick="setScenario(this,'ci')">Critical Illness</button>
+      <button class="scenario-btn" onclick="setScenario(this,'disability')">Total Disability</button>
+      <button class="scenario-btn" onclick="setScenario(this,'death')">Premature Death</button>
+    </div>
+    <div class="st-layout">
+      <div class="st-chart-wrap">
+        <div class="tile-label" id="stChartLabel">Savings Runway - Job Loss Scenario</div>
+        <svg viewBox="0 0 600 280" width="100%" id="stressChart">
+          <defs>
+            <linearGradient id="stressGrad1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(239,68,68,0.2)"/>
+              <stop offset="100%" stop-color="rgba(239,68,68,0)"/>
+            </linearGradient>
+            <linearGradient id="stressGrad2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(16,185,129,0.2)"/>
+              <stop offset="100%" stop-color="rgba(16,185,129,0)"/>
+            </linearGradient>
+          </defs>
+          <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(255,255,255,0.05)"/>
+          <line x1="60" y1="240" x2="580" y2="240" stroke="rgba(255,255,255,0.06)"/>
+          <line x1="60" y1="190" x2="580" y2="190" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <line x1="60" y1="140" x2="580" y2="140" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <line x1="60" y1="90" x2="580" y2="90" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <line x1="60" y1="40" x2="580" y2="40" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <text x="54" y="244" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$0</text>
+          <text x="54" y="194" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$100K</text>
+          <text x="54" y="144" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$200K</text>
+          <text x="54" y="94" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$300K</text>
+          <text x="54" y="44" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$400K</text>
+          <text x="60" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">Age 35</text>
+          <text x="164" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">40</text>
+          <text x="268" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">45</text>
+          <text x="372" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">50</text>
+          <text x="476" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">55</text>
+          <text x="564" y="260" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">60</text>
+          <path d="M60,40 L112,80 L164,120 L216,155 L268,190 L320,220 L372,238 L380,240 L380,240 L60,240 Z" fill="url(#stressGrad1)"/>
+          <polyline points="60,40 112,80 164,120 216,155 268,190 320,220 372,238 380,240" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="380" cy="240" r="5" fill="#ef4444" stroke="#0f0d0c" stroke-width="2"/>
+          <text x="386" y="236" fill="#ef4444" font-size="10" font-family="DM Sans" font-weight="600">Age 48</text>
+          <path d="M60,40 L112,65 L164,88 L216,108 L268,128 L320,148 L372,168 L424,188 L476,208 L528,228 L560,237 L560,240 L60,240 Z" fill="url(#stressGrad2)"/>
+          <polyline points="60,40 112,65 164,88 216,108 268,128 320,148 372,168 424,188 476,208 528,228 560,237" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="560" cy="237" r="5" fill="#10b981" stroke="#0f0d0c" stroke-width="2"/>
+          <text x="534" y="227" fill="#10b981" font-size="10" font-family="DM Sans" font-weight="600">Age 59</text>
+          <rect x="200" y="10" width="8" height="8" rx="2" fill="#ef4444"/>
+          <text x="213" y="18" fill="rgba(240,236,232,0.5)" font-size="10" font-family="DM Sans">Without insurance</text>
+          <rect x="340" y="10" width="8" height="8" rx="2" fill="#10b981"/>
+          <text x="353" y="18" fill="rgba(240,236,232,0.5)" font-size="10" font-family="DM Sans">With insurance</text>
+        </svg>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="control-card">
+          <div class="control-label">Runway Without Insurance</div>
+          <div class="control-value" style="color:var(--red);" id="stRunwayNo">Age 48</div>
+          <div class="control-sub">13 years from now</div>
+        </div>
+        <div class="control-card">
+          <div class="control-label">Runway With Insurance</div>
+          <div class="control-value" style="color:var(--green);" id="stRunwayYes">Age 59</div>
+          <div class="control-sub">24 years from now</div>
+        </div>
+        <div class="result-verdict">
+          <p id="stVerdict">Your insurance buys you <strong>11 extra years</strong> of financial runway. That security costs <strong>S$387/month</strong> in premiums.</p>
+        </div>
+        <div class="control-card">
+          <div class="control-label">Adjust Parameters</div>
+          <div class="slider-wrap">
+            <div class="slider-row">
+              <label>Income drop</label>
+              <input type="range" min="0" max="100" value="100" id="incDrop" oninput="updateStress()">
+              <span class="val" id="incDropVal">100%</span>
+            </div>
+            <div class="slider-row">
+              <label>Monthly expenses</label>
+              <input type="range" min="2000" max="8000" value="4500" step="100" id="expSlider" oninput="updateStress()">
+              <span class="val" id="expVal">S$4,500</span>
+            </div>
+            <div class="slider-row">
+              <label>Emergency fund</label>
+              <input type="range" min="0" max="100000" value="25000" step="5000" id="efSlider" oninput="updateStress()">
+              <span class="val" id="efVal">S$25K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETIREMENT VIEW -->
+  <div class="view" id="view-retirement">
+    <div class="ret-hero">
+      <div class="big" id="retCorpus">S$1,130,000</div>
+      <div class="sub">Projected retirement corpus at age 65 - you are <strong style="color:var(--gold);">62%</strong> of the way to your S$1.82M target</div>
+    </div>
+    <div class="ret-layout">
+      <div class="ret-chart-card">
+        <div class="tile-label">Retirement Projection</div>
+        <svg viewBox="0 0 560 260" width="100%" id="retChart">
+          <defs>
+            <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(196,168,130,0.2)"/>
+              <stop offset="100%" stop-color="rgba(196,168,130,0)"/>
+            </linearGradient>
+            <linearGradient id="cpfGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(167,139,250,0.15)"/>
+              <stop offset="100%" stop-color="rgba(167,139,250,0)"/>
+            </linearGradient>
+          </defs>
+          <line x1="50" y1="20" x2="50" y2="220" stroke="rgba(255,255,255,0.05)"/>
+          <line x1="50" y1="220" x2="540" y2="220" stroke="rgba(255,255,255,0.06)"/>
+          <line x1="50" y1="170" x2="540" y2="170" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <line x1="50" y1="120" x2="540" y2="120" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <line x1="50" y1="70" x2="540" y2="70" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4"/>
+          <text x="44" y="224" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$0</text>
+          <text x="44" y="174" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$500K</text>
+          <text x="44" y="124" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$1M</text>
+          <text x="44" y="74" text-anchor="end" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">S$1.5M</text>
+          <text x="50" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">35</text>
+          <text x="148" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">40</text>
+          <text x="246" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">45</text>
+          <text x="344" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">50</text>
+          <text x="442" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">55</text>
+          <text x="524" y="240" fill="rgba(240,236,232,0.25)" font-size="10" font-family="DM Sans">65</text>
+          <line x1="50" y1="58" x2="540" y2="58" stroke="rgba(239,68,68,0.3)" stroke-dasharray="6,4"/>
+          <text x="542" y="62" fill="rgba(239,68,68,0.5)" font-size="9" font-family="DM Sans">S$1.82M</text>
+          <path d="M50,220 L148,210 L246,198 L344,184 L442,168 L540,155 L540,220 Z" fill="url(#cpfGrad)"/>
+          <polyline points="50,220 148,210 246,198 344,184 442,168 540,155" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.6"/>
+          <path d="M50,200 L148,180 L246,155 L344,125 L442,95 L540,78 L540,220 L50,220 Z" fill="url(#retGrad)"/>
+          <polyline points="50,200 148,180 246,155 344,125 442,95 540,78" fill="none" stroke="#c4a882" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="540" y1="58" x2="540" y2="78" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3"/>
+          <text x="500" y="48" fill="#f59e0b" font-size="10" font-family="DM Sans" font-weight="600">Gap: S$690K</text>
+          <circle cx="50" cy="200" r="3.5" fill="#c4a882"/>
+          <circle cx="148" cy="180" r="3.5" fill="#c4a882"/>
+          <circle cx="246" cy="155" r="3.5" fill="#c4a882"/>
+          <circle cx="344" cy="125" r="3.5" fill="#c4a882"/>
+          <circle cx="442" cy="95" r="3.5" fill="#c4a882"/>
+          <circle cx="540" cy="78" r="3.5" fill="#c4a882"/>
+          <rect x="160" y="10" width="8" height="8" rx="2" fill="#c4a882"/>
+          <text x="173" y="18" fill="rgba(240,236,232,0.5)" font-size="10" font-family="DM Sans">Savings + Investments</text>
+          <rect x="320" y="10" width="8" height="8" rx="2" fill="#a78bfa"/>
+          <text x="333" y="18" fill="rgba(240,236,232,0.5)" font-size="10" font-family="DM Sans">CPF</text>
+        </svg>
+      </div>
+      <div class="ret-controls">
+        <div class="ret-field">
+          <label>Current Savings</label>
+          <input class="field-val" type="text" value="S$412,000">
+        </div>
+        <div class="ret-field">
+          <label>Monthly Investment</label>
+          <input class="field-val" type="text" value="S$2,000">
+          <div class="lock-row">
+            <span class="lock-icon" id="lockMonthly" onclick="toggleLock('monthly')">&#128274;</span>
+            <span class="lock-label" id="lockMonthlyLabel">Locked - solve for this</span>
+          </div>
+        </div>
+        <div class="ret-field">
+          <label>Target Retirement Age</label>
+          <input class="field-val" type="text" value="65">
+          <div class="lock-row">
+            <span class="lock-icon" id="lockAge" onclick="toggleLock('age')">&#128275;</span>
+            <span class="lock-label" id="lockAgeLabel">Unlocked</span>
+          </div>
+        </div>
+        <div class="ret-field">
+          <label>Desired Monthly Income (Retirement)</label>
+          <input class="field-val" type="text" value="S$5,000">
+        </div>
+        <div class="ret-field">
+          <label>Expected Return (p.a.)</label>
+          <input class="field-val" type="text" value="6%">
+        </div>
+        <div class="income-table">
+          <div class="income-table-header"><span>Source</span><span>Monthly</span><span>Annual</span></div>
+          <div class="income-table-row"><span>CPF Life</span><span>S$1,450</span><span>S$17,400</span></div>
+          <div class="income-table-row"><span>Dividends</span><span>S$2,100</span><span>S$25,200</span></div>
+          <div class="income-table-row"><span style="color:var(--gold);font-weight:600;">Shortfall</span><span style="color:var(--red);">S$1,450</span><span style="color:var(--red);">S$17,400</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSURANCE VIEW -->
+  <div class="view" id="view-insurance">
+    <div class="ins-summary">
+      <div class="ins-stat"><div class="val" style="color:var(--green);">68</div><div class="lbl">Protection Score</div></div>
+      <div class="ins-stat"><div class="val">7</div><div class="lbl">Active Policies</div></div>
+      <div class="ins-stat"><div class="val" style="color:var(--red);">S$50K</div><div class="lbl">CI Coverage Gap</div></div>
+      <div class="ins-stat"><div class="val">S$4,860</div><div class="lbl">Annual Premiums</div></div>
+    </div>
+    <div style="margin:16px 0;">
+      <button class="ins-upload-btn" onclick="document.getElementById('pdfInput').click()">&#128196; Upload Policy PDF</button>
+      <input type="file" id="pdfInput" accept=".pdf" style="display:none;" onchange="handlePdfUpload(this)">
+      <span id="uploadStatus" style="font-size:12px;color:var(--dim);margin-left:12px;"></span>
+    </div>
+    <div class="ins-table">
+      <div class="ins-table-header"><span>Policy</span><span>Type</span><span>Coverage</span><span>Premium</span><span>Status</span></div>
+      <div class="ins-table-row"><span>AIA Pro Lifetime Protector</span><span>Death + TPD</span><span>S$500,000</span><span>S$1,840/yr</span><span><span class="ins-badge ok">Adequate</span></span></div>
+      <div class="ins-table-row"><span>Great Eastern Supreme Health</span><span>Hospitalisation</span><span>As-charged</span><span>S$890/yr</span><span><span class="ins-badge ok">Full</span></span></div>
+      <div class="ins-table-row"><span>Prudential PRUActive CI</span><span>Critical Illness</span><span>S$100,000</span><span>S$1,200/yr</span><span><span class="ins-badge warn">Low</span></span></div>
+      <div class="ins-table-row"><span>Income Shield Enhanced</span><span>Personal Accident</span><span>S$200,000</span><span>S$430/yr</span><span><span class="ins-badge ok">Adequate</span></span></div>
+      <div class="ins-table-row"><span>CareShield Life</span><span>LTC</span><span>S$662/mo</span><span>S$500/yr</span><span><span class="ins-badge warn">Base Only</span></span></div>
+      <div class="ins-table-row"><span>Singlife MyTermPlus</span><span>Term Life</span><span>S$300,000</span><span>-</span><span><span class="ins-badge ok">Adequate</span></span></div>
+      <div class="ins-table-row"><span style="color:var(--red);">- No ECI Policy -</span><span>Early CI</span><span style="color:var(--red);">S$0</span><span>-</span><span><span class="ins-badge crit">Gap</span></span></div>
+    </div>
+    <div style="margin-top:24px;">
+      <div class="tile-label">Coverage vs Recommended</div>
+      <svg viewBox="0 0 600 180" width="100%" style="margin-top:12px;">
+        <text x="10" y="28" fill="rgba(240,236,232,0.5)" font-size="11" font-family="DM Sans">Death</text>
+        <rect x="110" y="18" width="400" height="14" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <rect x="110" y="18" width="340" height="14" rx="4" fill="#10b981" opacity="0.7"/>
+        <text x="520" y="29" fill="rgba(240,236,232,0.4)" font-size="10" font-family="DM Sans">85%</text>
+        <text x="10" y="58" fill="rgba(240,236,232,0.5)" font-size="11" font-family="DM Sans">TPD</text>
+        <rect x="110" y="48" width="400" height="14" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <rect x="110" y="48" width="288" height="14" rx="4" fill="#f59e0b" opacity="0.7"/>
+        <text x="520" y="59" fill="rgba(240,236,232,0.4)" font-size="10" font-family="DM Sans">72%</text>
+        <text x="10" y="88" fill="rgba(240,236,232,0.5)" font-size="11" font-family="DM Sans">Critical Illness</text>
+        <rect x="110" y="78" width="400" height="14" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <rect x="110" y="78" width="140" height="14" rx="4" fill="#ef4444" opacity="0.7"/>
+        <text x="520" y="89" fill="rgba(239,68,68,0.7)" font-size="10" font-family="DM Sans" font-weight="600">35%</text>
+        <text x="10" y="118" fill="rgba(240,236,232,0.5)" font-size="11" font-family="DM Sans">Hospital</text>
+        <rect x="110" y="108" width="400" height="14" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <rect x="110" y="108" width="400" height="14" rx="4" fill="#10b981" opacity="0.7"/>
+        <text x="520" y="119" fill="rgba(240,236,232,0.4)" font-size="10" font-family="DM Sans">100%</text>
+        <text x="10" y="148" fill="rgba(240,236,232,0.5)" font-size="11" font-family="DM Sans">LTC</text>
+        <rect x="110" y="138" width="400" height="14" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <rect x="110" y="138" width="180" height="14" rx="4" fill="#f59e0b" opacity="0.7"/>
+        <text x="520" y="149" fill="rgba(240,236,232,0.4)" font-size="10" font-family="DM Sans">45%</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchView(id) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var view = document.getElementById('view-' + id);
+  if (view) { view.classList.add('active'); view.style.animation = 'none'; view.offsetHeight; view.style.animation = ''; }
+  var tabs = document.querySelectorAll('.tab');
+  var map = { dashboard: 0, stress: 1, retirement: 2, insurance: 3 };
+  if (map[id] !== undefined && tabs[map[id]]) tabs[map[id]].classList.add('active');
+  var navItems = document.querySelectorAll('.nav-item');
+  if (map[id] !== undefined && navItems[map[id]]) navItems[map[id]].classList.add('active');
+}
+
+function openCmd() {
+  document.getElementById('cmdOverlay').classList.add('show');
+  setTimeout(function() { document.getElementById('cmdInput').focus(); }, 100);
+}
+function closeCmd() { document.getElementById('cmdOverlay').classList.remove('show'); document.getElementById('cmdInput').value = ''; }
+
+document.getElementById('cmdOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCmd();
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openCmd(); }
+  if (e.key === 'Escape') closeCmd();
+});
+
+document.getElementById('cmdInput').addEventListener('input', function(e) {
+  var q = e.target.value.toLowerCase();
+  document.querySelectorAll('.cmd-result-item').forEach(function(item) {
+    item.style.display = item.textContent.toLowerCase().indexOf(q) !== -1 ? 'flex' : 'none';
+  });
+});
+
+document.querySelectorAll('.cmd-result-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    var v = this.getAttribute('data-view');
+    if (v) { switchView(v); closeCmd(); }
+  });
+});
+
+function setScenario(btn, type) {
+  document.querySelectorAll('.scenario-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var scenarios = {
+    job: { label: 'Job Loss Scenario', noAge: 48, yesAge: 59, years: 11, cost: 387 },
+    ci: { label: 'Critical Illness Scenario', noAge: 42, yesAge: 56, years: 14, cost: 387 },
+    disability: { label: 'Total Disability Scenario', noAge: 44, yesAge: 61, years: 17, cost: 387 },
+    death: { label: 'Premature Death Scenario', noAge: 35, yesAge: 35, years: 0, cost: 387 }
+  };
+  var s = scenarios[type];
+  document.getElementById('stChartLabel').textContent = 'Savings Runway - ' + s.label;
+  document.getElementById('stRunwayNo').textContent = 'Age ' + s.noAge;
+  document.getElementById('stRunwayYes').textContent = 'Age ' + s.yesAge;
+  document.getElementById('stVerdict').textContent = '';
+  var p = document.getElementById('stVerdict');
+  p.textContent = 'Your insurance buys you ' + s.years + ' extra years of financial runway. That security costs S$' + s.cost + '/month in premiums.';
+}
+
+function updateStress() {
+  document.getElementById('incDropVal').textContent = document.getElementById('incDrop').value + '%';
+  document.getElementById('expVal').textContent = 'S$' + Number(document.getElementById('expSlider').value).toLocaleString();
+  var ef = document.getElementById('efSlider').value;
+  document.getElementById('efVal').textContent = 'S$' + (ef >= 1000 ? Math.round(ef / 1000) + 'K' : ef);
+}
+
+function toggleSurplus() {
+  document.getElementById('surplusToggle').classList.toggle('on');
+}
+
+var lockState = { monthly: true, age: false };
+function toggleLock(field) {
+  lockState[field] = !lockState[field];
+  var icon = document.getElementById(field === 'monthly' ? 'lockMonthly' : 'lockAge');
+  var label = document.getElementById(field === 'monthly' ? 'lockMonthlyLabel' : 'lockAgeLabel');
+  if (lockState[field]) { icon.textContent = '\u{1F512}'; label.textContent = 'Locked - solve for this'; }
+  else { icon.textContent = '\u{1F513}'; label.textContent = 'Unlocked'; }
+}
+
+var heroTooltip = document.getElementById('heroTooltip');
+document.querySelectorAll('#heroChart .chart-dot').forEach(function(dot) {
+  dot.style.cursor = 'pointer';
+  dot.addEventListener('mouseenter', function() {
+    heroTooltip.textContent = this.getAttribute('data-year') + ': ' + this.getAttribute('data-val');
+    heroTooltip.style.display = 'block';
+    var svgRect = document.getElementById('heroChart').getBoundingClientRect();
+    var cx = parseFloat(this.getAttribute('cx'));
+    var cy = parseFloat(this.getAttribute('cy'));
+    var scaleX = svgRect.width / 600;
+    var scaleY = svgRect.height / 260;
+    heroTooltip.style.left = (cx * scaleX - 30) + 'px';
+    heroTooltip.style.top = (cy * scaleY - 36) + 'px';
+  });
+  dot.addEventListener('mouseleave', function() { heroTooltip.style.display = 'none'; });
+});
+
+function handlePdfUpload(input) {
+  if (input.files.length > 0) {
+    var status = document.getElementById('uploadStatus');
+    status.textContent = 'Scanning ' + input.files[0].name + '...';
+    status.style.color = 'var(--gold)';
+    setTimeout(function() {
+      status.textContent = 'Extracted policy data from ' + input.files[0].name;
+      status.style.color = 'var(--green)';
+    }, 2000);
+  }
+}
+</script>
+</body>
+</html>

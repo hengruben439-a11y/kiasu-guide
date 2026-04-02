@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup D — Immersive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0605;
+    --burgundy: #9b2040;
+    --burgundy-dim: rgba(155,32,64,0.35);
+    --gold: #c4a882;
+    --gold-dim: rgba(196,168,130,0.5);
+    --text: #fdf8f2;
+    --text-dim: rgba(253,248,242,0.55);
+    --text-muted: rgba(253,248,242,0.30);
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #eab308;
+    --purple: #a78bfa;
+
+    --l1-bg: rgba(122,28,46,0.04);
+    --l1-blur: 8px;
+    --l1-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    --l1-rim: rgba(196,168,130,0.08);
+
+    --l2-bg: rgba(122,28,46,0.06);
+    --l2-blur: 16px;
+    --l2-shadow: 0 4px 16px rgba(0,0,0,0.20);
+    --l2-rim: rgba(196,168,130,0.12);
+
+    --l3-bg: rgba(122,28,46,0.10);
+    --l3-blur: 24px;
+    --l3-shadow: 0 8px 32px rgba(0,0,0,0.30);
+    --l3-rim: rgba(196,168,130,0.18);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Ambient Orbs */
+  .orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+  .orb-1 { width: 450px; height: 450px; background: rgba(155,32,64,0.06); top: 10%; left: 20%; animation: drift1 20s ease-in-out infinite; }
+  .orb-2 { width: 350px; height: 350px; background: rgba(196,168,130,0.04); top: 50%; right: 15%; animation: drift2 24s ease-in-out infinite; }
+  .orb-3 { width: 300px; height: 300px; background: rgba(167,139,250,0.03); bottom: 10%; left: 40%; animation: drift3 22s ease-in-out infinite; }
+  @keyframes drift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(60px,-40px)} 66%{transform:translate(-30px,50px)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-50px,30px)} 66%{transform:translate(40px,-60px)} }
+  @keyframes drift3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(30px,40px)} 66%{transform:translate(-60px,-20px)} }
+
+  /* Depth Cards */
+  .layer-1 {
+    background: var(--l1-bg); backdrop-filter: blur(var(--l1-blur)); -webkit-backdrop-filter: blur(var(--l1-blur));
+    box-shadow: var(--l1-shadow); border: 1px solid var(--l1-rim); border-radius: 16px; transition: all 0.3s ease;
+  }
+  .layer-1:hover {
+    background: var(--l2-bg); backdrop-filter: blur(var(--l2-blur)); -webkit-backdrop-filter: blur(var(--l2-blur));
+    box-shadow: var(--l2-shadow); border-color: var(--l2-rim); transform: translateY(-2px);
+  }
+  .layer-2 {
+    background: var(--l2-bg); backdrop-filter: blur(var(--l2-blur)); -webkit-backdrop-filter: blur(var(--l2-blur));
+    box-shadow: var(--l2-shadow); border: 1px solid var(--l2-rim); border-radius: 18px; transition: all 0.3s ease;
+  }
+  .layer-2:hover {
+    background: var(--l3-bg); backdrop-filter: blur(var(--l3-blur)); -webkit-backdrop-filter: blur(var(--l3-blur));
+    box-shadow: var(--l3-shadow); border-color: var(--l3-rim); transform: translateY(-2px);
+  }
+  .layer-3 {
+    background: var(--l3-bg); backdrop-filter: blur(var(--l3-blur)); -webkit-backdrop-filter: blur(var(--l3-blur));
+    box-shadow: var(--l3-shadow); border: 1px solid var(--l3-rim); border-radius: 20px;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* Sidebar (floating pill) */
+  .sidebar {
+    width: 210px; position: fixed; left: 16px; top: 50%; transform: translateY(-50%);
+    background: var(--l2-bg); backdrop-filter: blur(var(--l2-blur)); -webkit-backdrop-filter: blur(var(--l2-blur));
+    box-shadow: var(--l2-shadow); border: 1px solid var(--l2-rim); border-radius: 28px;
+    padding: 28px 16px; z-index: 20; display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto;
+  }
+  .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 4px; padding: 0 8px; }
+  .sidebar-sub { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0 8px; margin-bottom: 24px; }
+  .nav-group-label { font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-dim); margin: 16px 0 6px 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 12px;
+    color: var(--text-dim); border-radius: 10px; cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(196,168,130,0.06); }
+  .nav-item.active { color: var(--gold); background: rgba(196,168,130,0.08); }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 16px; background: var(--gold); border-radius: 2px;
+  }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+  .nav-dot.done { background: var(--success); }
+  .nav-dot.active-dot { background: var(--gold); }
+
+  /* Main Content */
+  .main { margin-left: 250px; flex: 1; padding: 32px 40px; min-height: 100vh; }
+
+  /* Tab Bar */
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 32px; background: var(--l1-bg); backdrop-filter: blur(8px); border: 1px solid var(--l1-rim); border-radius: 14px; padding: 4px; width: fit-content; }
+  .tab {
+    padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--text-dim); border-radius: 10px;
+    cursor: pointer; transition: all 0.25s; border: none; background: none; font-family: inherit;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--l3-bg); backdrop-filter: blur(var(--l3-blur)); color: var(--gold); box-shadow: var(--l2-shadow); border: 1px solid var(--l3-rim); }
+
+  /* View containers */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Dashboard */
+  .dash-hero { position: relative; padding: 40px; margin-bottom: 24px; }
+  .dash-greeting { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+  .dash-greeting span { color: var(--gold); }
+  .dash-verdict { font-size: 14px; color: var(--text-dim); max-width: 500px; line-height: 1.6; margin-bottom: 24px; }
+  .health-gauge-wrap { display: flex; align-items: center; gap: 32px; }
+  .health-breakdown { display: flex; flex-direction: column; gap: 6px; }
+  .hb-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); }
+  .hb-bar { width: 60px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .hb-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+  .stat-orbit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-panel { padding: 20px; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 8px; }
+  .stat-value { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  .chart-panel { padding: 24px; margin-bottom: 24px; }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 16px; }
+  .chart-wrap { width: 100%; overflow: hidden; }
+  .chart-wrap svg { width: 100%; height: auto; }
+
+  .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tool-card { padding: 20px; cursor: pointer; }
+  .tool-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 12px; }
+  .tool-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .tool-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+  /* Stress Test */
+  .scenario-pills { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .scenario-pill {
+    padding: 10px 18px; font-size: 12px; font-weight: 500; color: var(--text-dim); cursor: pointer;
+    transition: all 0.25s; border: none; font-family: inherit; background: var(--l1-bg);
+    backdrop-filter: blur(8px); border-radius: 24px; border: 1px solid var(--l1-rim);
+  }
+  .scenario-pill:hover { color: var(--text); border-color: var(--l2-rim); }
+  .scenario-pill.active { background: var(--l3-bg); color: var(--gold); border-color: var(--l3-rim); box-shadow: 0 0 20px rgba(196,168,130,0.08); }
+
+  .highlight-card { text-align: center; padding: 40px; margin-bottom: 24px; }
+  .highlight-number { font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 800; color: var(--gold); line-height: 1; }
+  .highlight-unit { font-size: 20px; color: var(--text-dim); font-weight: 400; margin-left: 8px; }
+  .highlight-desc { font-size: 14px; color: var(--text-dim); margin-top: 8px; }
+
+  .results-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .result-item { padding: 16px; text-align: center; }
+  .result-val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .result-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); }
+
+  /* Retirement */
+  .verdict-panel { padding: 32px; margin-bottom: 24px; }
+  .verdict-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
+  .verdict-text .gold { color: var(--gold); }
+  .verdict-text .green { color: var(--success); }
+  .verdict-sub { font-size: 13px; color: var(--text-dim); }
+
+  .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .control-card { padding: 20px; }
+  .control-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px; }
+  .control-slider { width: 100%; margin-top: 8px; accent-color: var(--gold); }
+  .control-val { font-size: 20px; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 4px; }
+
+  .income-bar-wrap { padding: 4px; }
+  .income-bar { padding: 16px; display: flex; align-items: center; gap: 16px; }
+  .income-bar-label { font-size: 11px; color: var(--text-dim); min-width: 120px; }
+  .income-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; }
+  .income-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .income-bar-val { font-size: 13px; font-weight: 600; min-width: 80px; text-align: right; }
+
+  /* Insurance */
+  .score-ring-wrap { display: flex; align-items: center; gap: 32px; padding: 32px; margin-bottom: 24px; }
+  .score-detail h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .score-detail p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  .coverage-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .coverage-table th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .coverage-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .coverage-table tr:hover td { background: rgba(196,168,130,0.03); cursor: pointer; }
+
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .status-adequate { background: rgba(34,197,94,0.12); color: var(--success); }
+  .status-gap { background: rgba(234,179,8,0.12); color: var(--warning); }
+  .status-critical { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+  .policy-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .policy-card { padding: 20px; }
+  .policy-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .policy-insurer { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+  .policy-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+  .policy-row-label { color: var(--text-dim); }
+  .policy-row-val { font-weight: 600; }
+
+  .add-btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; font-size: 13px; font-weight: 600;
+    color: var(--gold); cursor: pointer; font-family: inherit; transition: all 0.2s;
+    background: var(--l1-bg); backdrop-filter: blur(8px); border: 1px solid var(--l1-rim); border-radius: 12px;
+  }
+  .add-btn:hover { background: var(--l2-bg); border-color: var(--l2-rim); }
+
+  /* Tooltip */
+  .chart-tooltip {
+    position: absolute; background: rgba(10,6,5,0.92); backdrop-filter: blur(12px);
+    border: 1px solid var(--l2-rim); border-radius: 10px; padding: 10px 14px; font-size: 11px;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 30; white-space: nowrap;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .tt-title { color: var(--gold); font-weight: 600; }
+  .tt-val { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-brand">The Kiasu Guide</div>
+  <div class="sidebar-sub">Financial Advisory</div>
+  <div class="nav-group-label">Know</div>
+  <div class="nav-item active" onclick="switchView('dashboard')"><span class="nav-dot active-dot"></span> Dashboard</div>
+  <div class="nav-item"><span class="nav-dot done"></span> Financial Profile</div>
+  <div class="nav-item"><span class="nav-dot done"></span> CPF Overview</div>
+  <div class="nav-group-label">Find</div>
+  <div class="nav-item" onclick="switchView('insurance')"><span class="nav-dot done"></span> Insurance Benefits</div>
+  <div class="nav-item" onclick="switchView('stress')"><span class="nav-dot active-dot"></span> Stress Test</div>
+  <div class="nav-group-label">Plot</div>
+  <div class="nav-item" onclick="switchView('retirement')"><span class="nav-dot"></span> Retirement Planning</div>
+  <div class="nav-item"><span class="nav-dot"></span> Cost of Waiting</div>
+  <div class="nav-group-label">Optimise</div>
+  <div class="nav-item"><span class="nav-dot"></span> Cash Flow</div>
+  <div class="nav-item"><span class="nav-dot"></span> Net Worth</div>
+  <div class="nav-group-label">Review</div>
+  <div class="nav-item"><span class="nav-dot"></span> Session Summary</div>
+</div>
+
+<div class="layout">
+  <div class="main">
+    <div class="tab-bar">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="stress">Stress Test</button>
+      <button class="tab" data-view="retirement">Retirement</button>
+      <button class="tab" data-view="insurance">Insurance</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+      <div class="dash-hero layer-3">
+        <div class="health-gauge-wrap">
+          <div>
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--success)" stroke-width="8" stroke-dasharray="75.4 239.6" stroke-dashoffset="-10" stroke-linecap="round" opacity="0.7" style="transform:rotate(-90deg);transform-origin:center;"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--gold)" stroke-width="8" stroke-dasharray="47 267" stroke-dashoffset="-88" stroke-linecap="round" opacity="0.7" style="transform:rotate(-90deg);transform-origin:center;"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--purple)" stroke-width="8" stroke-dasharray="55 259.2" stroke-dashoffset="-138" stroke-linecap="round" opacity="0.7" style="transform:rotate(-90deg);transform-origin:center;"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--warning)" stroke-width="8" stroke-dasharray="42 272" stroke-dashoffset="-196" stroke-linecap="round" opacity="0.7" style="transform:rotate(-90deg);transform-origin:center;"/>
+              <text x="60" y="55" text-anchor="middle" font-family="Playfair Display" font-size="28" font-weight="800" fill="var(--text)">72</text>
+              <text x="60" y="72" text-anchor="middle" font-size="9" fill="var(--text-muted)" font-family="DM Sans" letter-spacing="0.1em">HEALTH</text>
+            </svg>
+          </div>
+          <div>
+            <div class="dash-greeting">Good afternoon, <span>Wei Ming</span>.</div>
+            <div class="dash-verdict">Your financial health is <strong style="color:var(--gold)">moderate</strong>. Protection coverage is strong, but your retirement savings are tracking 39% below target. The stress test shows you'd run out of savings at age 52 without insurance -- your policies extend that to age 66.</div>
+            <div class="health-breakdown">
+              <div class="hb-row"><div class="hb-bar"><div class="hb-fill" style="width:82%;background:var(--success)"></div></div> Protection 82%</div>
+              <div class="hb-row"><div class="hb-bar"><div class="hb-fill" style="width:61%;background:var(--gold)"></div></div> Retirement 61%</div>
+              <div class="hb-row"><div class="hb-bar"><div class="hb-fill" style="width:88%;background:var(--purple)"></div></div> Liquidity 88%</div>
+              <div class="hb-row"><div class="hb-bar"><div class="hb-fill" style="width:90%;background:var(--warning)"></div></div> Debt 90%</div>
+              <div class="hb-row"><div class="hb-bar"><div class="hb-fill" style="width:45%;background:var(--burgundy)"></div></div> Investment 45%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-orbit">
+        <div class="stat-panel layer-2">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value" style="color:var(--success)">S$482,300</div>
+          <div class="stat-sub">+S$12,400 this quarter</div>
+        </div>
+        <div class="stat-panel layer-2">
+          <div class="stat-label">Monthly Surplus</div>
+          <div class="stat-value" style="color:var(--gold)">S$1,820</div>
+          <div class="stat-sub">After all expenses</div>
+        </div>
+        <div class="stat-panel layer-2">
+          <div class="stat-label">Retirement Gap</div>
+          <div class="stat-value" style="color:var(--warning)">S$387K</div>
+          <div class="stat-sub">39% below target</div>
+        </div>
+        <div class="stat-panel layer-2">
+          <div class="stat-label">CPF Total</div>
+          <div class="stat-value">S$198,500</div>
+          <div class="stat-sub">OA S$98K / SA S$72K / MA S$28K</div>
+        </div>
+      </div>
+
+      <div class="chart-panel layer-2" style="position:relative;" id="dash-chart-panel">
+        <div class="chart-title">Portfolio Projection -- Next 30 Years</div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" id="dash-chart">
+            <defs>
+              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(196,168,130,0.25)"/>
+                <stop offset="100%" stop-color="rgba(196,168,130,0)"/>
+              </linearGradient>
+            </defs>
+            <line x1="60" y1="20" x2="60" y2="230" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="230" x2="780" y2="230" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="170" x2="780" y2="170" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <line x1="60" y1="110" x2="780" y2="110" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <line x1="60" y1="50" x2="780" y2="50" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <text x="50" y="234" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$0</text>
+            <text x="50" y="174" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$500K</text>
+            <text x="50" y="114" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$1M</text>
+            <text x="50" y="54" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$1.5M</text>
+            <text x="60" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">2026</text>
+            <text x="300" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">2036</text>
+            <text x="540" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">2046</text>
+            <text x="760" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">2056</text>
+            <line x1="60" y1="72" x2="780" y2="72" stroke="var(--burgundy)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+            <text x="785" y="76" font-size="9" fill="var(--burgundy)" font-family="DM Sans" opacity="0.7">Target S$1.2M</text>
+            <path d="M60,230 L60,210 L180,195 L300,175 L420,148 L540,110 L660,78 L780,42 L780,230 Z" fill="url(#goldGrad)"/>
+            <polyline points="60,210 180,195 300,175 420,148 540,110 660,78 780,42" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="60" cy="210" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2026" data-value="S$482K" style="cursor:pointer"/>
+            <circle cx="60" cy="210" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="180" cy="195" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2031" data-value="S$612K" style="cursor:pointer"/>
+            <circle cx="180" cy="195" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="300" cy="175" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2036" data-value="S$768K" style="cursor:pointer"/>
+            <circle cx="300" cy="175" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="420" cy="148" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2041" data-value="S$920K" style="cursor:pointer"/>
+            <circle cx="420" cy="148" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="540" cy="110" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2046" data-value="S$1.12M" style="cursor:pointer"/>
+            <circle cx="540" cy="110" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="660" cy="78" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2051" data-value="S$1.31M" style="cursor:pointer"/>
+            <circle cx="660" cy="78" r="4" fill="var(--gold)" pointer-events="none"/>
+            <circle cx="780" cy="42" r="5" fill="transparent" stroke="none" class="chart-dot" data-title="2056" data-value="S$1.58M" style="cursor:pointer"/>
+            <circle cx="780" cy="42" r="4" fill="var(--gold)" pointer-events="none"/>
+          </svg>
+        </div>
+        <div class="chart-tooltip" id="dash-tooltip"></div>
+      </div>
+
+      <div class="tool-grid">
+        <div class="tool-card layer-1" onclick="switchView('stress')">
+          <div class="tool-icon" style="background:rgba(155,32,64,0.15);color:var(--burgundy)">&#9889;</div>
+          <div class="tool-name">Stress Test</div>
+          <div class="tool-desc">Simulate income shocks and see how your savings hold up.</div>
+        </div>
+        <div class="tool-card layer-1" onclick="switchView('retirement')">
+          <div class="tool-icon" style="background:rgba(196,168,130,0.12);color:var(--gold)">&#9678;</div>
+          <div class="tool-name">Retirement Planning</div>
+          <div class="tool-desc">Lock two variables, solve for the third. Your path to freedom.</div>
+        </div>
+        <div class="tool-card layer-1" onclick="switchView('insurance')">
+          <div class="tool-icon" style="background:rgba(34,197,94,0.12);color:var(--success)">&#9737;</div>
+          <div class="tool-name">Insurance Benefits</div>
+          <div class="tool-desc">Upload policies, scan PDFs, find coverage gaps.</div>
+        </div>
+        <div class="tool-card layer-1">
+          <div class="tool-icon" style="background:rgba(167,139,250,0.12);color:var(--purple)">&#9638;</div>
+          <div class="tool-name">CPF Planner</div>
+          <div class="tool-desc">Project OA, SA, MA balances across your career.</div>
+        </div>
+        <div class="tool-card layer-1">
+          <div class="tool-icon" style="background:rgba(234,179,8,0.12);color:var(--warning)">&#9651;</div>
+          <div class="tool-name">Cash Flow</div>
+          <div class="tool-desc">Track income vs expenses, find hidden surplus.</div>
+        </div>
+        <div class="tool-card layer-1">
+          <div class="tool-icon" style="background:rgba(59,130,246,0.12);color:#3b82f6">&#9650;</div>
+          <div class="tool-name">Net Worth</div>
+          <div class="tool-desc">Assets minus liabilities. The number that matters.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STRESS TEST -->
+    <div id="view-stress" class="view">
+      <div class="scenario-pills">
+        <button class="scenario-pill active" onclick="selectScenario(this,'retrench')">Job Loss</button>
+        <button class="scenario-pill" onclick="selectScenario(this,'ci')">Critical Illness</button>
+        <button class="scenario-pill" onclick="selectScenario(this,'disability')">Disability</button>
+        <button class="scenario-pill" onclick="selectScenario(this,'death')">Premature Death</button>
+      </div>
+
+      <div class="highlight-card layer-3" id="stress-highlight">
+        <div class="highlight-number" id="stress-years">14<span class="highlight-unit">years</span></div>
+        <div class="highlight-desc" id="stress-desc">Insurance extends your family's financial runway by 14 years if you lose your job at age 35.</div>
+      </div>
+
+      <div class="chart-panel layer-2" style="position:relative;" id="stress-chart-panel">
+        <div class="chart-title">Savings Depletion Timeline</div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 800 240" preserveAspectRatio="xMidYMid meet" id="stress-chart">
+            <defs>
+              <linearGradient id="stressGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(155,32,64,0.20)"/>
+                <stop offset="100%" stop-color="rgba(155,32,64,0)"/>
+              </linearGradient>
+              <linearGradient id="insuredGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(34,197,94,0.15)"/>
+                <stop offset="100%" stop-color="rgba(34,197,94,0)"/>
+              </linearGradient>
+            </defs>
+            <line x1="60" y1="20" x2="60" y2="210" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="210" x2="780" y2="210" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="140" x2="780" y2="140" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <line x1="60" y1="70" x2="780" y2="70" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <text x="50" y="214" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$0</text>
+            <text x="50" y="144" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$250K</text>
+            <text x="50" y="74" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$500K</text>
+            <text x="60" y="228" font-size="9" fill="var(--text-muted)" font-family="DM Sans">Age 35</text>
+            <text x="240" y="228" font-size="9" fill="var(--text-muted)" font-family="DM Sans">40</text>
+            <text x="420" y="228" font-size="9" fill="var(--text-muted)" font-family="DM Sans">45</text>
+            <text x="600" y="228" font-size="9" fill="var(--text-muted)" font-family="DM Sans">50</text>
+            <text x="740" y="228" font-size="9" fill="var(--text-muted)" font-family="DM Sans">55</text>
+            <!-- Without insurance -->
+            <path d="M60,210 L60,60 L96,72 L132,88 L168,106 L204,126 L240,148 L276,168 L312,185 L348,198 L384,207 L420,210 L420,210 Z" fill="url(#stressGrad)"/>
+            <polyline points="60,60 96,72 132,88 168,106 204,126 240,148 276,168 312,185 348,198 384,207 420,210" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <!-- With insurance -->
+            <path d="M60,210 L60,60 L120,64 L180,72 L240,82 L300,96 L360,112 L420,130 L480,150 L540,168 L600,184 L660,198 L720,207 L780,210 L780,210 Z" fill="url(#insuredGrad)"/>
+            <polyline points="60,60 120,64 180,72 240,82 300,96 360,112 420,130 480,150 540,168 600,184 660,198 720,207 780,210" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/>
+            <!-- Markers -->
+            <line x1="420" y1="20" x2="420" y2="210" stroke="var(--danger)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+            <text x="424" y="32" font-size="9" fill="var(--danger)" font-family="DM Sans" opacity="0.7">Age 45 -- no insurance</text>
+            <!-- Interactive dots -->
+            <circle cx="60" cy="60" r="6" fill="transparent" class="chart-dot" data-title="Age 35" data-value="S$482K (insured)" style="cursor:pointer"/>
+            <circle cx="60" cy="60" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="300" cy="96" r="6" fill="transparent" class="chart-dot" data-title="Age 42" data-value="S$312K (insured)" style="cursor:pointer"/>
+            <circle cx="300" cy="96" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="540" cy="168" r="6" fill="transparent" class="chart-dot" data-title="Age 48" data-value="S$124K (insured)" style="cursor:pointer"/>
+            <circle cx="540" cy="168" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="420" cy="210" r="6" fill="transparent" class="chart-dot" data-title="Age 45" data-value="S$0 (no insurance)" style="cursor:pointer"/>
+            <circle cx="420" cy="210" r="3.5" fill="var(--danger)" pointer-events="none"/>
+            <!-- Legend -->
+            <circle cx="560" cy="18" r="4" fill="var(--success)"/>
+            <text x="570" y="22" font-size="9" fill="var(--text-dim)" font-family="DM Sans">With insurance</text>
+            <circle cx="680" cy="18" r="4" fill="var(--danger)"/>
+            <text x="690" y="22" font-size="9" fill="var(--text-dim)" font-family="DM Sans">Without</text>
+          </svg>
+        </div>
+        <div class="chart-tooltip" id="stress-tooltip"></div>
+      </div>
+
+      <div class="results-strip">
+        <div class="result-item layer-1">
+          <div class="result-val" style="color:var(--danger)" id="stress-without">Age 45</div>
+          <div class="result-label">Depleted Without Insurance</div>
+        </div>
+        <div class="result-item layer-1">
+          <div class="result-val" style="color:var(--success)" id="stress-with">Age 59</div>
+          <div class="result-label">Depleted With Insurance</div>
+        </div>
+        <div class="result-item layer-1">
+          <div class="result-val" style="color:var(--gold)" id="stress-cost">S$285/mo</div>
+          <div class="result-label">Cost of Protection</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RETIREMENT -->
+    <div id="view-retirement" class="view">
+      <div class="verdict-panel layer-3">
+        <div class="verdict-text">
+          You need <span class="gold">S$1.2M</span> by age 65. You're projected to reach <span class="green">S$813K</span>.
+          You're <span class="gold">68%</span> of the way there.
+        </div>
+        <div class="verdict-sub">At current savings rate, you'll hit your target by age 71 -- 6 years late. Increasing monthly investment by S$450 closes the gap.</div>
+      </div>
+
+      <div class="chart-panel layer-2" style="position:relative;" id="retire-chart-panel">
+        <div class="chart-title">Retirement Corpus Projection</div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 800 260" preserveAspectRatio="xMidYMid meet" id="retire-chart">
+            <defs>
+              <linearGradient id="retireGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(34,197,94,0.15)"/>
+                <stop offset="100%" stop-color="rgba(34,197,94,0)"/>
+              </linearGradient>
+              <linearGradient id="cpfGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(167,139,250,0.12)"/>
+                <stop offset="100%" stop-color="rgba(167,139,250,0)"/>
+              </linearGradient>
+            </defs>
+            <line x1="60" y1="20" x2="60" y2="230" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="230" x2="780" y2="230" stroke="rgba(255,255,255,0.04)"/>
+            <line x1="60" y1="170" x2="780" y2="170" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <line x1="60" y1="110" x2="780" y2="110" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <line x1="60" y1="50" x2="780" y2="50" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4,4"/>
+            <text x="50" y="234" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$0</text>
+            <text x="50" y="174" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$400K</text>
+            <text x="50" y="114" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$800K</text>
+            <text x="50" y="54" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="DM Sans">S$1.2M</text>
+            <text x="60" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">Age 35</text>
+            <text x="300" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">45</text>
+            <text x="540" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">55</text>
+            <text x="740" y="250" font-size="9" fill="var(--text-muted)" font-family="DM Sans">65</text>
+            <!-- Target -->
+            <line x1="60" y1="50" x2="780" y2="50" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+            <text x="785" y="54" font-size="9" fill="var(--gold)" font-family="DM Sans" opacity="0.6">Target</text>
+            <!-- CPF layer -->
+            <path d="M60,230 L60,218 L180,206 L300,192 L420,176 L540,162 L660,148 L780,138 L780,230 Z" fill="url(#cpfGrad)"/>
+            <polyline points="60,218 180,206 300,192 420,176 540,162 660,148 780,138" fill="none" stroke="var(--purple)" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+            <!-- Savings + investment -->
+            <path d="M60,230 L60,206 L180,186 L300,162 L420,132 L540,104 L660,82 L780,68 L780,230 Z" fill="url(#retireGrad)"/>
+            <polyline points="60,206 180,186 300,162 420,132 540,104 660,82 780,68" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Gap -->
+            <path d="M780,68 L780,50" stroke="var(--warning)" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+            <text x="755" y="46" font-size="9" fill="var(--warning)" font-family="DM Sans">Gap: S$387K</text>
+            <!-- Interactive dots -->
+            <circle cx="60" cy="206" r="6" fill="transparent" class="chart-dot" data-title="Age 35" data-value="S$160K" style="cursor:pointer"/>
+            <circle cx="60" cy="206" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="300" cy="162" r="6" fill="transparent" class="chart-dot" data-title="Age 45" data-value="S$452K" style="cursor:pointer"/>
+            <circle cx="300" cy="162" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="540" cy="104" r="6" fill="transparent" class="chart-dot" data-title="Age 55" data-value="S$698K" style="cursor:pointer"/>
+            <circle cx="540" cy="104" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="780" cy="68" r="6" fill="transparent" class="chart-dot" data-title="Age 65" data-value="S$813K" style="cursor:pointer"/>
+            <circle cx="780" cy="68" r="4" fill="var(--success)" pointer-events="none"/>
+            <circle cx="780" cy="138" r="6" fill="transparent" class="chart-dot" data-title="CPF at 65" data-value="S$348K" style="cursor:pointer"/>
+            <circle cx="780" cy="138" r="3.5" fill="var(--purple)" pointer-events="none"/>
+            <!-- Legend -->
+            <circle cx="480" cy="18" r="4" fill="var(--success)"/>
+            <text x="490" y="22" font-size="9" fill="var(--text-dim)" font-family="DM Sans">Total projected</text>
+            <circle cx="600" cy="18" r="4" fill="var(--purple)"/>
+            <text x="610" y="22" font-size="9" fill="var(--text-dim)" font-family="DM Sans">CPF component</text>
+          </svg>
+        </div>
+        <div class="chart-tooltip" id="retire-tooltip"></div>
+      </div>
+
+      <div class="controls-grid">
+        <div class="control-card layer-2">
+          <div class="control-label">Monthly Investment</div>
+          <div class="control-val" id="monthly-inv-val">S$1,500</div>
+          <input type="range" class="control-slider" min="0" max="5000" value="1500" step="100" oninput="document.getElementById('monthly-inv-val').textContent='S$'+Number(this.value).toLocaleString()">
+        </div>
+        <div class="control-card layer-2">
+          <div class="control-label">Expected Return</div>
+          <div class="control-val" id="return-val">6.0%</div>
+          <input type="range" class="control-slider" min="2" max="12" value="6" step="0.5" oninput="document.getElementById('return-val').textContent=this.value+'%'">
+        </div>
+        <div class="control-card layer-2">
+          <div class="control-label">Retirement Age</div>
+          <div class="control-val" id="retire-age-val">65</div>
+          <input type="range" class="control-slider" min="55" max="75" value="65" step="1" oninput="document.getElementById('retire-age-val').textContent=this.value">
+        </div>
+        <div class="control-card layer-2">
+          <div class="control-label">Desired Monthly Income</div>
+          <div class="control-val" id="income-val">S$4,000</div>
+          <input type="range" class="control-slider" min="2000" max="10000" value="4000" step="500" oninput="document.getElementById('income-val').textContent='S$'+Number(this.value).toLocaleString()">
+        </div>
+      </div>
+
+      <div class="income-bar-wrap layer-1">
+        <div class="income-bar">
+          <div class="income-bar-label">CPF Life</div>
+          <div class="income-bar-track"><div class="income-bar-fill" style="width:42%;background:var(--purple)"></div></div>
+          <div class="income-bar-val" style="color:var(--purple)">S$1,680</div>
+        </div>
+        <div class="income-bar">
+          <div class="income-bar-label">Investment Income</div>
+          <div class="income-bar-track"><div class="income-bar-fill" style="width:38%;background:var(--success)"></div></div>
+          <div class="income-bar-val" style="color:var(--success)">S$1,520</div>
+        </div>
+        <div class="income-bar">
+          <div class="income-bar-label">Shortfall</div>
+          <div class="income-bar-track"><div class="income-bar-fill" style="width:20%;background:var(--warning)"></div></div>
+          <div class="income-bar-val" style="color:var(--warning)">S$800</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSURANCE -->
+    <div id="view-insurance" class="view">
+      <div class="score-ring-wrap layer-3">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
+          <circle cx="55" cy="55" r="46" fill="none" stroke="var(--gold)" stroke-width="7" stroke-dasharray="196 93" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:center;"/>
+          <text x="55" y="52" text-anchor="middle" font-family="Playfair Display" font-size="28" font-weight="800" fill="var(--text)">68</text>
+          <text x="55" y="68" text-anchor="middle" font-size="8" fill="var(--text-muted)" font-family="DM Sans" letter-spacing="0.12em">/ 100</text>
+        </svg>
+        <div class="score-detail">
+          <h3>Protection Score: <span style="color:var(--gold)">Moderate</span></h3>
+          <p>Death and TPD coverage is adequate. Critical illness has a S$150K gap. Hospitalisation needs upgrading to private ward. No long-term care coverage detected.</p>
+        </div>
+      </div>
+
+      <div class="layer-2" style="overflow:hidden;margin-bottom:24px;">
+        <table class="coverage-table">
+          <thead>
+            <tr><th>Benefit Type</th><th>Current Coverage</th><th>Recommended</th><th>Gap</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Death</td><td style="font-weight:600">S$500,000</td><td style="color:var(--text-dim)">S$480,000</td><td style="color:var(--success);font-weight:600">+S$20K</td><td><span class="status-badge status-adequate">Adequate</span></td></tr>
+            <tr><td>TPD</td><td style="font-weight:600">S$400,000</td><td style="color:var(--text-dim)">S$380,000</td><td style="color:var(--success);font-weight:600">+S$20K</td><td><span class="status-badge status-adequate">Adequate</span></td></tr>
+            <tr><td>Critical Illness</td><td style="font-weight:600">S$150,000</td><td style="color:var(--text-dim)">S$300,000</td><td style="color:var(--warning);font-weight:600">-S$150K</td><td><span class="status-badge status-gap">Gap</span></td></tr>
+            <tr><td>Hospitalisation</td><td style="font-weight:600">Ward B1</td><td style="color:var(--text-dim)">Private</td><td style="color:var(--warning);font-weight:600">Upgrade</td><td><span class="status-badge status-gap">Gap</span></td></tr>
+            <tr><td>Long-Term Care</td><td style="font-weight:600">CareShield Only</td><td style="color:var(--text-dim)">S$3,000/mo</td><td style="color:var(--danger);font-weight:600">-S$2,338/mo</td><td><span class="status-badge status-critical">Critical</span></td></tr>
+            <tr><td>Personal Accident</td><td style="font-weight:600">S$200,000</td><td style="color:var(--text-dim)">S$200,000</td><td style="color:var(--success);font-weight:600">--</td><td><span class="status-badge status-adequate">Adequate</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-cards">
+        <div class="policy-card layer-2">
+          <div class="policy-name">AIA Secure Flexi Term</div>
+          <div class="policy-insurer">AIA Singapore</div>
+          <div class="policy-row"><span class="policy-row-label">Type</span><span class="policy-row-val">Death + TPD</span></div>
+          <div class="policy-row"><span class="policy-row-label">Coverage</span><span class="policy-row-val" style="color:var(--success)">S$500,000</span></div>
+          <div class="policy-row"><span class="policy-row-label">Premium</span><span class="policy-row-val">S$1,440/yr</span></div>
+          <div class="policy-row"><span class="policy-row-label">Expiry</span><span class="policy-row-val">Age 65</span></div>
+        </div>
+        <div class="policy-card layer-2">
+          <div class="policy-name">PRUShield Premier</div>
+          <div class="policy-insurer">Prudential</div>
+          <div class="policy-row"><span class="policy-row-label">Type</span><span class="policy-row-val">Hospitalisation</span></div>
+          <div class="policy-row"><span class="policy-row-label">Ward</span><span class="policy-row-val" style="color:var(--warning)">B1</span></div>
+          <div class="policy-row"><span class="policy-row-label">Premium</span><span class="policy-row-val">S$680/yr</span></div>
+          <div class="policy-row"><span class="policy-row-label">Status</span><span class="policy-row-val">Active</span></div>
+        </div>
+        <div class="policy-card layer-2">
+          <div class="policy-name">Great Eastern Supreme CI</div>
+          <div class="policy-insurer">Great Eastern</div>
+          <div class="policy-row"><span class="policy-row-label">Type</span><span class="policy-row-val">Critical Illness</span></div>
+          <div class="policy-row"><span class="policy-row-label">Coverage</span><span class="policy-row-val" style="color:var(--warning)">S$150,000</span></div>
+          <div class="policy-row"><span class="policy-row-label">Premium</span><span class="policy-row-val">S$2,160/yr</span></div>
+          <div class="policy-row"><span class="policy-row-label">Multi-pay</span><span class="policy-row-val" style="color:var(--success)">Yes (3x)</span></div>
+        </div>
+        <div class="policy-card layer-2">
+          <div class="policy-name">NTUC Income PA Secure</div>
+          <div class="policy-insurer">Income Insurance</div>
+          <div class="policy-row"><span class="policy-row-label">Type</span><span class="policy-row-val">Personal Accident</span></div>
+          <div class="policy-row"><span class="policy-row-label">Coverage</span><span class="policy-row-val" style="color:var(--success)">S$200,000</span></div>
+          <div class="policy-row"><span class="policy-row-label">Premium</span><span class="policy-row-val">S$320/yr</span></div>
+          <div class="policy-row"><span class="policy-row-label">Status</span><span class="policy-row-val">Active</span></div>
+        </div>
+      </div>
+
+      <button class="add-btn" onclick="alert('PDF upload would open here')">+ Scan Policy PDF</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // View Switching
+  function switchView(id) {
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+    document.getElementById('view-' + id).classList.add('active');
+
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t) {
+      if (t.getAttribute('data-view') === id) t.classList.add('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var map = { dashboard: 'Dashboard', stress: 'Stress Test', retirement: 'Retirement Planning', insurance: 'Insurance Benefits' };
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+      if (n.textContent.trim() === map[id]) n.classList.add('active');
+    });
+  }
+
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.addEventListener('click', function() { switchView(this.getAttribute('data-view')); });
+  });
+
+  // Scenario Switching
+  var scenarios = {
+    retrench: { years: 14, desc: "Insurance extends your family's financial runway by 14 years if you lose your job at age 35.", without: 'Age 45', with: 'Age 59', cost: 'S$285/mo' },
+    ci: { years: 18, desc: 'If diagnosed with a critical illness at age 40, your multi-pay CI policy keeps you covered for 18 additional years.', without: 'Age 47', with: 'Age 65', cost: 'S$180/mo' },
+    disability: { years: 22, desc: 'Total permanent disability at age 38 -- your TPD payout and CareShield sustain your family for 22 extra years.', without: 'Age 44', with: 'Age 66', cost: 'S$225/mo' },
+    death: { years: 25, desc: 'In a worst-case scenario, your death benefit provides your family with 25 years of financial security.', without: 'Age 42', with: 'Age 67', cost: 'S$120/mo' }
+  };
+
+  function selectScenario(el, key) {
+    document.querySelectorAll('.scenario-pill').forEach(function(p) { p.classList.remove('active'); });
+    el.classList.add('active');
+    var s = scenarios[key];
+    document.getElementById('stress-years').textContent = s.years;
+    document.getElementById('stress-years').insertAdjacentHTML('beforeend', '<span class="highlight-unit">years</span>');
+    document.getElementById('stress-desc').textContent = s.desc;
+    document.getElementById('stress-without').textContent = s.without;
+    document.getElementById('stress-with').textContent = s.with;
+    document.getElementById('stress-cost').textContent = s.cost;
+  }
+
+  // Chart Tooltips
+  function initTooltips(chartId, tooltipId) {
+    var chart = document.getElementById(chartId);
+    var tooltip = document.getElementById(tooltipId);
+    if (!chart || !tooltip) return;
+
+    var dots = chart.querySelectorAll('.chart-dot');
+    var panel = chart.closest('.chart-panel');
+
+    dots.forEach(function(dot) {
+      dot.addEventListener('mouseenter', function(e) {
+        var title = this.getAttribute('data-title');
+        var value = this.getAttribute('data-value');
+        tooltip.textContent = '';
+        var sp1 = document.createElement('span');
+        sp1.className = 'tt-title';
+        sp1.textContent = title + ': ';
+        var sp2 = document.createElement('span');
+        sp2.className = 'tt-val';
+        sp2.textContent = value;
+        tooltip.appendChild(sp1);
+        tooltip.appendChild(sp2);
+        tooltip.classList.add('visible');
+
+        var rect = panel.getBoundingClientRect();
+        var dotRect = this.getBoundingClientRect();
+        tooltip.style.left = (dotRect.left - rect.left + dotRect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+        tooltip.style.top = (dotRect.top - rect.top - 40) + 'px';
+      });
+
+      dot.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+      });
+    });
+  }
+
+  initTooltips('dash-chart', 'dash-tooltip');
+  initTooltips('stress-chart', 'stress-tooltip');
+  initTooltips('retire-chart', 'retire-tooltip');
+</script>
+</body>
+</html>
